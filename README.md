@@ -1,6 +1,6 @@
 # 🧠 "WebMind"  Your Personal AI Memory Assistant
 
-WebMind is a full-stack AI memory system that helps you remember, manage, and retrieve knowledge from your documents, notes, tweets, and websites. Powered by OpenAI/Gemini and Pinecone, WebMind turns your saved content into searchable memory — ask questions and get smart answers.
+WebMind is a full-stack AI memory system that helps you remember, manage, and retrieve knowledge from your documents, notes, tweets, and websites. Powered by OpenAI/Gemini and Pinecone, WebMind turns your saved content into searchable memory ask questions and get smart answers.
 
 ## ✨ Features
 
@@ -46,7 +46,7 @@ git clone https://github.com/saeedsaiyed01/WebMind.git
 cd webmind
 ```
 
-Install dependencies:
+2. Install dependencies:
 ```
 npm install
 # or
@@ -54,7 +54,7 @@ yarn install
 # or
 pnpm install
 ```
-Run the development server:
+3. Run the development server:
 ```
 npm run dev
 # or
