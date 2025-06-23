@@ -1,103 +1,70 @@
-🧠 WebMind — Your Personal AI Memory Assistant
-WebMind is a full-stack AI memory system that helps you remember, manage, and retrieve knowledge from your documents, notes, tweets, and websites.
-Powered by OpenAI/Gemini and Pinecone, WebMind transforms your saved content into searchable memory — just ask questions and get smart, context-aware answers.
+# 🧠 WebMind — Your Personal AI Memory Assistant
 
-✨ Features
-🔐 JWT Authentication – Secure sign-up and login system
+WebMind is a full-stack AI memory system that helps you remember, manage, and retrieve knowledge from your documents, notes, tweets, and websites. Powered by OpenAI/Gemini and Pinecone, WebMind turns your saved content into searchable memory — ask questions and get smart answers.
 
-📝 Notes – Save personal thoughts, ideas, and to-do lists
+## ✨ Features
 
-🐦 Tweet Saver – Extract tweet content via URL
+- 🔐 **JWT Auth** – Secure sign up and login system  
+- 📝 **Notes** – Save personal thoughts, ideas, and lists  
+- 🐦 **Tweets** – Extract tweet content via URL  
+- 📄 **PDF Upload** – Upload and extract text from documents  
+- 🌐 **Website Saving** – Save and process web content  
+- 💬 **AI Chat** – Ask questions based on saved memories  
+- 🔎 **Pinecone Search** – Semantic vector-based search  
+- 🧾 **User Dashboard** – Retrieve and manage your content  
+- ☁️ **MongoDB Storage** – Robust backend with Mongoose
 
-📄 PDF Upload – Upload and extract text from documents
+---
 
-🌐 Website Capture – Save and summarize web content
+## 🧱 Tech Stack
 
-💬 AI Chat – Ask questions based on your saved content
+- **Backend:** Node.js, Express.js, JWT, Multer  
+- **Database:** MongoDB Atlas + Mongoose  
+- **Vector DB:** Pinecone  
+- **AI Engine:** OpenAI/Gemini
+- **PDF Parsing:** `pdf-parse`  
+- **Auth:** JSON Web Tokens (JWT)
+  
+---
+## 🚀 Getting Started
 
-🔎 Semantic Search – Powered by Pinecone vector DB
+### ✅ Prerequisites
 
-🧾 User Dashboard – Manage and retrieve saved knowledge
+- Node.js v18+
+- MongoDB Atlas account
+- Pinecone account
+- OpenAI API Key
 
-☁️ MongoDB Storage – Robust database via Mongoose
+---
 
-🧱 Tech Stack
-Backend:
+### 📦 Installation
 
-Node.js
-
-Express.js
-
-Multer (for file uploads)
-
-JWT (JSON Web Tokens for authentication)
-
-Database:
-
-MongoDB Atlas
-
-Mongoose (ODM)
-
-Vector DB:
-
-Pinecone
-
-AI Engine:
-
-OpenAI
-
-Gemini (Google)
-
-PDF Parsing:
-
-pdf-parse
-
-🚀 Getting Started
-✅ Prerequisites
-Node.js v18 or higher
-
-MongoDB Atlas account
-
-Pinecone account
-
-OpenAI or Gemini API Key
-
-📦 Installation
 1. Clone the repository:
-bash
-Copy
-Edit
+
+```bash
 git clone https://github.com/saeedsaiyed01/WebMind.git
-cd WebMind
-2. Create a .env file in the root directory:
-ini
-Copy
-Edit
-MONGODB_URI=your_mongo_connection_string  
-OPENAI_API_KEY=your_openai_api_key  
-PINECONE_API_KEY=your_pinecone_api_key  
-PINECONE_ENVIRONMENT=your_pinecone_environment  
-PINECONE_INDEX_NAME=your_pinecone_index  
-JWT_PASSWORD=your_jwt_secret  
-3. Install dependencies:
-bash
-Copy
-Edit
+cd webmind
+```
+
+Install dependencies:
+```
 npm install
 # or
 yarn install
 # or
 pnpm install
-4. Run the development server:
-bash
-Copy
-Edit
+```
+Run the development server:
+```
 npm run dev
 # or
 yarn dev
 # or
 pnpm dev
-🔗 Twitter
-Follow updates: @Saeedtwt
+```
+##Built By
+## Twitter:[@SaeedTwt](https://x.com/saeedsaiyedtwt)
 
-🧠 Stay smart. Stay organized.
+## 🧠 Stay smart. Stay organized.
+
+
