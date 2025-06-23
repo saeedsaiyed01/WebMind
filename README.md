@@ -2,7 +2,7 @@
 
 WebMind is a full-stack AI memory system that helps you remember, manage, and retrieve knowledge from your documents, notes, tweets, and websites. Powered by OpenAI/Gemini and Pinecone, WebMind turns your saved content into searchable memory — ask questions and get smart answers.
 
-# ✨ Features
+## ✨ Features
 🔐 JWT Auth – Secure sign up and login system
 📝 Notes – Save personal thoughts, ideas, and lists
 🐦 Tweets – Extract tweet content via URL
@@ -14,7 +14,7 @@ WebMind is a full-stack AI memory system that helps you remember, manage, and re
 ☁️ MongoDB Storage – Robust backend with Mongoose
 
 
-# 🧱 Tech Stack
+## 🧱 Tech Stack
 Backend: Node.js, Express.js, JWT, Multer
 Database: MongoDB Atlas + Mongoose
 Vector DB: Pinecone
@@ -22,15 +22,15 @@ AI Engine: OpenAI/Gemini
 PDF Parsing: pdf-parse
 Auth: JSON Web Tokens (JWT)
 
-# 🚀 Getting Started
+## 🚀 Getting Started
 
-# ✅ Prerequisites
+## ✅ Prerequisites
 Node.js v18+
 MongoDB Atlas account
 Pinecone account
 OpenAI/Gemini API Key
 
-# 📦 Installation
+## 📦 Installation
 
 Clone the repository:
 ```
@@ -65,5 +65,5 @@ yarn dev
 # or
 pnpm dev
 ```
-# Twitter: @Saeedtwt
-# 🧠 Stay smart. Stay organized.
+## Twitter: @Saeedtwt
+## 🧠 Stay smart. Stay organized.
