@@ -1,4 +1,4 @@
-# 🧠 WebMind — Your Personal AI Memory Assistant
+# 🧠 "WebMind"  Your Personal AI Memory Assistant
 
 WebMind is a full-stack AI memory system that helps you remember, manage, and retrieve knowledge from your documents, notes, tweets, and websites. Powered by OpenAI/Gemini and Pinecone, WebMind turns your saved content into searchable memory — ask questions and get smart answers.
 
