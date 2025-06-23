@@ -62,9 +62,9 @@ yarn dev
 # or
 pnpm dev
 ```
-# Built By
-# Twitter:[@SaeedTwt](https://x.com/saeedsaiyedtwt)
+## Built By
+## Twitter:[@SaeedTwt](https://x.com/saeedsaiyedtwt)
 
-# 🧠 Stay smart. Stay organized.
+## 🧠 Stay smart. Stay organized.
 
 
