@@ -12,7 +12,6 @@ import path from "path";
 import PdfParser from "pdf2json";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
-
 import { userMiddleware } from "./authMiddleware.js";
 import { JWT_PASSWORD } from "./config.js";
 import { ContentModel, UserModel } from "./db.js";
