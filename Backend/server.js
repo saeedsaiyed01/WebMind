@@ -46,7 +46,7 @@ app.use(morgan("combined"));
 const allowedOrigins = [
   'http://localhost:5173',
   'https://web-mind.vercel.app',
-  'https://www.webmind.buzz'
+  'https://www.webmind.buzz'  
 ];
 app.use(cors({
   origin: (origin, callback) => {
@@ -268,15 +268,7 @@ app.post("/api/v1/signup", async (req, res) => {
     res.status(500).json({ message: "Failed to sign up", error: error.message });
   }
 });
-curl -X POST https://api.two.ai/v2/chat/completions \
--H "Authorization: Bearer saeedsaiyed518@gmail.com" \
--H "Content-Type: application/json" \
--d '{
-  "model": "sutra-v2",
-  "messages": [
-    {"role": "user", "content": "Explain how blockchain improves supply chain transparency."}
-  ]
-}'
+
 // Signin
 app.post("/api/v1/signin", async (req, res) => {
   try {
