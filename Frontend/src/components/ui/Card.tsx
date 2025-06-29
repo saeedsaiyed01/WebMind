@@ -80,18 +80,40 @@ export function Card({
     setIsEditing(false);
   };
 
-  const renderDocumentPreview = () => {
-    if (type !== "document" || !link) return null;
-    return (
-      <div className="mt-4 h-48 overflow-hidden rounded">
-        <embed
-          src={link + "#toolbar=0&navpanes=0&scrollbar=0"}
-          type="application/pdf"
-          className="w-full h-full"
+const renderDocumentPreview = () => {
+  if (type !== "document" || !link) return null;
+  return (
+    <div className="mt-4 h-48 rounded overflow-hidden border">
+      <object
+        data={link}
+        type="application/pdf"
+        width="100%"
+        height="100%"
+        aria-label="PDF Preview"
+      >
+        <iframe
+          src={link}
+          width="100%"
+          height="100%"
+          title="PDF Preview Fallback"
         />
-      </div>
-    );
-  };
+        <div className="p-4 text-center">
+          <p className="text-sm text-gray-500">
+            PDF preview not supported.<br/>
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline"
+            >
+              Click here to open/download
+            </a>
+          </p>
+        </div>
+      </object>
+    </div>
+  );
+};
 
   const renderWebsitePreview = () => {
     if (type !== "website" || !link) return null;

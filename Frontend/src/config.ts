@@ -1,2 +1,2 @@
 
-export const BACKEND_URL = "https://web-mind-be.vercel.app"
+export const BACKEND_URL = "http://localhost:3000"
