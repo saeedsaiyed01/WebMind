@@ -2,17 +2,12 @@
 
 import bcrypt from "bcrypt";
 import bodyParser from "body-parser";
-import compression from "compression";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import rateLimit from "express-rate-limit";
 import fs from "fs";
-import helmet from "helmet";
 import jwt from "jsonwebtoken";
-import morgan from "morgan";
 import multer from "multer";
-import fetch from "node-fetch"; // for CAPTCHA verification if needed
 import path from "path";
 import PdfParser from "pdf2json";
 import { v4 as uuidv4 } from "uuid";
@@ -31,22 +26,12 @@ const app = express();
 
 // If behind a proxy/load balancer (e.g., Vercel), so req.ip is correct:
 app.set("trust proxy", true);
-
-// --------- Security & Performance Middlewares ---------
-// Basic security headers
-app.use(helmet());
-
-// Compress responses
-app.use(compression());
-
-// Logging (adjust format or disable in production if verbose)
-app.use(morgan("combined"));
-
+app.use(express.json());
 // CORS setup
 const allowedOrigins = [
   'http://localhost:5173',
   'https://web-mind.vercel.app',
-  'https://www.webmind.buzz'  
+  'https://www.webmind.buzz'
 ];
 app.use(cors({
   origin: (origin, callback) => {
@@ -61,66 +46,10 @@ app.use(cors({
   credentials: true,
 }));
 
+
 // Parse JSON bodies
 app.use(bodyParser.json());
-// If you expect URL-encoded form data elsewhere:
-// app.use(bodyParser.urlencoded({ extended: true }));
 
-// Simple request logger for debugging IPs
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} from IP ${req.ip}`);
-  next();
-});
-
-// --------- In-memory Ban Store with Auto-Unban ---------
-// For production or multi-instance, replace this with Redis or a persistent store.
-const bannedIPs = new Map(); // ip -> banExpiryTimestamp (ms)
-
-// Middleware to check ban status
-app.use((req, res, next) => {
-  const ip = req.ip;
-  const expireAt = bannedIPs.get(ip);
-  if (expireAt) {
-    if (Date.now() < expireAt) {
-      return res.status(403).json({ message: "You are banned due to abuse." });
-    } else {
-      // Ban expired
-      bannedIPs.delete(ip);
-    }
-  }
-  next();
-});
-
-// Utility: Ban an IP for given duration (ms)
-function banIP(ip, durationMs) {
-  const expireAt = Date.now() + durationMs;
-  bannedIPs.set(ip, expireAt);
-  console.warn(`IP ${ip} banned until ${new Date(expireAt).toISOString()}`);
-}
-
-// --------- Rate Limiting Setup ---------
-// You can adjust window and max as needed, or use environment variables.
-const UPLOAD_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const UPLOAD_MAX = 5;                     // max uploads per window
-const BAN_DURATION_MS = 60 * 60 * 1000;   // 1 hour ban on abuse
-
-// Rate limiter for uploads: key by userId if available, else by IP
-const uploadRateLimiter = rateLimit({
-  windowMs: UPLOAD_WINDOW_MS,
-  max: UPLOAD_MAX,
-  keyGenerator: (req) => {
-    // If userMiddleware ran before, req.userId exists
-    return req.userId ? `user:${req.userId}` : `ip:${req.ip}`;
-  },
-  handler: (req, res) => {
-    // On limit reached: ban IP (you may also ban userId if desired)
-    const ip = req.ip;
-    banIP(ip, BAN_DURATION_MS);
-    res.status(429).json({ message: "Too many uploads. You are temporarily banned." });
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
 
 // --------- Multer Configuration (file uploads) ---------
 // Directory for uploads: /tmp/uploads in production, or ./uploads in dev
@@ -154,32 +83,6 @@ const upload = multer({
   limits: { fileSize: MAX_FILE_SIZE },
   fileFilter,
 });
-
-// --------- CAPTCHA Verification (Optional) ---------
-// If you integrate reCAPTCHA or hCaptcha, set RECAPTCHA_SECRET in env.
-// Example for Google reCAPTCHA v2/v3: verify token from client.
-async function verifyCaptcha(token) {
-  if (!process.env.RECAPTCHA_SECRET) {
-    // If no secret provided, skip verification (or treat as failure)
-    console.warn("RECAPTCHA_SECRET not set; skipping CAPTCHA verification.");
-    return true;
-  }
-  try {
-    const secret = process.env.RECAPTCHA_SECRET;
-    const resp = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ secret, response: token })
-    });
-    const data = await resp.json();
-    // For v3, you might check score: data.score >= threshold
-    return data.success === true;
-  } catch (err) {
-    console.error("Error verifying CAPTCHA:", err);
-    // On error, you may choose to reject or allow; here we reject
-    return false;
-  }
-}
 
 // --------- PDF Text Extraction Helper ---------
 async function extractPdfTextWithPdf2json(filePath) {
@@ -228,18 +131,6 @@ const signinSchema = z.object({
 });
 
 // --------- Routes ---------
-
-// Test route
-app.get("/api/v1/test", userMiddleware, (req, res) => {
-  const ip = req.ip;
-  const banExpire = bannedIPs.get(ip);
-  res.json({
-    userId: req.userId,
-    ip,
-    banned: banExpire && Date.now() < banExpire,
-    banExpireAt: banExpire ? new Date(banExpire).toISOString() : null
-  });
-});
 
 // Root
 app.get("/", (req, res) => {
@@ -410,7 +301,7 @@ app.post("/api/v1/memory", userMiddleware, async (req, res) => {
     res.status(201).json({ message: "Memory stored successfully", memory: memoryRecord });
   } catch (error) {
     console.error("Memory route error:", error);
-    res.status(500).json({ error: "Failed to store memory" });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -418,20 +309,10 @@ app.post("/api/v1/memory", userMiddleware, async (req, res) => {
 app.post(
   "/api/v1/upload-document",
   userMiddleware,
-  uploadRateLimiter,
   upload.single("file"),
   async (req, res) => {
     try {
-      // Optional: CAPTCHA token in body
-      const { title, captchaToken } = req.body;
-      if (captchaToken) {
-        const captchaValid = await verifyCaptcha(captchaToken);
-        if (!captchaValid) {
-          // Optionally ban or just reject
-          console.warn(`CAPTCHA failed from IP ${req.ip}, user ${req.userId}`);
-          return res.status(400).json({ message: "CAPTCHA validation failed" });
-        }
-      }
+
       if (!req.file) {
         return res.status(400).json({ error: "No file provided" });
       }
