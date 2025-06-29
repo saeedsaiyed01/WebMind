@@ -1,8 +1,10 @@
 import { Check, Edit, ExternalLink, FileText, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import PdfIcon from "../../icons/pdf";
 import { Xicon } from "../../icons/Xlogo";
 import { deleteContent, updateContent } from "../../services/userServices";
 import { AddContentCard } from "./AddContentCard";
+
 
 interface CardProps {
   id?: string;
@@ -54,7 +56,7 @@ export function Card({
   // Tweet embed script loader
   useEffect(() => {
     if (type === "tweet" && originalLink) {
-      if ((window as any).twttr?.widgets?.load) {
+      if ((window as any).twtr?.widgets?.load) {
         (window as any).twttr.widgets.load();
       } else {
         const script = document.createElement("script");
@@ -79,19 +81,20 @@ export function Card({
     onTitleChange?.(editedTitle);
     setIsEditing(false);
   };
+const renderDocumentPreview = () => {
+  if (type !== "document" || !link) return null;
 
-  const renderDocumentPreview = () => {
-    if (type !== "document" || !link) return null;
-    return (
-      <div className="mt-4 h-48 overflow-hidden rounded">
-        <embed
-          src={`${link}#toolbar=0&naans=0&scrollbar=0`}
-          type="application/pdf"
-          className="w-full h-full"
-        />
+  return (
+    <div className="mt-4 h-48 flex items-center justify-center bg-gray-100 rounded border">
+      <div className="text-center h-20">
+        <PdfIcon/>
+        <p className="mt-2 text-sm text-gray-600">PDF Document</p>
       </div>
-    );
-  };
+    </div>
+  );
+};
+
+
 
   const renderWebsitePreview = () => {
     if (type !== "website" || !link) return null;
