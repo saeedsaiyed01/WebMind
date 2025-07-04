@@ -159,22 +159,41 @@ app.post("/api/v1/signup", async (req, res) => {
   }
 });
 
-// Signin
+// // Signin
+// app.post("/api/v1/signin", async (req, res) => {
+//   try {
+//     const parseResult = signinSchema.safeParse(req.body);
+//     if (!parseResult.success) {
+//       return res.status(400).json({ message: "Validation error", errors: parseResult.error.flatten() });
+//     }
+//     const { username, password } = parseResult.data;
+//     const existingUser = await UserModel.findOne({ username });
+//     if (!existingUser) {
+//       return res.status(403).json({ message: "Incorrect credentials" });
+//     }
+//     const passwordMatch = await bcrypt.compare(password, existingUser.password);
+//     if (!passwordMatch) {
+//       return res.status(403).json({ message: "Incorrect credentials" });
+//     }
+//     const token = jwt.sign({ id: existingUser._id }, JWT_PASSWORD);
+//     res.json({ token });
+//   } catch (error) {
+//     console.error("Sign in error:", error);
+//     res.status(500).json({ message: "Sign in failed", error: error.message });
+//   }
+// });
+// ✅ Signin route
 app.post("/api/v1/signin", async (req, res) => {
   try {
-    const parseResult = signinSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res.status(400).json({ message: "Validation error", errors: parseResult.error.flatten() });
-    }
-    const { username, password } = parseResult.data;
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ message: "Missing credentials" });
+
     const existingUser = await UserModel.findOne({ username });
-    if (!existingUser) {
-      return res.status(403).json({ message: "Incorrect credentials" });
-    }
+    if (!existingUser) return res.status(403).json({ message: "Incorrect credentials" });
+
     const passwordMatch = await bcrypt.compare(password, existingUser.password);
-    if (!passwordMatch) {
-      return res.status(403).json({ message: "Incorrect credentials" });
-    }
+    if (!passwordMatch) return res.status(403).json({ message: "Incorrect credentials" });
+
     const token = jwt.sign({ id: existingUser._id }, JWT_PASSWORD);
     res.json({ token });
   } catch (error) {
@@ -182,7 +201,6 @@ app.post("/api/v1/signin", async (req, res) => {
     res.status(500).json({ message: "Sign in failed", error: error.message });
   }
 });
-
 // Get current user info
 app.get("/me", userMiddleware, async (req, res) => {
   try {
