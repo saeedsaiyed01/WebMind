@@ -329,7 +329,7 @@ app.post(
   upload.single("file"),
   async (req, res) => {
     try {
-
+      const { title } = req.body;
       if (!req.file) {
         return res.status(400).json({ error: "No file provided" });
       }
