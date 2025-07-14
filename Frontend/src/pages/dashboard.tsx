@@ -8,8 +8,10 @@ import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { CreateContentModal } from "../components/ui/CreateContentModal";
 import Navbar from "../components/ui/NavBar";
+import { CardSkeleton } from "../components/ui/skelenton";
 import { useContent } from "../hooks/useContent";
 import Ailogo from "../icons/Ailogo";
+
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 type ContentType = "note" | "tweet" | "document" | "website";
 
@@ -26,7 +28,8 @@ export function Dashboard() {
   const [addContentModalOpen, setAddContentModalOpen] = useState(false);
   const [aiChatModalOpen, setAiChatModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { contents, refresh } = useContent();
+ const { contents, refresh, loading } = useContent(); // ✅ updated
+  
 
   useEffect(() => {
     refresh();
@@ -149,27 +152,32 @@ export function Dashboard() {
           onContentAdded={refresh}
         />
 
-        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-4">
-          {/* Add Content Card */}
-          <div className="break-inside-avoid">
-            <AddContentCard onClick={() => setAddContentModalOpen(true)} />
-          </div>
+     <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-4">
+  <div className="break-inside-avoid">
+    <AddContentCard onClick={() => setAddContentModalOpen(true)} />
+  </div>
 
-          {/* Render Existing Content Cards */}
-          {(searchQuery ? filteredContents : contents).map((item: ContentItem) => (
-            <Card
-              id={item._id}
-              key={item._id}
-              type={item.type}
-              title={item.title}
-              link={item.type === "note" ? "" : item.link}
-              originalLink={item.type === "tweet" ? item.originalLink : ""}
-              notes={item.type === "note" ? item.link : ""}
-              onTitleChange={(newTitle) => handleTitleChange(item._id, newTitle)}
-              onDelete={() => handleDelete(item._id)}
-            />
-          ))}
-        </div>
+  {loading ? (
+    // Show 6 skeletons while loading
+    Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)
+  ) : (
+    (searchQuery ? filteredContents : contents).map((item: ContentItem) => (
+      <Card
+        id={item._id}
+        key={item._id}
+        type={item.type}
+        title={item.title}
+        link={item.type === "note" ? "" : item.link}
+        originalLink={item.type === "tweet" ? item.originalLink : ""}
+        notes={item.type === "note" ? item.link : ""}
+        onTitleChange={(newTitle) => handleTitleChange(item._id, newTitle)}
+        onDelete={() => handleDelete(item._id)}
+      />
+    ))
+  )}
+</div>
+
+        
       </div>
     </div>
   );

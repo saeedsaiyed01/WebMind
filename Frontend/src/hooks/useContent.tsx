@@ -17,9 +17,11 @@ export interface ContentItem {
 
 export function useContent() {
   const [contents, setContents] = useState<ContentItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true); // ✅ NEW
 
   const fetchContent = useCallback(async () => {
     try {
+      setLoading(true); // ✅ start loading
       const response = await axios.get(`${BACKEND_URL}/content`, {
         headers: {
           Authorization: localStorage.getItem("token") || "",
@@ -28,6 +30,8 @@ export function useContent() {
       setContents(response.data.content);
     } catch (error) {
       console.error("Failed to fetch content:", error);
+    } finally {
+      setLoading(false); // ✅ done loading
     }
   }, []);
 
@@ -38,5 +42,6 @@ export function useContent() {
   return {
     contents,
     refresh: fetchContent,
+    loading, // ✅ export
   };
 }

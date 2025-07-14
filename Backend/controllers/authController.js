@@ -64,7 +64,7 @@ export async function signin(req, res) {
 // Get current user info
 export async function getMe(req, res) {
   try {
-    const user = await UserModel.findById(req.userId).select("_id username,email");
+    const user = await UserModel.findById(req.userId).select("_id username email");
     if (!user) return res.status(404).json({ error: "User not found" });
     res.json(user);
   } catch (error) {
