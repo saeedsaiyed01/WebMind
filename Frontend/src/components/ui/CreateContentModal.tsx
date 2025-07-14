@@ -3,9 +3,11 @@
 import { Check, FileText, Globe, Link2, Loader2, StickyNote, Twitter, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { BACKEND_URL } from "../../config";
+
 import { Button } from "./Button";
 import { InputBox } from "./InputBox";
+
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   enum ContentType {
     Tweet = "tweet",
     Note = "note",
@@ -119,7 +121,7 @@ import { InputBox } from "./InputBox";
           const formData = new FormData();
           formData.append("file", selectedFile!);
           formData.append("title", title);
-          await axios.post(`${BACKEND_URL}/api/v1/upload-document`, formData, {
+          await axios.post(`${BACKEND_URL}/upload-document`, formData, {
             headers: {
               "Content-Type": "multipart/form-data",
               Authorization: localStorage.getItem("token") || "",
@@ -137,7 +139,7 @@ import { InputBox } from "./InputBox";
           } else {
             payload.url = linkRef.current?.value || "";
           }
-          await axios.post(`${BACKEND_URL}/api/v1/memory`, payload, {
+          await axios.post(`${BACKEND_URL}/memory`, payload, {
             headers: {
               Authorization: localStorage.getItem("token") || "",
             },

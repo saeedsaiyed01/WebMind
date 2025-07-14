@@ -1,6 +1,8 @@
   // userServices.ts
   import axios from "axios";
-import { BACKEND_URL } from "../config";
+
+
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   export async function onSendMessage(message: string): Promise<string> {
     // 1. Get the token from localStorage (or wherever you store it)
@@ -8,7 +10,7 @@ import { BACKEND_URL } from "../config";
 
     // 2. Pass it in the "Authorization" header
     const response = await axios.post(
-      `${BACKEND_URL}/api/v1/chat`,
+      `${BACKEND_URL}/chat`,
       { message },
       {
         headers: {
@@ -31,7 +33,7 @@ import { BACKEND_URL } from "../config";
     const token = localStorage.getItem("token") || "";
 
     const response = await axios.put(
-      `${BACKEND_URL}/api/v1/content`,
+      `${BACKEND_URL}/content`,
       {
         contentId,
         newTitle,
@@ -49,10 +51,10 @@ import { BACKEND_URL } from "../config";
   }
 
   // 🔹 Delete content
-  export async function deleteContent(contentId: string): Promise<any> {
+  export  async function deleteContent(contentId: string): Promise<any> {
     const token = localStorage.getItem("token") || "";
 
-    const response = await axios.delete(`${BACKEND_URL}/api/v1/content`, {
+    const response = await axios.delete(`${BACKEND_URL}/content`, {
       headers: {
         Authorization: `${token}`,
         "Content-Type": "application/json",

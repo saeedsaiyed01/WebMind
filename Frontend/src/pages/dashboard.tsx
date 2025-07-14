@@ -8,11 +8,9 @@ import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { CreateContentModal } from "../components/ui/CreateContentModal";
 import Navbar from "../components/ui/NavBar";
-import { BACKEND_URL } from "../config";
 import { useContent } from "../hooks/useContent";
 import Ailogo from "../icons/Ailogo";
-
-
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 type ContentType = "note" | "tweet" | "document" | "website";
 
 interface ContentItem {
@@ -67,7 +65,7 @@ export function Dashboard() {
     try {
       const token = localStorage.getItem("token") || "";
       await axios.put(
-        `${BACKEND_URL}/api/v1/content`,
+        `${BACKEND_URL}/content`,
         { contentId: id, newTitle, newContent: "" },
         {
           headers: {
@@ -89,7 +87,7 @@ export function Dashboard() {
   async function handleDelete(id: string) {
     const token = localStorage.getItem("token") || "";
     try {
-      await axios.delete(`${BACKEND_URL}/api/v1/content`, {
+      await axios.delete(`${BACKEND_URL}/content`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: token,

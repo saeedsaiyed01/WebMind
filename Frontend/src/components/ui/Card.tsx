@@ -2,7 +2,7 @@ import { Check, Edit, ExternalLink, FileText, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import PdfIcon from "../../icons/pdf";
 import { Xicon } from "../../icons/Xlogo";
-import { deleteContent, updateContent } from "../../services/userServices";
+import { updateContent } from "../../services/userServices";
 import { AddContentCard } from "./AddContentCard";
 
 
@@ -67,13 +67,10 @@ export function Card({
     }
   }, [type, originalLink]);
 
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (id && onDelete) {
-      await deleteContent(id);
-      onDelete();
-    }
-  };
+ const handleDelete = (e: React.MouseEvent) => {
+   e.stopPropagation();
+   onDelete?.();    // only trigger parent callback
+ };
 
   const saveEdits = async () => {
     if (!id) return;

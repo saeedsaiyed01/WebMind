@@ -1,5 +1,5 @@
 import { jwtVerify } from "jose";
-import { JWT_PASSWORD } from "./config.js";
+import { JWT_PASSWORD } from "../config.js";
 
 export async function userMiddleware(req, res, next) {
   const header = req.headers["authorization"];

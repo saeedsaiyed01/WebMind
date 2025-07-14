@@ -1,7 +1,8 @@
 // useContent.ts
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
-import { BACKEND_URL } from "../config";
+
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 type ContentType = "note" | "tweet" | "document" | "website";
 
@@ -19,7 +20,7 @@ export function useContent() {
 
   const fetchContent = useCallback(async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/v1/content`, {
+      const response = await axios.get(`${BACKEND_URL}/content`, {
         headers: {
           Authorization: localStorage.getItem("token") || "",
         },

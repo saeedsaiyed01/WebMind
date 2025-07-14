@@ -1,11 +1,12 @@
 // authService.ts (or .js)
 import axios from "axios";
-import { BACKEND_URL } from "../config";
+
 // or your actual backend
 
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 export async function signUp(username: string, password: string) {
   // POST to /api/v1/signup
-  const response = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
+  const response = await axios.post(`${BACKEND_URL}/auth/signup`, {
     username,
     password
   });
@@ -16,7 +17,7 @@ export async function signUp(username: string, password: string) {
 }
 
 export async function signIn(username: string, password: string) {
-  const response = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+  const response = await axios.post(`${BACKEND_URL}/auth/signin`, {
     username,
     password
   });
