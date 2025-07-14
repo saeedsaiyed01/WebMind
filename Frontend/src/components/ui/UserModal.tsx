@@ -35,6 +35,9 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const getUserData = async () => {
       const userDetails = await UserDetails();
+      if (!userDetails || !userDetails.username || !userDetails.email) {
+        throw new Error("Invalid user details");
+      }
       setUsername(userDetails.username);
       setEmail(userDetails.email);
       setIsLoading(false);

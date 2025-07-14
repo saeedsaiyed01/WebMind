@@ -17,7 +17,7 @@ const signinSchema = z.object({
 });
 
 // Signup
-export async function signup  (req, res)  {
+export async function signup(req, res) {
   try {
     const parseResult = signupSchema.safeParse(req.body);
     if (!parseResult.success) {
@@ -41,7 +41,7 @@ export async function signup  (req, res)  {
 
 
 // Signin route
-export async function signin(req, res)  {
+export async function signin(req, res) {
   try {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ message: "Missing credentials" });
@@ -62,9 +62,9 @@ export async function signin(req, res)  {
 
 
 // Get current user info
-export async function getMe (req, res)  {
+export async function getMe(req, res) {
   try {
-    const user = await UserModel.findById(req.userId).select("_id username");
+    const user = await UserModel.findById(req.userId).select("_id username,email");
     if (!user) return res.status(404).json({ error: "User not found" });
     res.json(user);
   } catch (error) {
