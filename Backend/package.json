@@ -18,6 +18,7 @@
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
+    "cloudinary": "^2.7.0",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -35,6 +36,7 @@
     "pdf2json": "^3.1.5",
     "pdfjs-dist": "^5.1.91",
     "pinecone-client": "^2.0.0",
+    "streamifier": "^0.1.1",
     "twitter-api-v2": "^1.21.1",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
