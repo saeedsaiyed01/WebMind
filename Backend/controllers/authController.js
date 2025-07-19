@@ -43,6 +43,7 @@ export async function signup(req, res) {
 // Signin route
 export async function signin(req, res) {
   try {
+    
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ message: "Missing credentials" });
 

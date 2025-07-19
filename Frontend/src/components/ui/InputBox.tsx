@@ -1,21 +1,22 @@
-// InputBox.tsx
-import React, { useId } from "react"; // Import useId for automatic ID generation
+import React, { useId } from "react";
 
 interface InputProps {
-  label?: string; // Optional label text
+  label?: string;
   placeholder: string;
-  reference?: React.Ref<HTMLInputElement | HTMLTextAreaElement>; // Accept refs for both types
+  reference?: React.Ref<HTMLInputElement | HTMLTextAreaElement>;
   className?: string;
-  type?: string; // e.g., "text", "url", "email"
+  type?: string;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; // Handle both event types
+  onChange?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   error?: string;
-  id?: string; // Allow providing a specific ID
-  isTextArea?: boolean; // Flag to render a textarea
-  rows?: number; // Number of rows for textarea
-  required?: boolean; // Add required prop
-  disabled?: boolean; // Add disabled prop
-  name?: string; // Add name prop
+  id?: string;
+  isTextArea?: boolean;
+  rows?: number;
+  required?: boolean;
+  disabled?: boolean;
+  name?: string;
 }
 
 export function InputBox({
@@ -29,32 +30,39 @@ export function InputBox({
   error,
   id: providedId,
   isTextArea = false,
-  rows = 4, // Default rows for textarea
+  rows = 4,
   required = false,
   disabled = false,
   name,
 }: InputProps) {
-  // Generate a unique ID if none is provided, useful for label association
   const generatedId = useId();
   const id = providedId || generatedId;
 
-  // Common classes for both input and textarea
-  const commonClasses = `w-full border rounded-md px-4 py-2 bg-gray-900 text-white border-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition duration-200 placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed ${className || ""} ${error ? "border-red-500 focus:ring-red-500" : "border-gray-700"}`;
+  const commonClasses = `
+      w-full px-4 py-2 rounded-md 
+    text-black placeholder-gray-500 
+    bg-white border border-gray-300
+    dark:bg-gray-950 dark:text-white dark:placeholder-gray-400 dark:border-gray-700
+    focus:outline-none focus:ring-2 focus:ring-purple-500
+    ${className || ""} 
+    ${error ? "border-red-500 focus:ring-red-500" : ""}
+  `;
 
   return (
     <div className="w-full">
-      {/* Render label if provided */}
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-gray-400 mb-1">
+        <label
+          htmlFor={id}
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+        >
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
 
-      {/* Conditionally render input or textarea */}
       {isTextArea ? (
         <textarea
           id={id}
-          ref={reference as React.Ref<HTMLTextAreaElement>} // Cast ref type
+          ref={reference as React.Ref<HTMLTextAreaElement>}
           name={name}
           placeholder={placeholder}
           value={value}
@@ -62,12 +70,12 @@ export function InputBox({
           rows={rows}
           required={required}
           disabled={disabled}
-          className={`${commonClasses} resize-vertical`} // Allow vertical resize
+          className={`${commonClasses} resize-vertical`}
         />
       ) : (
         <input
           id={id}
-          ref={reference as React.Ref<HTMLInputElement>} // Cast ref type
+          ref={reference as React.Ref<HTMLInputElement>}
           name={name}
           placeholder={placeholder}
           type={type}
@@ -79,7 +87,6 @@ export function InputBox({
         />
       )}
 
-      {/* Display error message if provided */}
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );

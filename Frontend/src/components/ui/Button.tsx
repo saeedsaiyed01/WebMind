@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import React from "react";
 
 interface ButtonProps {
-  variant: "primary" | "secondary" | "Auth" | "orange";
+  variant: "primary" | "secondary" | "Auth" | "orange" | "purple";
   size: "sm" | "md" | "lg";
   text: string;
   icon?: React.ReactNode;
@@ -22,11 +22,14 @@ const variantStyles = {
     "bg-purple-600 text-white hover:bg-purple-700 focus-visible:ring-purple-500",
 
   secondary:
-    "bg-gray-700 text-gray-300 hover:bg-gray-600 focus-visible:ring-gray-500",
-  Auth: "bg-black text-white hover:bg-gray-800 focus-visible:ring-gray-500",
+    " bg-gray-300 dark:bg-gray-800 text-gray-800  dark:text-gray-300  hover:bg-gray- dark:hover:bg-gray-700  focus-visible:ring-gray-500",
+  Auth: "bg-black text-black hover:bg-gray-800 focus-visible:ring-gray-500",
 
   orange:
     "bg-orange-600 text-white hover:bg-orange-700 focus-visible:ring-orange-500",
+
+  purple:
+    "bg-purple-500 text-white dark:text-black hover:bg-purple-600 focus-visible:ring-purple-500",
 };
 
 const sizeVariant = {

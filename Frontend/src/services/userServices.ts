@@ -4,18 +4,17 @@
 
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-  export async function onSendMessage(message: string): Promise<string> {
-    // 1. Get the token from localStorage (or wherever you store it)
+  export async function onSendMessage(message: string, contentId: string): Promise<string> {
+
     const token = localStorage.getItem("token") || "";
 
-    // 2. Pass it in the "Authorization" header
     const response = await axios.post(
       `${BACKEND_URL}/chat`,
-      { message },
+      { message, contentId }, // include contentId here
       {
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `${token}`  // or just token if server expects that
+          "Authorization": `${token}`
         },
       }
     );
@@ -24,7 +23,7 @@ export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   }
 
 
-  // 🔹 Update content
+  //  Update content
   export async function updateContent(
     contentId: string,
     newTitle: string,
@@ -50,7 +49,7 @@ export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     return response.data;
   }
 
-  // 🔹 Delete content
+  //  Delete content
   export  async function deleteContent(contentId: string): Promise<any> {
     const token = localStorage.getItem("token") || "";
 

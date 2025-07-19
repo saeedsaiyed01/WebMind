@@ -1,14 +1,10 @@
-import {
-  Brain,
-  Database,
-  FileText,
-  Github,
-  MessageSquare,
-  Twitter
-} from 'lucide-react';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-
+import { Twitter, Zap } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import bglanding1 from "../assets/bglanding1.png";
+import { Button } from "../components/ui/Button";
+import { features, LandingPageCard } from "../components/ui/landingpageCards";
+import NewNavbar from "../components/ui/NewNavbar";
 function LandingPage() {
   const navigate = useNavigate();
 
@@ -30,152 +26,95 @@ function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0B] text-white relative overflow-hidden">
-      {/* Background gradient and image */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#FF4500]/20 via-transparent to-transparent animate-pulse pointer-events-none" />
+    <div className="bg-white dark:bg-black min-h-screen text-black dark:text-white">
+      <NewNavbar variant="landing" />
+      {/* Hero Section */}
+      <div className="flex flex-col items-center justify-center m-28 px-4 text-center gap-6  p-0">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-full text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-transparent shadow-purple-500/40">
+          <span className="text-purple-600 dark:text-purple-400">
+            <Zap />
+          </span>
+          <span>AI-Powered Insights</span>
+        </div>
 
-      {/* ✅ Background image via inline style to fix remote URL issue */}
-      <div
-        className="absolute inset-0 opacity-20 bg-cover bg-center mix-blend-overlay pointer-events-none"
-        style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1639322537228-f710d846310a')"
-        }}
-      />
+        <div className="text-6xl text-gray-700 dark:text-gray-50">
+          <span>All Your Digital </span>
+          <br />
+          <span>Memory Unleashed</span>
+        </div>
+        <div className="">
+          <span>
+            WebMind stores every tweet, note, and document, transformingy our
+            content{" "}
+          </span>
+          <br />
+          <span> into a powerful queryable personal knowledge base</span>
+        </div>
 
-      {/* Main Content */}
-      <div className="relative">
-        {/* Navigation */}
-        <nav className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Brain className="h-8 w-8 text-[#FF4500]" />
-            <span className="text-xl font-bold">WebMind</span>
+        <Button
+          size="md"
+          variant="purple"
+          text="Get Started"
+          onClick={() => navigate("/signup")}
+        />
+      </div>
+
+      <div className="mt-16 sm:mt-20">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <div className="rounded-2xl bg-gray-900/5 p-2 shadow-2xl ring-1 ring-gray-900/10 sm:p-3">
+            <img
+              src={bglanding1}
+              alt="Kaizen project management application dashboard"
+              className="w-full rounded-lg"
+            />
           </div>
-          <div className="flex items-center space-x-6">
-            <button
-              onClick={() => navigate("/signin")}
-              className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => navigate("/signup")}
-              className="px-4 py-2 rounded-lg bg-[#FF4500] hover:bg-[#FF4500]/90 transition-all font-semibold"
-            >
-              Sign Up
-            </button>
-          </div>
-        </nav>
-
-        {/* Hero Section */}
-        <main className="container mx-auto px-4 sm:px-6 pt-16 pb-20 md:pt-20 md:pb-32">
-          <div className="max-w-4xl mx-auto text-center">
-          <div
-  className="inline-block px-4 py-2 mb-0 rounded-full text-sm font-medium text-white bg-gradient-to-r from-[#FF4500] to-[#FF7F50] shadow-lg shadow-[#FF4500]/50 hover:scale-105 transition-transform"
->
-  AI-Powered Insights
-</div>
-          <h1
-   className="text-3xl sm:text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-white to-[#FF4500] bg-clip-text text-transparent"
-   style={{ WebkitBackgroundClip: 'text', lineHeight: '1.6' /* or even '1.7', '1.8', '2' */ }} // Added explicit line-height
- >
-   A Digital Workspace for Your
-   <br />
-   Digital Life
- </h1>
-            <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-12 leading-relaxed">
-              WebMind stores your tweets, notes, and documents so you can build and query your own personal knowledge base. Ask questions and discover insights from your content.
-            </p>
-            <button
-              onClick={() => navigate("/signup")}
-              className="px-6 py-3 rounded-lg bg-[#FF4500] hover:bg-[#FF4500]/90 transition-all transform hover:scale-105 font-semibold text-base sm:text-lg shadow-lg shadow-[#FF4500]/20 animate-glow"
-            >
-              Get Started Free
-            </button>
-          </div>
-
-          {/* How It Works Section */}
-          <div id="how-it-works" className="max-w-5xl mx-auto mt-24 md:mt-32 px-4">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-12">
-              <span className="bg-gradient-to-r from-white to-[#FF4500] bg-clip-text text-transparent">
-                How It Works
-              </span>
+        </div>
+      </div>
+      <div className="py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="mx-auto max-w-2xl lg:text-center text-black dark:text-white">
+            <h2 className="text-bas text-3xl   font-semibold leading-7 text-purple-400">
+              How It Works
             </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm flex flex-col items-center text-center h-full">
-                <div className="h-16 w-16 rounded-xl bg-[#FF4500]/20 flex items-center justify-center mb-6">
-                  <FileText className="h-8 w-8 text-[#FF4500]" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Add Your Content</h3>
-                <p className="text-gray-400">
-                  Import tweets, notes, and documents easily to build your digital repository.
-                </p>
-              </div>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-600 dark:text-white sm:text-4xl">
+              From Chaos to Clarity
+            </p>
 
-              <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm flex flex-col items-center text-center h-full">
-                <div className="h-16 w-16 rounded-xl bg-[#FF4500]/20 flex items-center justify-center mb-6">
-                  <MessageSquare className="h-8 w-8 text-[#FF4500]" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Ask Questions</h3>
-                <p className="text-gray-400">
-                  Query your content using natural language and let our AI uncover valuable insights.
-                </p>
-              </div>
-
-              <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm flex flex-col items-center text-center h-full">
-                <div className="h-16 w-16 rounded-xl bg-[#FF4500]/20 flex items-center justify-center mb-6">
-                  <Database className="h-8 w-8 text-[#FF4500]" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Get Knowledge-Based Answers</h3>
-                <p className="text-gray-400">
-                  Your content is organized and analyzed, so you can retrieve precise, knowledge-based answers.
-                </p>
-              </div>
-            </div>
+            <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-400 ">
+              WebMind gives you an intuitive interface to manage, search, and
+              make sense of all your digital knowledge—no clutter, just clean,
+              smart organization.
+            </p>
           </div>
 
-          {/* Features Grid */}
-          <div id="features" className="max-w-6xl mx-auto mt-24 md:mt-32 px-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {["AI-Powered Insights", "Smart Organization", "Seamless Integration"].map((title, i) => (
-                <div key={i} className="p-6 rounded-xl bg-white/5 backdrop-blur-sm h-full">
-                  <div className="h-12 w-12 rounded-lg bg-[#FF4500]/20 flex items-center justify-center mb-4">
-                    <Brain className="h-6 w-6 text-[#FF4500]" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">{title}</h3>
-                  <p className="text-gray-400">
-                    {title === "AI-Powered Insights" && "Harness the power of AI to turn your unstructured data into organized, actionable insights."}
-                    {title === "Smart Organization" && "Automatically categorize and tag your content so your knowledge base is always organized."}
-                    {title === "Seamless Integration" && "Connect effortlessly with your favorite platforms to bring all your knowledge together."}
-                  </p>
-                </div>
+          {/* Grid container for the feature cards */}
+          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none text-gray-800">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {/* We map over the features array and render a Card for each item */}
+              {features.map((feature, index) => (
+                <LandingPageCard
+                  key={index}
+                  icon={feature.icon}
+                  title={feature.title}
+                  description={feature.description}
+                />
               ))}
             </div>
           </div>
-        </main>
-
-        {/* Footer */}
-        <footer className="border-t border-white/10 mt-16">
-          <div className="container mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-500">
-              © 2025 WebMind. All rights reserved.
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={handleTwitter}
-                className="text-gray-400 hover:text-[#FF4500] transition-colors"
-              >
-                <Twitter className="h-5 w-5" />
-              </button>
-              <button
-                onClick={handleGithub}
-                className="text-gray-400 hover:text-[#FF4500] transition-colors"
-              >
-                <Github className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        </footer>
+        </div>
       </div>
+
+      <footer className="mt-2 border-t border-gray-300 dark:border-gray-700 py-6 px-4 flex justify-between items-center text-sm text-gray-500">
+        <span className="pl-4">
+          Designed and Developed by{" "}
+          <span className="text-purple-400 font-semibold">Saeed</span>
+        </span>
+
+        <span className="pr-4 cursor-pointer" onClick={handleTwitter}>
+          <Twitter />
+        </span>
+      </footer>
     </div>
   );
 }

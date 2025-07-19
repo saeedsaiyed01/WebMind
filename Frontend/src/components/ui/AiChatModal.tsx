@@ -11,14 +11,15 @@ interface Message {
 interface LLMChatModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSendMessage: (message: string) => Promise<string>;
+  contentId: string;
   initialMessages?: Message[];
 }
 
 const LLMChatModal: React.FC<LLMChatModalProps> = ({
   isOpen,
   onClose,
-  initialMessages = []
+  contentId,
+  initialMessages = [],
 }) => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
@@ -30,7 +31,10 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
   // Handle outside click to close the modal
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     };
@@ -82,7 +86,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
       id: `user-${Date.now()}`,
       content: input.trim(),
       sender: "user",
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -95,12 +99,12 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
     setIsLoading(true);
 
     try {
-      const response = await sendChatMessage(userMessage.content);
+      const response = await sendChatMessage(userMessage.content, contentId);
       const aiMessage: Message = {
         id: `ai-${Date.now()}`,
         content: response,
         sender: "ai",
-        timestamp: new Date()
+        timestamp: new Date(),
       };
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
@@ -108,7 +112,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
         id: `error-${Date.now()}`,
         content: "Sorry, I couldn't process your request. Please try again.",
         sender: "ai",
-        timestamp: new Date()
+        timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -140,21 +144,21 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
           flex flex-col
           rounded-2xl
           shadow-2xl
-          border border-[#FF4500]
+          border border-purple-500
           bg-[#0A0A0B]
           text-white
           overflow-hidden
         "
       >
         {/* Header */}
-        <div className="p-4 border-b border-[#FF4500] flex items-center justify-between rounded-t-2xl">
+        <div className="p-4 border-b border-purple-600 flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center">
-            <div className="w-2 h-2 rounded-full bg-[#FF4500] mr-2"></div>
+            <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
             <h3 className="font-semibold text-xl">AI Chat</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-[#FF4500] hover:text-[#FF4500]/80 focus:outline-none"
+            className="text-purple-500 hover:purple-500 focus:outline-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -193,7 +197,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
                   max-w-[75%] rounded-lg px-3 py-2 text-sm
                   ${
                     message.sender === "user"
-                      ? "bg-[#FF4500] text-white rounded-br-none"
+                      ? "bg-purple-600 text-white rounded-br-none"
                       : "bg-gray-800 text-gray-100 rounded-bl-none"
                   }
                 `}
@@ -202,13 +206,13 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
                 <div
                   className={`text-xs mt-1 ${
                     message.sender === "user"
-                      ? "text-orange-200"
+                      ? "text-purple-200"
                       : "text-gray-400"
                   }`}
                 >
                   {message.timestamp.toLocaleTimeString([], {
                     hour: "2-digit",
-                    minute: "2-digit"
+                    minute: "2-digit",
                   })}
                 </div>
               </div>
@@ -238,7 +242,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
         </div>
 
         {/* Input area */}
-        <div className="p-4 border-t border-[#FF4500] rounded-b-2xl">
+        <div className="p-4 border-t border-purple-500 rounded-b-2xl">
           <div className="flex items-end">
             <textarea
               ref={inputRef}
@@ -246,7 +250,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
                 flex-1 bg-gray-800 text-white
                 rounded-lg px-3 py-2
                 focus:outline-none
-                focus:ring-2 focus:ring-[#FF4500]
+                focus:ring-2 focus:ring-purple-500
                 resize-none text-sm
               "
               placeholder="Type your message..."
@@ -262,7 +266,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
                 ${
                   input.trim() === "" || isLoading
                     ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                    : "bg-[#FF4500] text-white hover:bg-[#FF4500]/90"
+                    : "bg-purple-400 text-white hover:bg-purple-500"
                 }
               `}
               onClick={handleSendMessage}

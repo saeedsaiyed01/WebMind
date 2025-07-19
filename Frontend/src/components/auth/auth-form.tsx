@@ -51,9 +51,12 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
   return (
     <div className="w-full max-w-md space-y-4">
       <div className="text-center">
-        <h2 className="text-3xl font-bold  ">
-          {type === "signin" ? "Welcome back" : "Create your account"}
+        <h2 className="text-4xl font-normal ">
+          {type === "signin" ? "Welcome back" : "Create account"}
         </h2>
+        <span className="text-xs  font-normal ">
+          {type === "signin" ? "Sign in to access your memory" : ""}
+        </span>
         {/* <p className="mt-2 text-gray-400">
           {type === "signin" ? "Don't have an account? " : "Already have an account? "}
           <Link
@@ -68,7 +71,7 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
+            <label htmlFor="email" className="block text-black dark:text-white text-sm font-medium mb-1">
               Email
             </label>
             <InputBox
@@ -78,7 +81,7 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
               onChange={(e) => setEmail(e.target.value)}
               error={errors.email}
               placeholder="Enter your email"
-              className="bg-gray-800 text-white"
+              className="bg-gray-100 dark:bg-[#171717] text-black dark:text-white"
             />
           </div>
 
@@ -94,14 +97,14 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
                 onChange={(e) => setPassword(e.target.value)}
                 error={errors.password}
                 placeholder="Enter your password"
-                className="bg-gray-800 text-white pr-8"
+                className="bg-[#171717] text-black dark:text-white pr-8"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-black"
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? <EyeOff className="h-4 w-4 text-black dark:text-white" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -118,7 +121,7 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 error={errors.confirmPassword}
                 placeholder="Confirm your password"
-                className="bg-gray-800 text-white"
+                className="bg-[#171717] text-black dark:text-white"
               />
             </div>
           )}
@@ -127,7 +130,7 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
         {type === "signin" && (
           <div className="flex items-center justify-between">
             <label className="flex items-center space-x-2 text-sm">
-              <input type="checkbox" className="rounded border-white/10 bg-white/5" />
+      <input type="checkbox" className="rounded accent-black dark:accent-white" />
               <span className="text-sm">Remember me</span>
             </label>
             {/* <Link to="/forgot-password" className="text-sm text-[#FF4500] hover:text-[#FF4500]/90">
@@ -139,7 +142,7 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
         <div className="space-y-4">
           <Button
            btnType="submit"
-            variant="orange"
+            variant="purple"
             size="lg"
             text={type === "signin" ? "Sign in" : "Create account"}
             loading={isLoading}
@@ -148,10 +151,7 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
             fullWidth
           />
 
-          <div className="relative">
-           
-          </div>
-
+          
         
         </div>
       </form>

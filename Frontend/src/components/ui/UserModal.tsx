@@ -1,4 +1,4 @@
-import { Github, Loader, LogOut, User } from "lucide-react";
+import { Loader, LogOut, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserDetails } from "../../services/userDetails";
@@ -35,11 +35,20 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const getUserData = async () => {
       const userDetails = await UserDetails();
-      if (!userDetails || !userDetails.username || !userDetails.email) {
+      if (!userDetails || !userDetails.username) {
         throw new Error("Invalid user details");
       }
-      setUsername(userDetails.username);
-      setEmail(userDetails.email);
+      // If username is an email, split it
+      let displayName = userDetails.username;
+      let displayEmail = "";
+      if (userDetails.username.includes("@")) {
+        displayEmail = userDetails.username;
+        displayName = userDetails.username.split("@")[0];
+      } else if (userDetails.email) {
+        displayEmail = userDetails.email;
+      }
+      setUsername(displayName);
+      setEmail(displayEmail);
       setIsLoading(false);
     };
     getUserData();
@@ -59,9 +68,7 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
   //   localStorage.setItem("darkMode", JSON.stringify(newMode));
   //   document.documentElement.classList.toggle("dark", newMode);
   // };
-  const handleGithub = () => {
-    window.open("https://github.com/saeedsaiyed01/WebMind");
-  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/signin");
@@ -87,7 +94,7 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
   return (
     <div
       ref={dropdownRef}
-      className="  mt-16 w-64 bg-gray-950  border dark:border-gray-600 rounded-lg shadow-lg "
+      className="  mt-16 ml-20 w-64 bg-gray-950  border dark:border-gray-600 rounded-lg shadow-lg  "
     >
       <div className="p-4 border-b dark:border-gray-600 flex  items-center">
         <div className="w-12 h-12 bg-indigo-500 text-white rounded-full flex items-center justify-center mr-3">
@@ -105,10 +112,13 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
         ) : (
           <div>
             <p className="font-semibold text-gray-700 dark:text-white">
-              {/* {isloading ? <Loader className="animate-spin" /> : username} */}
-              {username.split("@")[0]}
+              {username}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-300">{email}</p>
+            {email && (
+              <p className="text-sm text-gray-500 dark:text-gray-300">
+                {email}
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -119,38 +129,8 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
         >
           <User className="w-4 h-4 mr-3" /> Profile
         </button>
-
-        {/* <button
-          className="w-full flex items-center px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
-          onClick={toggleDarkMode}
-        >
-          {darkMode ? (
-            <>
-              <Sun className="w-4 h-4 mr-3" /> Light Mode
-            </>
-          ) : (
-            <>
-              <Moon className="w-4 h-4 mr-3" /> Dark Mode
-            </>
-          )}
-        </button>
-
         <button
-          className="w-full flex items-center px-4 py-2 text-gray-400 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-          onClick={() => {}}
-        >
-          <Code className="w-4 h-4 mr-3" /> API
-        </button> */}
-
-        <button
-          className="w-full flex items-center px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
-          onClick={handleGithub}
-        >
-          <Github className="w-4 h-4 mr-3" /> GitHub
-        </button>
-
-        <button
-          className="w-full flex items-center px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600"
+          className="w-full flex items-end px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600"
           onClick={handleLogout}
         >
           <div className="flex items-center">

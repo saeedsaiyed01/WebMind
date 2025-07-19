@@ -12,10 +12,13 @@ const genAI = new GoogleGenerativeAI(API_KEY);
  * @param {Array} userMemories - Array of matched documents from Pinecone.
  * @returns {Promise<string>} - The generated answer.
  */
-export async function generateAnswer(query, userMemories) {
+export async function generateAnswer(query, userMemories, chatHistory = []) {
   if (!query || typeof query !== "string" || !query.trim()) {
     throw new Error("Invalid query: Provide a valid question.");
   }
+  const historyText = chatHistory
+    .map(item => `User: ${item.message}\nAI: ${item.response}`)
+    .join("\n\n");
 
   // Use stored context if available; otherwise, it will fallback to general knowledge.
   let relevantContent = "";
@@ -25,7 +28,7 @@ export async function generateAnswer(query, userMemories) {
 
   const prompt = `
 You are an AI assistant. Answer the following question based on the given context if relevant, otherwise provide an answer using your own general knowledge.
-
+- Answer the user's question based on the chat history and provided context. Use context if it's relevant, otherwise use your own knowledge. Do not mention you're using context or history.
 Instructions:
 - Use the provided context if it is relevant.
 - If the context is insufficient or missing, answer using your general knowledge.
@@ -35,10 +38,15 @@ Instructions:
 
 User's Question: "${query}"
 
+Chat History:
+${historyText || "[No previous chat history]"}
+
 Stored Information:
 ${relevantContent || "[No relevant stored information available]"}
-  `;
 
+
+  Current Question: "${query}"
+  `;
   console.log("Constructed prompt:", prompt);
 
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
