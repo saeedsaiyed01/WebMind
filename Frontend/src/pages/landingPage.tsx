@@ -21,10 +21,6 @@ function LandingPage() {
     window.open("https://x.com/saeedsaiyedtwt");
   };
 
-  const handleGithub = () => {
-    window.open("https://github.com/saeedsaiyed01/WebMind");
-  };
-
   return (
     <div className="bg-white dark:bg-black min-h-screen text-black dark:text-white">
       <NewNavbar variant="landing" />
