@@ -1,7 +1,7 @@
 import { Twitter, Zap } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import bglanding1 from "../assets/bglanding1.png";
+import video from "../assets/video.mp4";
 import { Button } from "../components/ui/Button";
 import { features, LandingPageCard } from "../components/ui/landingpageCards";
 import NewNavbar from "../components/ui/NewNavbar";
@@ -57,11 +57,15 @@ function LandingPage() {
 
       <div className="mt-16 sm:mt-20">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <div className="rounded-2xl bg-gray-900/5 p-2 shadow-2xl ring-1 ring-gray-900/10 sm:p-3">
-            <img
-              src={bglanding1}
-              alt="Kaizen project management application dashboard"
+          <div className="rounded-2xl bg-gray-900/5 p-2 shadow-2xl ring-1 ring-gray-900/10 dark:bg-[#18181b] dark:ring-gray-200/20 border border-gray-300 dark:border-gray-700 sm:p-3">
+            <video
+              src={video}
+              controls
+              autoPlay
+              loop
+              muted
               className="w-full rounded-lg"
+              style={{ background: '#000' }}
             />
           </div>
         </div>
