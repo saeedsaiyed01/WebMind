@@ -58,7 +58,7 @@ function LandingPage() {
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="rounded-2xl bg-gray-900/5 p-2 shadow-2xl ring-1 ring-gray-900/10 dark:bg-[#18181b] dark:ring-gray-200/20 border border-gray-300 dark:border-gray-700 sm:p-3">
             <video
-              src="/video.mp4"
+              src="https://web-mind.vercel.app/video.mp4"
               controls  
               autoPlay
               loop
