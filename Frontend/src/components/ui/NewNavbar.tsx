@@ -11,8 +11,6 @@ export type NavbarVariant = "landing" | "dashboard";
 interface NewNavbarProps {
   variant: NavbarVariant;
   onSearch?: (query: string) => void;
-  onLogin?: () => void;
-  onProfileClick?: () => void;
 }
 
 const NewNavbar: React.FC<NewNavbarProps> = ({

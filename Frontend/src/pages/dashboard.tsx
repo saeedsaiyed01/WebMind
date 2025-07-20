@@ -27,9 +27,6 @@ export function Dashboard() {
   const [addContentModalOpen, setAddContentModalOpen] = useState(false);
   const [aiChatModalOpen, setAiChatModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedContentId, setSelectedContentId] = useState<string | null>(
-    null
-  );
   const { contents, refresh, loading } = useContent(); // ✅ updated
 
   useEffect(() => {
@@ -42,27 +39,6 @@ export function Dashboard() {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-  };
-
-  const handleSendMessage = async (message: string): Promise<string> => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `${BACKEND_URL}/api/v1/chat`,
-        { message },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        }
-      );
-      const { answer } = response.data;
-      return answer;
-    } catch (error) {
-      console.error("Error generating response:", error);
-      return "An error occurred while generating the response.";
-    }
   };
 
   async function handleTitleChange(id: string, newTitle: string) {
@@ -145,7 +121,7 @@ export function Dashboard() {
         <LLMChatModal
           isOpen={aiChatModalOpen}
           onClose={() => setAiChatModalOpen(false)}
-          contentId={selectedContentId || ""}
+          contentId=""
         />
 
         <CreateContentModal
@@ -179,10 +155,6 @@ export function Dashboard() {
                     handleTitleChange(item._id, newTitle)
                   }
                   onDelete={() => handleDelete(item._id)}
-                  onChat={() => {
-                    setSelectedContentId(item._id);
-                    setAiChatModalOpen(true);
-                  }}
                 />
               )
             )
