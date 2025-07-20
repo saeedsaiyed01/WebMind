@@ -17,7 +17,6 @@ interface CardProps {
   onTitleChange?: (title: string) => void;
   onClick?: () => void;
   isAddCard?: boolean;
-  onChat?: () => void; // <-- add this
 }
 
 export function Card({
@@ -28,11 +27,9 @@ export function Card({
   type,
   notes = "",
   onDelete,
-  onNotesChange,
   onTitleChange,
   onClick,
   isAddCard = false,
-  onChat, // <-- add this
 }: CardProps) {
   if (isAddCard || type === "add") {
     return <AddContentCard onClick={onClick || (() => {})} />;
@@ -41,7 +38,6 @@ export function Card({
   // State for editing and notes
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
-  const [cardNotes, setCardNotes] = useState(notes);
   const titleRef = useRef<HTMLInputElement>(null);
 
   // Focus title input when editing
@@ -49,18 +45,9 @@ export function Card({
     if (isEditing) titleRef.current?.focus();
   }, [isEditing]);
 
-  // Propagate notes change
-  useEffect(() => {
-    onNotesChange?.(cardNotes);
-  }, [cardNotes, onNotesChange]);
-
   // Tweet embed script loader
   useEffect(() => {
     if (type === "tweet" && originalLink) {
-      const tweetUrl = originalLink.startsWith("http")
-        ? originalLink.replace("x.com", "twitter.com")
-        : `https://${originalLink.replace("x.com", "twitter.com")}`;
-
       const embedTweet = () => {
         if ((window as any).twttr?.widgets?.load) {
           (window as any).twttr.widgets.load();
@@ -88,7 +75,7 @@ export function Card({
 
   const saveEdits = async () => {
     if (!id) return;
-    await updateContent(id, editedTitle, cardNotes);
+    await updateContent(id, editedTitle, notes);
     onTitleChange?.(editedTitle);
     setIsEditing(false);
   };
@@ -250,7 +237,7 @@ export function Card({
         </div>
 
         <div className="p-4">
-          {type === "note" && cardNotes && (
+          {type === "note" && notes && (
             <div
               className={`rounded-xl border p-4 mt-2 font-medium text-sm whitespace-pre-wrap ${
                 localStorage.getItem("theme") === "dark"
@@ -258,7 +245,7 @@ export function Card({
                   : "bg-gray-100 border-gray-300 text-gray-800"
               }`}
             >
-              {cardNotes}
+              {notes}
             </div>
           )}
 

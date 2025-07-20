@@ -18,8 +18,6 @@ interface NewNavbarProps {
 const NewNavbar: React.FC<NewNavbarProps> = ({
   variant,
   onSearch,
-  onLogin,
-  onProfileClick,
 }) => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -58,6 +56,27 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
 
         {/* Desktop Right Items */}
         <div className="hidden md:flex items-center space-x-4">
+          {variant === "dashboard" && (
+            <div className="relative flex items-center space-x-0">
+              <input
+                type="text"
+                value={query}
+                onChange={handleSearchChange}
+                placeholder="Search..."
+                className="px-3 py-2 pr-10 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+              />
+              <button
+                onClick={() => onSearch?.(query)}
+                className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5  rounded bg-purple-600 text-white hover:bg-purple-500 transition"
+                aria-label="Search"
+                style={{ lineHeight: 0 }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+                </svg>
+              </button>
+            </div>
+          )}
           {variant === "landing" ? (
             <>
               <button
