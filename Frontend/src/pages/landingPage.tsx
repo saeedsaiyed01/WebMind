@@ -24,22 +24,22 @@ function LandingPage() {
     <div className="bg-white dark:bg-black min-h-screen text-black dark:text-white">
       <NewNavbar variant="landing" />
       {/* Hero Section */}
-      <div className="flex flex-col items-center justify-center m-28 px-4 text-center gap-6  p-0">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-gray-300 dark:border-gray-600 rounded-full text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-transparent shadow-purple-500/40">
+      <div className="flex flex-col items-center justify-center m-6 sm:m-16 md:m-20 lg:m-28 px-2 sm:px-4 text-center gap-4 sm:gap-6 p-0">
+        <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 border border-gray-300 dark:border-gray-600 rounded-full text-xs sm:text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-transparent shadow-purple-500/40">
           <span className="text-purple-600 dark:text-purple-400">
             <Zap />
           </span>
           <span>AI-Powered Insights</span>
         </div>
 
-        <div className="text-6xl text-gray-700 dark:text-gray-50">
+        <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-700 dark:text-gray-50 font-normal">
           <span>All Your Digital </span>
           <br />
           <span>Memory Unleashed</span>
         </div>
-        <div className="">
+        <div className="text-sm sm:text-base md:text-lg">
           <span>
-            WebMind stores every tweet, note, and document, transformingy our
+            WebMind stores every tweet, note, and document, transforming your
             content{" "}
           </span>
           <br />
