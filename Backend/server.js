@@ -19,9 +19,10 @@ app.use(express.json());
 const allowedOrigins = [
   'http://localhost:5173',
   'https://web-mind.vercel.app',
-  'https://www.webmind.buzz',
+  'https://webmind.buzz', // your custom domain
   'http://localhost:8000'
 ];
+
 app.use(cors({
   origin: (origin, callback) => {
     if (
@@ -43,6 +44,7 @@ async function bootstrap() {
   await connectDB();
 
 
+  
   app.set("trust proxy", 1);
   app.use(generalLimiter);
   app.use(bodyParser.json());
