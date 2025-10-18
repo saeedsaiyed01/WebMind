@@ -8,6 +8,7 @@ export const MONGO_URI = process.env.MONGO_URI;
 export const PINECONE_API_KEY = process.env.PINECONE_API_KEY;
 export const PINECONE_INDEX = process.env.PINECONE_INDEX;
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+export const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 // Twitter credentials
 export const TWITTER_APP_KEY = process.env.TWITTER_APP_KEY;

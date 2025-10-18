@@ -9,28 +9,6 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [isloading, setIsLoading] = useState<boolean>(true);
-  // const [darkMode, setDarkMode] = useState(() => {
-  //   const savedMode = localStorage.getItem("darkMode");
-  //   return savedMode ? JSON.parse(savedMode) : true;
-  // });
-
-  // useEffect(() => {
-  //   if (darkMode) {
-  //     document.documentElement.classList.remove("light");
-  //     document.documentElement.classList.add("dark");
-  //   } else {
-  //     document.documentElement.classList.remove("dark");
-  //     document.documentElement.classList.add("light");
-  //   }
-  // }, [darkMode]);
-
-  // useEffect(() => {
-  //   const getUser = async () => {
-  //     const user = await getUsername();
-  //     setUsername(user);
-  //   };
-  //   getUser();
-  // }, []);
 
   useEffect(() => {
     const getUserData = async () => {
@@ -61,14 +39,6 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
       .join("")
       .toUpperCase();
   };
-  // const toggleDarkMode = () => {
-  //   const newMode = !darkMode;
-  //   setDarkMode(newMode);
-  //   console.log(JSON.stringify(newMode));
-  //   localStorage.setItem("darkMode", JSON.stringify(newMode));
-  //   document.documentElement.classList.toggle("dark", newMode);
-  // };
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/signin");

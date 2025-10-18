@@ -5,16 +5,18 @@
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   export async function onSendMessage(message: string, contentId: string): Promise<string> {
-
     const token = localStorage.getItem("token") || "";
 
     const response = await axios.post(
       `${BACKEND_URL}/chat`,
-      { message, contentId }, // include contentId here
+      {
+        message,
+        contentId,
+      },
       {
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `${token}`
+          Authorization: `${token}`,
         },
       }
     );
