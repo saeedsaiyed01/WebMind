@@ -2,7 +2,7 @@
 import { Pinecone } from "@pinecone-database/pinecone";
 import dotenv from "dotenv";
 import { PINECONE_API_KEY, PINECONE_INDEX } from "../config.js";
-import { generateEmbedding } from "./generateEmbeddings.js";
+import generateEmbedding from "./generateEmbeddings.js";
 dotenv.config();
 
 const pinecone = new Pinecone({ apiKey: PINECONE_API_KEY });

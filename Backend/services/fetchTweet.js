@@ -1,11 +1,6 @@
 // services/fetchTweet.js
 import { TwitterApi } from 'twitter-api-v2';
-import {
-  TWITTER_ACCESS_SECRET,
-  TWITTER_ACCESS_TOKEN,
-  TWITTER_APP_KEY,
-  TWITTER_APP_SECRET,
-} from "../config.js";
+import { TWITTER_BEARER_TOKEN } from "../config.js";
 
 // Simple in-memory cache for tweet texts
 const tweetCache = {};
@@ -19,7 +14,7 @@ function extractTweetId(tweetUrl) {
 }
 
 /**
- * Fetch tweet text using Twitter API v2.
+ * Fetch tweet text using Twitter API v2 with Bearer Token.
  * @param {string} tweetUrl - The tweet URL.
  * @returns {Promise<string|null>} - The tweet text or null if not found.
  */
@@ -36,38 +31,41 @@ export async function fetchTweetText(tweetUrl) {
     return tweetCache[tweetId];
   }
   
+  if (!TWITTER_BEARER_TOKEN || TWITTER_BEARER_TOKEN === 'your_actual_bearer_token_here') {
+    console.error("Twitter Bearer Token is not configured properly");
+    return null;
+  }
+  
   try {
-    const client = new TwitterApi({
-      appKey: TWITTER_APP_KEY,
-      appSecret: TWITTER_APP_SECRET,
-      accessToken: TWITTER_ACCESS_TOKEN,
-      accessSecret: TWITTER_ACCESS_SECRET,
-    });
+    // Use Bearer Token authentication (OAuth 2.0)
+    const client = new TwitterApi(TWITTER_BEARER_TOKEN);
     
     console.log("Calling Twitter API for tweet ID:", tweetId);
-    const tweet = await client.v2.singleTweet(tweetId, { "tweet.fields": "text" });
+    const tweet = await client.v2.singleTweet(tweetId, { 
+      "tweet.fields": "text,created_at,author_id" 
+    });
+    
     const tweetText = tweet.data?.text || null;
     
     if (tweetText) {
       tweetCache[tweetId] = tweetText; // Cache the result
-      console.log("Tweet text fetched and cached for tweet ID:", tweetId, tweetText);
+      console.log("✅ Tweet fetched successfully for ID:", tweetId);
     } else {
       console.log("No tweet text returned for tweet ID:", tweetId);
     }
     
     return tweetText;
   } catch (error) {
-    console.error("Error fetching tweet from Twitter API:", error);
+    console.error("❌ Error fetching tweet from Twitter API:", error.message);
+    if (error.code === 401) {
+      console.error("Auth error: Check your Twitter Bearer Token");
+    }
     return null;
   }
 }
 
 /**
  * Retry wrapper with exponential backoff for fetching tweet text.
- * @param {string} tweetUrl
- * @param {number} retries - Number of retries (default: 3)
- * @param {number} delay - Initial delay in ms (default: 2000)
- * @returns {Promise<string|null>}
  */
 export async function fetchTweetTextWithRetry(tweetUrl, retries = 3, delay = 2000) {
   for (let attempt = 1; attempt <= retries; attempt++) {
@@ -75,11 +73,14 @@ export async function fetchTweetTextWithRetry(tweetUrl, retries = 3, delay = 200
     const tweetText = await fetchTweetText(tweetUrl);
     if (tweetText) {
       return tweetText;
-    } else {
+    }
+    
+    if (attempt < retries) {
       console.warn(`Attempt ${attempt} failed. Retrying in ${delay} ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
       delay *= 2; // Exponential backoff
     }
   }
+  console.error(`Failed to fetch tweet after ${retries} attempts`);
   return null;
 }

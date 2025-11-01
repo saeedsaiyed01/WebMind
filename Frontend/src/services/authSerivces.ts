@@ -28,3 +28,8 @@ export async function signIn(username: string, password: string) {
 
   return response.data;
 }
+
+export async function signInWithGoogle() {
+  // Redirect to Google OAuth
+  window.location.href = `${BACKEND_URL}/auth/google`;
+}

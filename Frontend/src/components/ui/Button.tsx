@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import React from "react";
 
 interface ButtonProps {
-  variant: "primary" | "secondary" | "Auth" | "orange" | "purple";
+  variant: "primary" | "secondary" | "Auth" | "orange" | "purple" | "google";
   size: "sm" | "md" | "lg";
   text: string;
   icon?: React.ReactNode;
@@ -30,6 +30,9 @@ const variantStyles = {
 
   purple:
     "bg-purple-500 text-white dark:text-black hover:bg-purple-600 focus-visible:ring-purple-500",
+
+  google:
+    "bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 focus-visible:ring-gray-500",
 };
 
 const sizeVariant = {

@@ -43,7 +43,7 @@ export default function SignUpPage() {
 
       {/* Main content container */}
       <div className="relative flex items-center justify-center min-h-screen p-6">
-        <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-2xl w-full max-w-sm transition-colors duration-300">
+        <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 rounded-2xl p-8 shadow-2xl w-full max-w-md transition-colors duration-300">
           {/* Header */}
           <div className="flex flex-col items-center space-y-3 mb-6">
             <div className="h-12 w-12 rounded-xl bg-purple-300 flex items-center justify-center ">

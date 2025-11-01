@@ -2,7 +2,7 @@
 import { Pinecone } from "@pinecone-database/pinecone";
 import dotenv from "dotenv";
 import { PINECONE_API_KEY, PINECONE_INDEX } from "../config.js";
-import { generateEmbedding } from "./generateEmbeddings.js";
+import generateEmbedding from "./generateEmbeddings.js";
 dotenv.config();
 
 const pinecone = new Pinecone({ apiKey: PINECONE_API_KEY });
@@ -10,10 +10,6 @@ const indexName = PINECONE_INDEX || "your-index-name";
 
 /**
  * Search documents in Pinecone using a query string, filtered by userId.
- * @param {string} query - The query text to search with.
- * @param {string} userId - The user ID to filter documents by.
- * @param {number} topK - Number of results to return.
- * @returns {Promise<Array>} - Matching documents.
  */
 export default async function searchDocuments(query, userId, topK = 5) {
   try {
@@ -36,7 +32,7 @@ export default async function searchDocuments(query, userId, topK = 5) {
 
     if (!queryResults.matches) {
       console.log("No matches found.");
-      return [];
+      return [];z
     }
 
     console.log(`Found ${queryResults.matches.length} matching documents for user ${userIdString}.`);
@@ -46,10 +42,16 @@ export default async function searchDocuments(query, userId, topK = 5) {
       .filter(doc => doc.score >= scoreThreshold)
       .sort((a, b) => b.score - a.score);
 
+    // 🔍 DEBUG: Print what we found
+    console.log("\n=== PINECONE SEARCH RESULTS ===");
     filteredDocs.forEach((doc, idx) => {
-      console.log(`Filtered Match ${idx + 1}: Score = ${doc.score}`);
-      console.log("Metadata:", doc.metadata);
+      console.log(`\nMatch ${idx + 1}:`);
+      console.log(`  Score: ${doc.score}`);
+      console.log(`  ID: ${doc.id}`);
+      console.log(`  Metadata:`, JSON.stringify(doc.metadata, null, 2));
+      console.log(`  Text preview:`, doc.metadata?.text?.substring(0, 100) + "...");
     });
+    console.log("================================\n");
 
     return filteredDocs;
   } catch (error) {

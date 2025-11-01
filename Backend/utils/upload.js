@@ -7,7 +7,7 @@ import path from "path";
 const uploadDir = process.env.NODE_ENV === "production"
   ? path.join("/tmp", "uploads")
   : path.join(process.cwd(), "uploads");
-
+  
 // Ensure upload directory exists
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });

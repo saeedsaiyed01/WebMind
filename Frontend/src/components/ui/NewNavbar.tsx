@@ -21,13 +21,21 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [username, setUsername] = useState("");
+  const [userAvatar, setUserAvatar] = useState("");
+  const [userName, setUserName] = useState("");
   const [query, setQuery] = useState("");
   const handleGithub = () => {
     window.open("https://github.com/saeedsaiyed01/WebMind");
   };
   useEffect(() => {
     if (variant === "dashboard") {
-      UserDetails().then((u) => setUsername(u.username));
+      UserDetails().then((u) => {
+        if (u) {
+          setUsername(u.username || u.email || "User");
+          setUserName(u.name || u.username || u.email || "User");
+          setUserAvatar(u.avatar || "");
+        }
+      });
     }
   }, [variant]);
 
@@ -102,10 +110,20 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
               </button>
               <button
                 onClick={openUserModal}
-                className="h-8 w-8 rounded-full bg-purple-600/20 flex items-center justify-center text-white transition"
+                className="h-8 w-8 rounded-full overflow-hidden border-2 border-purple-600/20 flex items-center justify-center text-white transition hover:border-purple-400"
                 aria-label="User profile"
               >
-                {username.charAt(0).toUpperCase()}
+                {userAvatar ? (
+                  <img
+                    src={userAvatar}
+                    alt={userName}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm font-medium">
+                    {username.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </button>
             </>
           )}
@@ -156,10 +174,20 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
                 </button>
                 <button
                   onClick={openUserModal}
-                  className="h-8 w-8 rounded-full bg-purple-600/20 flex items-center justify-center text-white transition"
+                  className="h-8 w-8 rounded-full overflow-hidden border-2 border-purple-600/20 flex items-center justify-center text-white transition hover:border-purple-400"
                   aria-label="User profile"
                 >
-                  {username.charAt(0).toUpperCase()}
+                  {userAvatar ? (
+                    <img
+                      src={userAvatar}
+                      alt={userName}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm font-medium">
+                      {username.charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </button>
               </>
             )}

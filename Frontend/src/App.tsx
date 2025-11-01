@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { Toaster } from "sonner"; // Import the Toaster from Sonner
 import "./App.css";
 import { Dashboard } from "./pages/dashboard";
@@ -6,7 +7,23 @@ import LandingPage from "./pages/landingPage";
 import SignInPage from "./pages/SignIn";
 import SignUpPage from "./pages/SignUp";
 
-function App() {
+function AppContent() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check for token in URL params (from Google OAuth redirect)
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+      localStorage.setItem('token', token);
+      // Remove token from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Always redirect to dashboard after Google auth
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
   const theme = localStorage.getItem("theme");
   if (theme === "dark") {
     document.documentElement.classList.add("dark");
@@ -15,7 +32,7 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
+    <>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signin" element={<SignInPage />} />
@@ -24,6 +41,14 @@ function App() {
         <Route path="/setting" element={<Dashboard />} />
       </Routes>
       <Toaster position="top-right" />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }
