@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema({
-  username: { type: String, unique: true, sparse: true, trim: true, lowercase: true },
+  username: { type: String, unique: true, sparse: true, default: null, trim: true, lowercase: true },
   password: { type: String, minLength: 6 },
   googleId: { type: String, unique: true, sparse: true },
   name: String,
@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
   
   // Plan details
   plan: { type: String, enum: ["free", "pro", "premium"], default: "free" },
-  credits: { type: Number, default: 10 },
+  credits: { type: Number, default: 3 },
   planExpiry: { type: Date, default: null },
   
   // Payment tracking (NEW - IMPORTANT!)

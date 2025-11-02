@@ -24,7 +24,7 @@ passport.use(
             email: profile.emails[0].value,
             avatar: profile.photos[0].value,
             plan: "free",
-            credits: 10,
+            credits: 3,
           });
         }
 

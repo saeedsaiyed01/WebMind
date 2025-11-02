@@ -6,6 +6,7 @@ import { UserDetails } from "../../services/userDetails";
 import ThemeToggle from "./ThemeToggle";
 import UserModal from "./UserModal";
 
+import { CreditCard } from 'lucide-react';
 export type NavbarVariant = "landing" | "dashboard";
 
 interface NewNavbarProps {
@@ -18,6 +19,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
   onSearch,
 }) => {
   const navigate = useNavigate();
+  const [credits, setCredits] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [username, setUsername] = useState("");
@@ -39,6 +41,36 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
     }
   }, [variant]);
 
+
+  useEffect(() => {
+    if (variant === "dashboard") {
+      fetchCredits();
+    }
+  }, [variant]);
+  
+  const fetchCredits = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('No token found');
+        return;
+      }
+
+      const response = await fetch('http://localhost:8000/api/v1/plan', {
+        headers: { 'Authorization': `${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Credits data:', data);
+        setCredits(data.credits);
+      } else {
+        console.error('Failed to fetch credits:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Failed to fetch credits:', error);
+    }
+  };
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const q = e.target.value;
     setQuery(q);
@@ -60,10 +92,35 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
           </span>
         </div>
 
+        {/* Desktop Navigation Links - Center */}
+        {variant === "landing" && (
+          <div className="hidden md:flex items-center space-x-8">
+            <button
+              onClick={() => {
+                const element = document.getElementById('features');
+                element?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition"
+            >
+              Features
+            </button>
+            <button
+              onClick={() => navigate('/pricing')}
+              className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition"
+            >
+              Pricing
+            </button>
+          </div>
+        )}
+
         {/* Desktop Right Items */}
         <div className="hidden md:flex items-center space-x-4">
           {variant === "dashboard" && (
-            <div className="relative flex items-center space-x-0">
+            <div className="relative flex items-center space-x-4">
+              <div className="flex items-center gap-2 px-4 py-2 bg-indigo-100 rounded-full">
+        <CreditCard className="w-5 h-5 text-indigo-600" />
+        <span className="font-bold text-indigo-900">{credits !== null ? `${credits} credits` : 'Loading...'}</span>
+      </div>
               <input
                 type="text"
                 value={query}
@@ -81,6 +138,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
                 </svg>
               </button>
+
             </div>
           )}
           {variant === "landing" ? (
@@ -165,6 +223,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
               </>
             ) : (
               <>
+
                 <ThemeToggle />
                 <button
                   onClick={handleGithub}
