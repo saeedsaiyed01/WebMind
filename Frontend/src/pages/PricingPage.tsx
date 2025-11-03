@@ -12,7 +12,7 @@ const handlePayment = async (plan: string) => {
       return;
     }
 
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/api/v1/create-session`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/create-session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
