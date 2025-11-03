@@ -2,7 +2,7 @@ export const PLANS = {
   free: {
     name: "Free",
     price: 0,
-    credits: 3,
+    credits: 20,
     productId: null // No product ID needed for free
   },
   pro: {

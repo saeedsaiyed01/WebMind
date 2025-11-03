@@ -56,7 +56,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/v1/plan', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/api/v1/plan`, {
         headers: { 'Authorization': `${token}` }
       });
 
@@ -85,7 +85,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
     <nav className="sticky top-0 z-50 backdrop-blur-lg bg-white/50 dark:bg-black/50 border-b border-neutral-700/80">
       <div className="container mx-auto px-4 flex items-center justify-between h-16">
         {/* Logo */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
           <Brain className="text-purple-600 dark:text-purple-400" />
           <span className="text-xl font-semibold text-gray-900 dark:text-white">
             Webmind

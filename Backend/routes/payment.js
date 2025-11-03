@@ -40,11 +40,7 @@ router.post("/create-session", userMiddleware, async (req, res) => {
           quantity: 1
         }
       ],
-      customer: {
-        email: email || user.email,
-        name: name || user.name,
-        // customer_id: userId.toString() // Important: Link to your user #todo store it leter.
-      },
+      customer: null,
       metadata: { 
         plan: plan,
         userId: userId.toString(),

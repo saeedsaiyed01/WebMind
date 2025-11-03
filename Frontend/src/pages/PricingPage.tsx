@@ -12,7 +12,7 @@ const handlePayment = async (plan: string) => {
       return;
     }
 
-    const response = await fetch('http://localhost:8001/api/v1/create-session', {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/api/v1/create-session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41,6 +41,7 @@ const handlePayment = async (plan: string) => {
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
+  const [selectedPlan, setSelectedPlan] = React.useState<number | null>(null);
 
   const plans = [
     {
@@ -51,9 +52,13 @@ const PricingPage: React.FC = () => {
         'Basic AI insights',
         'Community support',
         'Standard search',
+        '20 AI credits',
       ],
       buttonText: 'Get Started',
-      buttonAction: () => navigate('/signup'),
+      buttonAction: () => {
+        setSelectedPlan(0);
+        navigate('/signup');
+      },
     },
     {
       name: 'Pro',
@@ -67,7 +72,10 @@ const PricingPage: React.FC = () => {
         'Custom integrations',
       ],
       buttonText: 'Upgrade to Pro',
-      buttonAction: () => handlePayment('Pro'),
+      buttonAction: () => {
+        setSelectedPlan(1);
+        handlePayment('Pro');
+      },
     },
     {
       name: 'Premium',
@@ -80,7 +88,10 @@ const PricingPage: React.FC = () => {
         'Dedicated account manager',
       ],
       buttonText: 'Go Premium',
-      buttonAction: () => handlePayment('Premium'),
+      buttonAction: () => {
+        setSelectedPlan(2);
+        handlePayment('Premium');
+      },
     },
   ];
 
@@ -105,7 +116,7 @@ const PricingPage: React.FC = () => {
             <div
               key={plan.name}
               className={`relative bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8 ${
-                index === 1 ? 'ring-2 ring-purple-600 dark:ring-purple-400' : ''
+                selectedPlan === index ? 'ring-2 ring-purple-600 dark:ring-purple-400' : selectedPlan === null && index === 1 ? 'ring-2 ring-purple-600 dark:ring-purple-400' : ''
               }`}
             >
               {plan.badge && (
