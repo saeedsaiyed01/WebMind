@@ -117,10 +117,10 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
         <div className="hidden md:flex items-center space-x-4">
           {variant === "dashboard" && (
             <div className="relative flex items-center space-x-4">
-              <div className="flex items-center gap-2 px-4 py-2 bg-indigo-100 rounded-full">
-        <CreditCard className="w-5 h-5 text-indigo-600" />
-        <span className="font-bold text-indigo-900">{credits !== null ? `${credits} credits` : 'Loading...'}</span>
-      </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-transparent border border-purple-500 rounded-full">
+       <CreditCard className="w-5 h-5 text-purple-500" />
+       <span className="font-bold text-purple-500">{credits !== null ? `${credits} credits` : 'Loading...'}</span>
+     </div>
               <input
                 type="text"
                 value={query}
