@@ -74,7 +74,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch('http://localhost:8000/api/v1/plan', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/plan`, {
         headers: { 'Authorization': `${token}` }
       });
 

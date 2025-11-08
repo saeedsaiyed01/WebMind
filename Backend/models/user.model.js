@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
   
   // Plan details
   plan: { type: String, enum: ["free", "pro", "premium"], default: "free" },
-  credits: { type: Number, default: 3 },
+  credits: { type: Number, default: 20 },
   planExpiry: { type: Date, default: null },
   
   // Payment tracking (NEW - IMPORTANT!)

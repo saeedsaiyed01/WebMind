@@ -8,7 +8,7 @@ export async function Chat(req, res) {
   try {
     const { message, contentId } = req.body;
     const userId = req.userId;
-    const user = req.user; // From checkCredits middleware
+  const user = req.user; // From checkCredits middleware
     
     if (!message) {
       return res.status(400).json({ error: "Missing message" });
