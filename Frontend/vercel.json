@@ -1,43 +1,6 @@
 {
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "has": [
-        { "type": "host", "value": "www.webmind.buzz" }
-      ],
-      "destination": "https://webmind.buzz/:1",
-      "permanent": true
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        { "type": "host", "value": "web-mind.vercel.app" }
-      ],
-      "destination": "https://webmind.buzz/:1",
-      "permanent": true
-    }
-  ],
-  "headers": [
-    {
-      "source": "/sitemap.xml",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/xml"
-        }
-      ]
-    },
-    {
-      "source": "/robots.txt",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/plain"
-        }
-      ]
-    }
-  ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ]
-}
+    "rewrites": [
+      { "source": "/(.*)", "destination": "/" }
+    ]
+  }
+    
