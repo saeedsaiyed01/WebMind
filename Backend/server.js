@@ -25,12 +25,17 @@ const allowedOrigins = [
   'http://localhost:5174', // Frontend is running on port 5174
   'https://web-mind.vercel.app',
   'https://webmind.buzz', // your custom domain
+  'https://www.webmind.buzz',
+  'http://webmind.buzz',
+  'http://www.webmind.buzz',
+  'https://web-mind-be.vercel.app',
   'http://localhost:8000',
   null // Allow requests with no origin (like Postman)
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
+    console.log('CORS check for origin:', origin);
     // Allow requests with no origin (like Postman, curl, etc.)
     if (!origin) {
       return callback(null, true);
@@ -43,6 +48,7 @@ app.use(cors({
     ) {
       callback(null, true);
     } else {
+      console.log('Rejected origin:', origin);
       callback(new Error("Not allowed by CORS"));
     }
   },
