@@ -223,7 +223,12 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
               </>
             ) : (
               <>
-
+                {variant === "dashboard" && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-transparent border border-purple-500 rounded-3xl justify-center">
+                    <CreditCard className="w-5 h-5 text-purple-500" />
+                    <span className="font-bold text-purple-500">{credits !== null ? `${credits} credits` : 'Loading...'}</span>
+                  </div>
+                )}
                 <ThemeToggle />
                 <button
                   onClick={handleGithub}
