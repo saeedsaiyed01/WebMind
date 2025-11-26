@@ -126,7 +126,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
                 value={query}
                 onChange={handleSearchChange}
                 placeholder="Search..."
-                className="px-3 py-2 pr-10 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+                className="px-3 py-2 pr-10 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
               />
               <button
                 onClick={() => onSearch?.(query)}
