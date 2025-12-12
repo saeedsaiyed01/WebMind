@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { onSendMessage as sendChatMessage } from "../../services/userServices";
+import styles from "./AiChatModal.module.css";
 
 interface CreditsData {
   credits: number;
@@ -37,7 +38,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Handle outside click to close the modal
+  // Enhanced outside click handler with better accessibility
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       if (
@@ -47,23 +48,34 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
         onClose();
       }
     };
+    
     if (isOpen) {
-      document.addEventListener("mousedown", handleOutsideClick);
+      // Add slight delay to prevent immediate close on first click
+      setTimeout(() => {
+        document.addEventListener("mousedown", handleOutsideClick);
+      }, 100);
     }
+    
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, [isOpen, onClose]);
 
-  // Scroll to the bottom of messages
+  // Enhanced scroll behavior for mobile
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: "smooth",
+      block: "end"
+    });
   }, [messages]);
 
-  // Focus the textarea on open
+  // Enhanced focus management for accessibility
   useEffect(() => {
     if (isOpen) {
-      inputRef.current?.focus();
+      // Focus input when modal opens
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
       fetchCredits();
     }
   }, [isOpen]);
@@ -80,7 +92,6 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
 
       if (response.ok) {
         const data: CreditsData = await response.json();
-        console.log('Chat modal credits:', data.credits, 'Plan:', data.plan);
         setCredits(data.credits);
         setHasCheckedCredits(true);
 
@@ -88,15 +99,12 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
         if (data.credits <= 0) {
           setShowNoCredits(true);
           setShowLowCreditsWarning(false);
-          console.log('Showing no credits warning');
         } else if (data.credits < 1) {
           setShowLowCreditsWarning(true);
           setShowNoCredits(false);
-          console.log('Showing low credits warning');
         } else {
           setShowLowCreditsWarning(false);
           setShowNoCredits(false);
-          console.log('No warnings needed');
         }
       } else {
         console.error('Failed to fetch credits - response not ok:', response.status);
@@ -106,16 +114,19 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
     }
   };
 
-  // Close modal on Escape key
+  // Enhanced Escape key handling
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        event.preventDefault();
         onClose();
       }
     };
+    
     if (isOpen) {
       document.addEventListener("keydown", handleEscKey);
     }
+    
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };
@@ -124,7 +135,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     e.target.style.height = "auto";
-    e.target.style.height = `${Math.min(e.target.scrollHeight, 100)}px`;
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
   };
 
   const handleSendMessage = async () => {
@@ -202,36 +213,35 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
 
   if (!isOpen) return null;
 
+  const canSendMessage = input.trim() !== "" && !isLoading && !(hasCheckedCredits && credits !== null && credits <= 0);
+  const isSendButtonDisabled = !canSendMessage;
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4 ">
-      {/* Blurred background overlay */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="chat-modal-title">
+      {/* Enhanced backdrop with better blur */}
+      <div 
+        className={styles.backdrop}
+        aria-hidden="true"
+      />
 
       {/* Chat modal container */}
       <div
         ref={modalRef}
-        className="
-          relative z-10
-          w-full max-w-2xl
-          h-[80vh] md:h-[600px]
-          flex flex-col
-          rounded-2xl
-          shadow-2xl
-          border border-purple-500
-          bg-[#0A0A0B]
-          text-white
-          overflow-hidden
-        "
+        className={styles.modalContainer}
+        role="document"
+        tabIndex={-1}
       >
-        {/* Header */}
-        <div className="p-4 border-b border-purple-600 flex items-center justify-between rounded-t-2xl">
-          <div className="flex items-center">
-            <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
-            <h3 className="font-semibold text-xl">AI Chat</h3>
+        {/* Enhanced Header with better accessibility */}
+        <div className={styles.header}>
+          <div className={styles.headerLeft}>
+            <div className={styles.statusIndicator} aria-label="AI Chat Status"></div>
+            <h3 id="chat-modal-title" className={styles.headerTitle}>AI Chat</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-purple-500 hover:purple-500 focus:outline-none"
+            className={styles.closeButton}
+            aria-label="Close chat modal"
+            type="button"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -243,6 +253,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
             >
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -250,159 +261,167 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
           </button>
         </div>
 
-        {/* Messages container */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {/* Enhanced Messages container with proper accessibility */}
+        <div 
+          className={styles.messagesContainer}
+          role="log"
+          aria-live="polite"
+          aria-label="Chat messages"
+        >
           {showNoCredits ? (
-            <div className="text-center p-8">
-              <h2 className="text-xl font-bold mb-2">No Credits Remaining</h2>
-              <p className="text-gray-400 mb-4">Upgrade your plan to continue chatting</p>
+            <div className={styles.noCreditsState}>
+              <h2 className={styles.noCreditsTitle}>No Credits Remaining</h2>
+              <p className={styles.noCreditsText}>
+                Upgrade your plan to continue chatting
+              </p>
               <button
                 onClick={() => window.location.href = '/pricing'}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors"
+                className={styles.upgradeButton}
+                type="button"
+                aria-describedby="upgrade-description"
               >
                 Upgrade Now
               </button>
             </div>
           ) : messages.length === 0 && !isLoading ? (
-            <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+            <div className={styles.emptyState} role="status" aria-live="polite">
               <p>Ask me anything...</p>
             </div>
           ) : (
             <>
               {messages.map((message: Message) => (
-            <div
-              key={message.id}
-              className={`flex ${
-                message.sender === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`
-                  max-w-[75%] rounded-lg px-3 py-2 text-sm
-                  ${
-                    message.sender === "user"
-                      ? "bg-purple-600 text-white rounded-br-none"
-                      : "bg-gray-800 text-gray-100 rounded-bl-none"
-                  }
-                `}
-              >
-                <div className="whitespace-pre-wrap">{message.content}</div>
                 <div
-                  className={`text-xs mt-1 ${
-                    message.sender === "user"
-                      ? "text-purple-200"
-                      : "text-gray-400"
+                  key={message.id}
+                  className={`${styles.messageRow} ${
+                    message.sender === "user" ? styles.messageRowUser : styles.messageRowAi
                   }`}
+                  role="article"
+                  aria-label={`${message.sender === 'user' ? 'Your message' : 'AI response'}: ${message.content.substring(0, 50)}${message.content.length > 50 ? '...' : ''}`}
                 >
-                  {message.timestamp.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {/* Loading animation */}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="max-w-[75%] rounded-lg px-3 py-2 bg-gray-800 text-white rounded-bl-none">
-                <div className="flex space-x-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"></div>
                   <div
-                    className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
-                  <div
-                    className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"
-                    style={{ animationDelay: "0.4s" }}
-                  ></div>
+                    className={`${styles.messageBubble} ${
+                      message.sender === "user" ? styles.messageBubbleUser : styles.messageBubbleAi
+                    }`}
+                  >
+                    <div className={styles.messageContent}>{message.content}</div>
+                    <div
+                      className={`${styles.messageTimestamp} ${
+                        message.sender === "user" ? styles.timestampUser : styles.timestampAi
+                      }`}
+                      aria-label={`Sent at ${message.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}`}
+                    >
+                      {message.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              ))}
 
-            
+              {/* Enhanced Loading animation with accessibility */}
+              {isLoading && (
+                <div className={styles.messageRow} role="status" aria-live="polite" aria-label="AI is typing">
+                  <div className={`${styles.messageBubble} ${styles.messageBubbleAi} ${styles.loadingBubble}`}>
+                    <div className={styles.loadingDot}></div>
+                    <div className={styles.loadingDot}></div>
+                    <div className={styles.loadingDot}></div>
+                  </div>
+                </div>
+              )}
+
               <div ref={messagesEndRef} />
             </>
           )}
         </div>
 
-        {/* Input area */}
-        <div className="p-4 border-t border-purple-500 rounded-b-2xl">
-          {/* Upgrade banner for no credits */}
+        {/* Enhanced Input area with better accessibility */}
+        <div className={styles.inputArea}>
+          {/* Enhanced No credits warning banner */}
           {hasCheckedCredits && credits !== null && credits <= 0 && (
-            <div className="mb-3 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                  <span className="text-red-300 text-sm font-medium">No credits remaining</span>
-                </div>
-                <button
-                  onClick={() => window.location.href = '/pricing'}
-                  className="text-red-300 hover:text-red-200 text-sm font-medium underline"
+            <div className={`${styles.warningBanner} ${styles.noCreditsWarning}`} role="alert">
+              <div className={styles.warningContent}>
+                <svg 
+                  className={styles.warningIcon} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
-                  Upgrade Plan
-                </button>
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" 
+                  />
+                </svg>
+                <span className={styles.warningText}>No credits remaining</span>
               </div>
+              <button
+                onClick={() => window.location.href = '/pricing'}
+                className={styles.warningLink}
+                type="button"
+                aria-label="Upgrade plan to continue chatting"
+              >
+                Upgrade Plan
+              </button>
             </div>
           )}
 
-          <div className="flex items-end">
-            <textarea
-              ref={inputRef}
-              className="
-                flex-1 bg-gray-800 text-white
-                rounded-lg px-3 py-2
-                focus:outline-none
-                focus:ring-2 focus:ring-purple-500
-                resize-none text-sm
-              "
-              placeholder={
-                hasCheckedCredits && credits !== null && credits <= 0
-                  ? "Upgrade your plan to continue chatting..."
-                  : "Type your message..."
-              }
-              value={input}
-              onChange={handleTextareaChange}
-              onKeyDown={handleKeyDown}
-              rows={1}
-              style={{ minHeight: "36px", maxHeight: "100px" }}
-              disabled={hasCheckedCredits && credits !== null && credits <= 0}
-            />
-            <div className="flex items-center ml-2">
+          <div className={styles.inputRow}>
+            <div className={styles.textareaWrapper}>
+              <textarea
+                ref={inputRef}
+                className={styles.textarea}
+                placeholder={
+                  hasCheckedCredits && credits !== null && credits <= 0
+                    ? "Upgrade your plan to continue chatting..."
+                    : "Type your message..."
+                }
+                value={input}
+                onChange={handleTextareaChange}
+                onKeyDown={handleKeyDown}
+                rows={1}
+                aria-label="Message input"
+                aria-describedby="input-help"
+                aria-required="true"
+                disabled={hasCheckedCredits && credits !== null && credits <= 0}
+              />
+            </div>
+            <div className={styles.inputActions}>
               {/* Low credits warning */}
               {showLowCreditsWarning && (
-                <div className="mr-2 px-2 py-1 bg-yellow-900/20 border border-yellow-500/30 rounded text-xs text-yellow-300">
+                <div className={styles.lowCreditsBadge} role="status" aria-live="polite">
                   Low credits!
                 </div>
               )}
               <button
-                className={`
-                  p-2 rounded-lg flex items-center justify-center
-                  ${
-                    input.trim() === "" || isLoading || (hasCheckedCredits && credits !== null && credits <= 0)
-                      ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                      : showLowCreditsWarning
-                        ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                        : "bg-purple-400 text-white hover:bg-purple-500"
-                  }
-                `}
+                className={`${styles.sendButton} ${
+                  isSendButtonDisabled
+                    ? styles.sendButtonDisabled
+                    : showLowCreditsWarning
+                      ? styles.sendButtonWarning
+                      : styles.sendButtonActive
+                }`}
                 onClick={handleSendMessage}
-                disabled={input.trim() === "" || isLoading || (hasCheckedCredits && credits !== null && credits <= 0)}
+                disabled={isSendButtonDisabled}
+                type="button"
+                aria-label="Send message"
+                aria-disabled={isSendButtonDisabled}
               >
                 <svg
+                  className={styles.sendIcon}
                   xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  aria-hidden="true"
                 >
                   <line x1="22" y1="2" x2="11" y2="13"></line>
                   <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>

@@ -1,0 +1,553 @@
+/* AiChatModal.module.css - Mobile-first Modern & Minimalist Design */
+
+/* === Base Styles (Mobile-first approach) === */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end; /* Modal slides up from bottom on mobile */
+  justify-content: center;
+  z-index: 50;
+  padding: 0;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modalContainer {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100vh; /* Full height on mobile */
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #0d0d0f 0%, #0a0a0b 100%);
+  color: #ffffff;
+  overflow: hidden;
+  /* Soft shadow for depth */
+  box-shadow: 0 -8px 32px rgba(139, 92, 246, 0.15);
+}
+
+/* === Header Section === */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(13, 13, 15, 0.95);
+  /* Safe area for notched devices */
+  padding-top: max(16px, env(safe-area-inset-top));
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statusIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  /* Subtle pulse animation */
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.headerTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* 44x44px minimum touch target for close button (A11Y) */
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: #a78bfa;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.closeButton:hover,
+.closeButton:focus {
+  background: rgba(139, 92, 246, 0.15);
+  outline: none;
+}
+
+.closeButton:active {
+  transform: scale(0.95);
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+/* === Messages Container === */
+.messagesContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Smooth scrolling for one-handed use */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Empty state styling */
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #6b7280;
+  font-size: 0.9375rem;
+}
+
+/* No credits state */
+.noCreditsState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.noCreditsTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.noCreditsText {
+  color: #9ca3af;
+  margin-bottom: 20px;
+  font-size: 0.9375rem;
+}
+
+/* 44x44px minimum touch target for upgrade button (A11Y) */
+.upgradeButton {
+  min-height: 44px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* Soft shadow */
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+}
+
+.upgradeButton:hover,
+.upgradeButton:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45);
+}
+
+.upgradeButton:active {
+  transform: translateY(0);
+}
+
+/* === Message Bubbles === */
+.messageRow {
+  display: flex;
+  width: 100%;
+}
+
+.messageRowUser {
+  justify-content: flex-end;
+}
+
+.messageRowAi {
+  justify-content: flex-start;
+}
+
+.messageBubble {
+  max-width: 85%; /* Slightly wider on mobile for readability */
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  /* Subtle transition for appearance */
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.messageBubbleUser {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.messageBubbleAi {
+  background: #1f1f23;
+  color: #f3f4f6;
+  border-bottom-left-radius: 4px;
+}
+
+.messageContent {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.messageTimestamp {
+  font-size: 0.6875rem;
+  margin-top: 6px;
+  opacity: 0.7;
+}
+
+.timestampUser {
+  color: rgba(255, 255, 255, 0.7);
+  text-align: right;
+}
+
+.timestampAi {
+  color: #9ca3af;
+}
+
+/* === Loading Animation === */
+.loadingBubble {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px;
+}
+
+.loadingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6b7280;
+  animation: bounce 1.4s ease-in-out infinite;
+}
+
+.loadingDot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loadingDot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
+}
+
+/* === Input Area === */
+.inputArea {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(139, 92, 246, 0.25);
+  background: rgba(13, 13, 15, 0.98);
+  /* Safe area for home indicator on iOS */
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+/* Warning Banners */
+.warningBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+}
+
+.noCreditsWarning {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.warningContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.warningIcon {
+  width: 20px;
+  height: 20px;
+  color: #f87171;
+  flex-shrink: 0;
+}
+
+.warningText {
+  color: #fca5a5;
+  font-weight: 500;
+}
+
+/* 44px minimum touch target (A11Y) */
+.warningLink {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: #fca5a5;
+  font-weight: 500;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.inputRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.textareaWrapper {
+  flex: 1;
+}
+
+.textarea {
+  width: 100%;
+  background: #1f1f23;
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  line-height: 1.4;
+  resize: none;
+  min-height: 44px; /* Minimum touch target height (A11Y) */
+  max-height: 120px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.textarea::placeholder {
+  color: #6b7280;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.inputActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Low credits badge */
+.lowCreditsBadge {
+  padding: 6px 10px;
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: #fcd34d;
+  white-space: nowrap;
+}
+
+/* 44x44px minimum touch target for send button (A11Y) */
+.sendButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.sendButtonActive {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+}
+
+.sendButtonActive:hover {
+  transform: scale(1.05);
+}
+
+.sendButtonActive:active {
+  transform: scale(0.95);
+}
+
+.sendButtonWarning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #fff;
+}
+
+.sendButtonDisabled {
+  background: #27272a;
+  color: #52525b;
+  cursor: not-allowed;
+}
+
+.sendIcon {
+  width: 18px;
+  height: 18px;
+}
+
+/* === Mobile-Specific Styles (max-width: 480px) === */
+@media (max-width: 480px) {
+  .modalOverlay {
+    /* Full screen modal on mobile for better touch interaction */
+    padding: 0;
+  }
+
+  .modalContainer {
+    /* Full viewport coverage on mobile */
+    border-radius: 0;
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .header {
+    /* Increased padding for better thumb reach */
+    padding: 14px 16px;
+    padding-top: max(14px, env(safe-area-inset-top));
+  }
+
+  .messagesContainer {
+    /* Optimized padding for one-handed scrolling */
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .messageBubble {
+    /* Wider bubbles on small screens for readability */
+    max-width: 88%;
+    padding: 10px 14px;
+    font-size: 0.9375rem;
+  }
+
+  .inputArea {
+    /* Sticky bottom with safe area padding */
+    padding: 10px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .textarea {
+    /* Optimized input size for mobile keyboards */
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    padding: 10px 14px;
+  }
+
+  .noCreditsState {
+    /* Adjusted spacing for smaller screens */
+    padding: 24px 20px;
+  }
+
+  .upgradeButton {
+    /* Full-width upgrade button on mobile */
+    width: 100%;
+    max-width: 280px;
+  }
+
+  /* Hide low credits badge on very small screens to save space */
+  .lowCreditsBadge {
+    display: none;
+  }
+}
+
+/* === Tablet/Desktop Styles (min-width: 481px) === */
+@media (min-width: 481px) {
+  .modalOverlay {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .modalContainer {
+    max-width: 640px;
+    height: 85vh;
+    max-height: 650px;
+    border-radius: 20px;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+  }
+
+  .header {
+    padding: 18px 24px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+  }
+
+  .messagesContainer {
+    padding: 20px 24px;
+  }
+
+  .inputArea {
+    padding: 16px 24px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
+
+  .messageBubble {
+    max-width: 75%;
+  }
+}
+
+/* === Accessibility: Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  .statusIndicator,
+  .loadingDot,
+  .messageBubble,
+  .sendButton,
+  .closeButton,
+  .upgradeButton {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* === High Contrast Mode Support === */
+@media (prefers-contrast: high) {
+  .modalContainer {
+    border: 2px solid #8b5cf6;
+  }
+
+  .messageBubbleUser {
+    background: #7c3aed;
+  }
+
+  .messageBubbleAi {
+    background: #27272a;
+    border: 1px solid #52525b;
+  }
+
+  .textarea {
+    border: 1px solid #52525b;
+  }
+}
