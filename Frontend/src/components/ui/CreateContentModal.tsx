@@ -1,22 +1,21 @@
-// CreateContentModal.tsx
+import { cn } from "@/lib/utils";
 import axios from "axios";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Check,
-  FileText,
-  Globe,
-  Link2,
-  Loader2,
-  StickyNote,
-  Twitter,
-  X,
+    Check,
+    FileText,
+    Globe,
+    Link as LinkIcon,
+    Loader2,
+    StickyNote,
+    Twitter,
+    X
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { Button } from "./Button";
-import { InputBox } from "./InputBox";
-
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 enum ContentType {
   Tweet = "tweet",
   Note = "note",
@@ -28,22 +27,48 @@ interface CreateContentModalProps {
   onOpen: boolean;
   onClose: () => void;
   onContentAdded?: () => void;
+  initialData?: any; 
 }
+
+const CONTENT_TYPES = [
+  { id: ContentType.Note, label: "Note", icon: StickyNote },
+  { id: ContentType.Website, label: "Website", icon: Globe },
+  { id: ContentType.Document, label: "Document", icon: FileText },
+  { id: ContentType.Tweet, label: "Tweet", icon: Twitter },
+];
+
+import { ContentCard } from "../ContentCard";
+
+// ... [Keep existing imports except useRef for inputs if replaced, but let's keep useRef code minimal or remove it]
 
 export function CreateContentModal({
   onOpen,
   onClose,
+  initialData,
   onContentAdded,
 }: CreateContentModalProps) {
-  const titleRef = useRef<HTMLInputElement>(null);
-  const linkRef = useRef<HTMLInputElement>(null);
-  const contentRef = useRef<HTMLTextAreaElement>(null);
+  // Converted to state for real-time preview
+  const [title, setTitle] = useState("");
+  const [link, setLink] = useState("");
+  const [content, setContent] = useState("");
+  
   const modalRef = useRef<HTMLDivElement>(null);
-
   const [type, setType] = useState<ContentType>(ContentType.Tweet);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (onOpen && initialData) {
+      setType(initialData.type);
+      setTitle(initialData.title || "");
+      setLink(initialData.link || "");
+      setContent(initialData.content || initialData.link || "");
+    } else if (onOpen) {
+      setType(ContentType.Tweet);
+      resetForm();
+    }
+  }, [onOpen, initialData]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
@@ -66,9 +91,9 @@ export function CreateContentModal({
   };
 
   const resetForm = useCallback(() => {
-    if (titleRef.current) titleRef.current.value = "";
-    if (linkRef.current) linkRef.current.value = "";
-    if (contentRef.current) contentRef.current.value = "";
+    setTitle("");
+    setLink("");
+    setContent("");
     setSelectedFile(null);
     setError(null);
     setIsLoading(false);
@@ -77,285 +102,269 @@ export function CreateContentModal({
   }, []);
 
   useEffect(() => {
-    resetForm();
-  }, [type, resetForm]);
-
-  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
-    if (onOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    if (onOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onOpen, onClose]);
 
   const addContent = async () => {
     setError(null);
-    const title = titleRef.current?.value || "";
     if (!title.trim()) {
       setError("Title is required.");
       return;
     }
 
-    // Type-specific inline validations
-    if (type === ContentType.Document && !selectedFile) {
+    if (type === ContentType.Document && !selectedFile && !initialData) {
       setError("Please upload a PDF file.");
       return;
     }
-    if (
-      type === ContentType.Note &&
-      !(contentRef.current?.value || "").trim()
-    ) {
+    if (type === ContentType.Note && !content.trim()) {
       setError("Note content is required.");
       return;
     }
     if (type === ContentType.Tweet || type === ContentType.Website) {
-      const url = linkRef.current?.value || "";
-      if (!url.trim()) {
-        const requiredField =
-          type === ContentType.Tweet ? "Tweet link" : "Website link";
-        setError(`${requiredField} is required.`);
+      if (!link.trim()) {
+        setError(`${type === ContentType.Tweet ? "Tweet link" : "Website link"} is required.`);
         return;
       }
-      try {
-        new URL(url);
-      } catch (_) {
-        setError("Please enter a valid URL (e.g., https://example.com).");
+      try { new URL(link); } catch (_) {
+        setError("Please enter a valid URL.");
         return;
       }
     }
 
     setIsLoading(true);
     try {
-      if (type === ContentType.Document) {
-        const formData = new FormData();
-        formData.append("file", selectedFile!);
-        formData.append("title", title);
-        await axios.post(`${BACKEND_URL}/upload-document`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: localStorage.getItem("token") || "",
-          },
-        });
-        setTimeout(() => {
-          toast.success("Content saved successfully.", {
-            icon: <Check className="w-5 h-5 text-green-500" />,
-          });
-        }, 200);
+      const token = localStorage.getItem("token") || "";
+      
+      if (initialData) {
+         await axios.put(`${BACKEND_URL}/${initialData._id}`, {
+             contentId: initialData._id,
+             newTitle: title, 
+             link: (type === ContentType.Note) ? undefined : link,
+             content: (type === ContentType.Note) ? content : undefined
+         }, { headers: { Authorization: token } });
+         toast.success("Content updated successfully.");
       } else {
-        const payload: any = { title, type };
-        if (type === ContentType.Note) {
-          payload.content = contentRef.current?.value || "";
-        } else {
-          payload.url = linkRef.current?.value || "";
-        }
-        await axios.post(`${BACKEND_URL}/memory`, payload, {
-          headers: {
-            Authorization: localStorage.getItem("token") || "",
-          },
-        });
-        toast.success("Content saved successfully.", {
-          icon: <Check className="w-5 h-5 text-green-500" />,
-        });
+          if (type === ContentType.Document) {
+            const formData = new FormData();
+            formData.append("file", selectedFile!);
+            formData.append("title", title);
+            await axios.post(`${BACKEND_URL}/upload-document`, formData, {
+              headers: { "Content-Type": "multipart/form-data", Authorization: token },
+            });
+            await new Promise(r => setTimeout(r, 500)); 
+          } else {
+            const payload: any = { title, type };
+            if (type === ContentType.Note) payload.content = content;
+            else payload.url = link; 
+            
+            await axios.post(`${BACKEND_URL}/memory`, payload, { headers: { Authorization: token } });
+          }
+           toast.success("Content saved successfully.");
       }
       resetForm();
       onClose();
       onContentAdded?.();
     } catch (err: any) {
-      console.error("API Error:", err);
-      const errorMessage =
-        err.response?.data?.message || "An error occurred. Please try again.";
-      toast.error(errorMessage);
+      // Clean error message
+      const msg = err.response?.data?.message || "Error saving content.";
+      toast.error(msg);
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getTypeIcon = (contentType: ContentType) => {
-    switch (contentType) {
-      case ContentType.Tweet:
-        return <Twitter className="h-4 w-4 mr-1.5" />;
-      case ContentType.Note:
-        return <StickyNote className="h-4 w-4 mr-1.5" />;
-      case ContentType.Document:
-        return <FileText className="h-4 w-4 mr-1.5" />;
-      case ContentType.Website:
-        return <Globe className="h-4 w-4 mr-1.5" />;
-      default:
-        return null;
-    }
+  const previewItem = {
+     _id: "preview",
+     title: title || "Untitled Title",
+     type: type as any,
+     link: link,
+     content: content || (type === ContentType.Note ? "Start typing to see preview..." : undefined),
+     createdAt: new Date().toISOString()
   };
 
   if (!onOpen) return null;
 
   return (
-    <>
-      <div className="fixed inset-0 bg-black bg-opacity-60 z-40" />
-      <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-        <div
-          ref={modalRef}
-          className="bg-white dark:bg-black text-gray-200 rounded-xl shadow-2xl w-full max-w-lg p-6 md:p-8 border border-gray-700"
-        >
-          {/* Header */}
-          <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-700">
-            <h2 className="text-2xl font-semibold flex items-center text-black dark:text-white">
-              <Link2 className="inline-block mr-3 h-6 w-6 text-purple-500" />
-              Add Content
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-purple-500 transition-colors rounded-full p-1 -mr-2"
-              aria-label="Close modal"
+    <AnimatePresence>
+      {onOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 transition-all"
+          />
+          
+          {/* Modal Container */}
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <motion.div
+              ref={modalRef}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: "spring", stiffness: 350, damping: 25 }}
+              className="bg-[#0C0C0C]/90 backdrop-blur-xl w-full max-w-lg rounded-2xl border border-white/10 shadow-2xl flex flex-col my-8"
             >
-              <X size={24} />
-            </button>
-          </div>
-
-          {/* Content Type Selection */}
-          <div className="flex flex-wrap justify-center gap-3 mb-6 ">
-            <Button
-              text="Note"
-              size="sm"
-              onClick={() => setType(ContentType.Note)}
-              variant={type === ContentType.Note ? "purple" : "secondary"}
-              icon={getTypeIcon(ContentType.Note)}
-            />
-            <Button
-              text="Website"
-              size="sm"
-              onClick={() => setType(ContentType.Website)}
-              variant={type === ContentType.Website ? "purple" : "secondary"}
-              icon={getTypeIcon(ContentType.Website)}
-            />
-            <Button
-              text="Document"
-              size="sm"
-              onClick={() => setType(ContentType.Document)}
-              variant={type === ContentType.Document ? "purple" : "secondary"}
-              icon={getTypeIcon(ContentType.Document)}
-            />
-            <Button
-              text="Tweet"
-              size="sm"
-              onClick={() => setType(ContentType.Tweet)}
-              variant={type === ContentType.Tweet ? "purple" : "secondary"}
-              icon={getTypeIcon(ContentType.Tweet)}
-            />
-          </div>
-
-          {/* Input Area */}
-          <div className="space-y-4 mb-6">
-            <InputBox
-              label="Title"
-              reference={titleRef}
-              placeholder="Give your content a title..."
-              className="w-full"
-              required
-              error={error && error.includes("Title") ? error : undefined}
-            />
-
-            {type === ContentType.Note && (
-              <InputBox
-                label="Note Content"
-                isTextArea={true}
-                reference={contentRef}
-                placeholder="Write your note here..."
-                className="min-h-[100px]"
-                required
-                error={error && error.includes("Note") ? error : undefined}
-              />
-            )}
-
-            {(type === ContentType.Tweet || type === ContentType.Website) && (
-              <InputBox
-                label={type === ContentType.Tweet ? "Tweet URL" : "Website URL"}
-                reference={linkRef}
-                placeholder={
-                  type === ContentType.Tweet
-                    ? "https://twitter.com/..."
-                    : "https://example.com"
-                }
-                type="url"
-                required
-                error={
-                  error && (error.includes("link") || error.includes("URL"))
-                    ? error
-                    : undefined
-                }
-              />
-            )}
-
-            {type === ContentType.Document && (
-              <div>
-                <label
-                  htmlFor="file-input"
-                  className="block text-sm font-medium text-gray-400 mb-1"
-                >
-                  PDF Document (Max 10MB)
-                </label>
-                <input
-                  id="file-input"
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handleFileChange}
-                  className={`w-full px-3 py-2 dark:bg-gray-950 bg-white text-white border rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
-                    error && (error.includes("PDF") || error.includes("size"))
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-700"
-                  }`}
-                  required
-                />
-                {selectedFile && (
-                  <p className="text-xs text-black mt-1.5">
-                    Selected: {selectedFile.name}
-                  </p>
-                )}
-                {error && (error.includes("PDF") || error.includes("size")) && (
-                  <p className="text-red-500 text-sm mt-1">{error}</p>
-                )}
+              
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-white/5 flex justify-between items-center bg-[#0C0C0C]/50 shrink-0">
+                 <h2 className="text-lg font-medium text-white tracking-tight flex items-center gap-2">
+                    {initialData ? "Edit Content" : "Add Content"}
+                 </h2>
+                 <button onClick={onClose} className="text-zinc-500 hover:text-zinc-200 transition-colors p-1.5 rounded-full hover:bg-white/5">
+                    <X className="w-4 h-4" />
+                 </button>
               </div>
-            )}
-          </div>
 
-          {error &&
-            !(
-              error.includes("PDF") ||
-              error.includes("size") ||
-              error.includes("Note") ||
-              error.includes("link") ||
-              error.includes("URL")
-            ) && (
-              <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-2 rounded-md text-sm mb-4">
-                {error}
+              <div className="p-6 md:p-8 space-y-7">
+                 
+                 {/* Segmented Control Tabs */}
+                 <div className="p-1 bg-black/40 rounded-full border border-white/5 flex relative">
+                    {CONTENT_TYPES.map((tab) => (
+                       <button
+                          key={tab.id}
+                          onClick={() => setType(tab.id)}
+                          className={cn(
+                             "flex-1 relative z-10 py-2 text-[13px] font-medium transition-colors flex items-center justify-center gap-2 rounded-full",
+                             type === tab.id ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+                          )}
+                       >
+                          {type === tab.id && (
+                             <motion.div
+                                layoutId="active-tab"
+                                className="absolute inset-0 bg-zinc-800 rounded-full shadow-sm -z-10"
+                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                             />
+                          )}
+                          <tab.icon className="w-3.5 h-3.5" />
+                          {tab.label}
+                       </button>
+                    ))}
+                 </div>
+
+                 {/* Inputs */}
+                 <div className="space-y-5">
+                    
+                    {/* Title Input */}
+                    <div className="space-y-1.5">
+                       <input 
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                          type="text"
+                          placeholder="Title"
+                          className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-transparent transition-all font-sans"
+                       />
+                    </div>
+
+                    {/* Dynamic Content Input */}
+                    {(type === ContentType.Tweet || type === ContentType.Website) && (
+                       <div className="space-y-1.5">
+                          <div className="relative group">
+                             <div className="absolute left-3.5 top-3.5 pointer-events-none text-zinc-500 transition-colors">
+                                {type === ContentType.Tweet ? <Twitter className="w-4 h-4" /> : <LinkIcon className="w-4 h-4" />}
+                             </div>
+                             <input 
+                                value={link}
+                                onChange={(e) => setLink(e.target.value)}
+                                type="url"
+                                placeholder={type === ContentType.Tweet ? "Paste X/Twitter link" : "https://example.com/..."}
+                                className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-transparent transition-all font-sans"
+                             />
+                          </div>
+                       </div>
+                    )}
+
+                    {type === ContentType.Note && (
+                       <div className="space-y-1.5">
+                          <textarea 
+                             value={content}
+                             onChange={(e) => setContent(e.target.value)}
+                             placeholder="Write your note..."
+                             className="w-full min-h-[120px] bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-transparent transition-all font-sans resize-none leading-relaxed"
+                          />
+                       </div>
+                    )}
+                    
+                    {type === ContentType.Document && (
+                       <div className="space-y-1.5">
+                          <div className="relative group border border-dashed border-white/10 rounded-xl p-8 hover:bg-white/[0.02] transition-colors text-center cursor-pointer">
+                             <input 
+                                id="file-input"
+                                type="file"
+                                accept="application/pdf"
+                                onChange={handleFileChange}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                             />
+                             <div className="flex flex-col items-center gap-2 text-zinc-500">
+                                <FileText className="w-8 h-8 text-zinc-700 group-hover:text-zinc-500 transition-colors" />
+                                <span className="text-sm font-medium text-zinc-500 group-hover:text-zinc-300">
+                                   {selectedFile ? selectedFile.name : "Choose PDF file"}
+                                </span>
+                             </div>
+                          </div>
+                          {selectedFile && (
+                             <div className="flex items-center gap-2 text-xs text-emerald-500 px-1 pt-1 animate-in fade-in slide-in-from-top-1">
+                                <Check className="w-3 h-3" />
+                                Ready to upload
+                             </div>
+                          )}
+                       </div>
+                    )}
+
+                    {error && (
+                       <div className="text-xs text-rose-500 font-medium px-1 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
+                          <div className="w-1 h-1 rounded-full bg-rose-500"/>
+                          {error}
+                       </div>
+                    )}
+                 </div>
+                 
+                 {/* Live Preview Section - Reusing actual ContentCard */}
+                 {(title || link || content || selectedFile) && (
+                    <div className="pt-2 pb-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="text-[10px] uppercase tracking-widest text-zinc-600 font-semibold mb-3 px-1 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/50" />
+                            Live Preview
+                        </div>
+                        <div className="pointer-events-none opacity-100 transform scale-[0.98] origin-top">
+                           {/* @ts-ignore */}
+                           <ContentCard item={previewItem} />
+                        </div>
+                    </div>
+                 )}
+
+                 {/* Footer Button - White Solid */}
+                 <div className="pt-2">
+                    <button
+                       onClick={addContent}
+                       disabled={isLoading}
+                       className="w-full rounded-lg bg-white text-black font-semibold text-sm py-3 hover:bg-zinc-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-white/5"
+                    >
+                       {isLoading ? (
+                          <div className="flex items-center justify-center gap-2">
+                             <Loader2 className="w-4 h-4 animate-spin" />
+                             Processing...
+                          </div>
+                       ) : (
+                          "Submit Content"
+                       )}
+                    </button>
+                 </div>
               </div>
-            )}
 
-          <div className="mt-6 flex justify-end">
-            <Button
-              text={isLoading ? "Submitting..." : "Submit Content"}
-              onClick={addContent}
-              size="md"
-              variant="purple"
-              disabled={isLoading}
-              icon={
-                isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : null
-              }
-              className="min-w-[150px] justify-center"
-            />
+            </motion.div>
           </div>
-        </div>
-      </div>
-    </>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
 export default CreateContentModal;
