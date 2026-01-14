@@ -5,6 +5,8 @@ import "./App.css";
 import { ChatPage } from "./pages/ChatPage";
 import { Dashboard } from "./pages/dashboard";
 import LandingPage from "./pages/landingPage";
+import PaymentCancelPage from "./pages/PaymentCancelPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PricingPage from "./pages/PricingPage";
 import SignInPage from "./pages/SignIn";
 import SignUpPage from "./pages/SignUp";
@@ -36,8 +38,8 @@ function AppContent() {
       if (!token) return;
       
       try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL;
-        const res = await axios.get(`${backendUrl}/auth/me`, {
+        const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+        const res = await axios.get(`${API_BASE}/api/v1/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -74,6 +76,8 @@ function AppContent() {
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/chat/:id" element={<ChatPage />} />
         <Route path="/setting" element={<Dashboard />} />
+        <Route path="/payment-success" element={<PaymentSuccessPage />} />
+        <Route path="/payment-cancel" element={<PaymentCancelPage />} />
       </Routes>
       <Toaster position="top-right" />
     </>

@@ -1,9 +1,8 @@
-import { AlertTriangle, Brain, Menu, X } from "lucide-react";
+import { Brain, Menu, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Github from "../../icons/Github";
 import { UserDetails } from "../../services/userDetails";
-import ThemeToggle from "./ThemeToggle";
 import UserModal from "./UserModal";
 
 import { CreditCard } from 'lucide-react';
@@ -19,6 +18,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
   onSearch,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [credits, setCredits] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userModalOpen, setUserModalOpen] = useState(false);
@@ -94,10 +94,12 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
 
           <div className="hidden md:flex items-center space-x-4">
               <div className="relative flex items-center space-x-4">
-                <div className="flex items-center gap-2 px-4 py-2 bg-transparent border border-zinc-700 rounded-3xl">
-                  <CreditCard className="w-5 h-5 text-zinc-400" />
-                  <span className="font-bold text-zinc-300">{credits !== null ? `${credits} credits` : 'Loading...'}</span>
-                </div>
+                  {(location.pathname === '/chat' || location.pathname.startsWith('/chat/')) && (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-transparent border border-zinc-700 rounded-3xl">
+                      <CreditCard className="w-5 h-5 text-zinc-400" />
+                      <span className="font-bold text-zinc-300">{credits !== null ? `${credits} credits` : 'Loading...'}</span>
+                    </div>
+                  )}
                 <input
                   type="text"
                   value={query}
@@ -106,29 +108,32 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
                   className="px-3 py-2 pr-10 rounded-xl border border-zinc-800 bg-zinc-900 text-white focus:outline-none focus:ring-2 focus:ring-zinc-700"
                 />
               </div>
-                <ThemeToggle />
+                
                 <button
                   onClick={handleGithub}
                   className=" text-gray-200 hover:text-white transition-colors"
                 >
                   <Github />
                 </button>
-                <button
-                  onClick={openUserModal}
-                  className="h-8 w-8 rounded-full overflow-hidden border-2 border-zinc-700 flex items-center justify-center text-white transition hover:border-zinc-500"
-                >
-                  {userAvatar ? (
-                    <img
-                      src={userAvatar}
-                      alt={userName}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-sm font-medium">
-                      {username.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={openUserModal}
+                    className="h-8 w-8 rounded-full overflow-hidden border-2 border-zinc-700 flex items-center justify-center text-white transition hover:border-zinc-500"
+                  >
+                    {userAvatar ? (
+                      <img
+                        src={userAvatar}
+                        alt={userName}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-sm font-medium">
+                        {username.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </button>
+                  {userModalOpen && <UserModal onClose={closeUserModal} />}
+                </div>
           </div>
         </div>
         
@@ -139,13 +144,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
              </div>
          )}
          
-         {userModalOpen && (
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-end">
-              <div className="w-full max-w-md p-4">
-                <UserModal onClose={closeUserModal} />
-              </div>
-            </div>
-          )}
+
       </nav>
     );
   }
@@ -153,74 +152,90 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
   // Landing Page Navbar Implementation (Matching "Planora" reference)
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-[60] h-9 bg-amber-500/90 backdrop-blur-sm flex items-center justify-center text-black font-semibold text-[11px] md:text-sm tracking-wide px-4 shadow-lg">
-         <span className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4" />
-            WebMind is currently under scheduled maintenance. We will be back shortly.
-         </span>
-      </div>
-
-      <nav className="fixed top-9 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 bg-transparent">
+     
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 p-2 pl-6 pr-2 bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl transition-all duration-300 w-full max-w-4xl justify-between">
+      
       {/* Logo */}
-      <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-         <Brain className="w-6 h-6 text-white" />
-         <span className="text-lg font-medium text-white tracking-wide">WebMind</span>
+      <div className="flex items-center gap-2 pr-4 cursor-pointer border-r border-white/10 mr-2" onClick={() => navigate('/')}>
+         <Brain className="w-5 h-5 text-white" />
+         <span className="text-sm font-bold text-white tracking-tight hidden sm:block">WebMind</span>
       </div>
 
-      {/* Center Pill Navigation */}
-      <div className="hidden md:flex items-center bg-[#1c1c1c]/80 backdrop-blur-md border border-white/10 px-6 py-2 rounded-full space-x-6 shadow-2xl">
-        {['Home', 'Pricing', 'Features', 'Contact', 'About'].map((item) => (
+      {/* Links */}
+      <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
+        {['Pricing', 'Features'].map((item) => (
            <button 
              key={item}
              onClick={() => {
                 if(item === 'Pricing') navigate('/pricing');
-                else if(item === 'Home') navigate('/');
-                // Add other navigations as needed
+                else if(item === 'Features') {
+                    const element = document.getElementById('features');
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        navigate('/');
+                        setTimeout(() => {
+                           document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                    }
+                }
              }}
-             className="text-sm text-zinc-400 hover:text-white transition-colors font-medium"
+             className="px-6 py-2 text-[13px] font-medium text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/10"
            >
              {item}
            </button>
         ))}
       </div>
 
-      {/* Right Actions */}
-      <div className="hidden md:flex items-center gap-6">
-        <button className="text-sm text-zinc-300 hover:text-white transition-colors font-medium">
-          Learn More
-        </button>
+      {/* Right Side */}
+      <div className="flex items-center gap-3 pl-2">
+  
+        
         <button 
-           onClick={() => navigate('/signup')}
-           className="px-5 py-2 text-sm font-medium bg-[#2a2a2a] text-white rounded-lg border border-white/10 hover:bg-[#333] transition-all"
+           onClick={() => localStorage.getItem("token") ? navigate('/dashboard') : navigate('/signup')}
+           className="px-6 py-2.5 rounded-full bg-white text-black text-[13px] font-bold hover:bg-zinc-200 transition-all shadow-lg active:scale-95 flex items-center gap-2"
         >
-          Try It Now
+          {localStorage.getItem("token") ? "Dashboard" : "Get Started"}
         </button>
+        
+        {/* Mobile Menu Toggle */}
+         <button
+            onClick={toggleMobileMenu}
+            className="md:hidden p-2 text-white rounded-full hover:bg-white/10"
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
       </div>
-
-      {/* Mobile Menu Toggle */}
-       <button
-          onClick={toggleMobileMenu}
-          className="md:hidden p-2 text-white"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
 
          {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="absolute top-20 left-4 right-4 bg-[#0a0a0a] border border-zinc-800 rounded-2xl p-6 flex flex-col space-y-4 md:hidden">
-             {['Home', 'Pricing', 'Features', 'Contact', 'About'].map((item) => (
+        <div className="absolute top-[120%] left-0 right-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-3xl p-4 flex flex-col space-y-2 md:hidden shadow-2xl overflow-hidden">
+             {['Pricing', 'Features', 'Contact'].map((item) => (
                 <button 
                     key={item}
-                     onClick={() => navigate(item === 'Home' ? '/' : `/${item.toLowerCase()}`)}
-                    className="text-left text-zinc-300 hover:text-white py-2"
+                    onClick={() => {
+                        if (item === 'Features') {
+                            const element = document.getElementById('features');
+                            if (element) {
+                                element.scrollIntoView({ behavior: 'smooth' });
+                                setMobileMenuOpen(false);
+                            } else {
+                                navigate('/');
+                                setTimeout(() => {
+                                   document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                                   setMobileMenuOpen(false);
+                                }, 100);
+                            }
+                        } else {
+                            navigate(`/${item.toLowerCase()}`);
+                            setMobileMenuOpen(false);
+                        }
+                    }}
+                    className="text-left text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white py-3 px-4 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium text-sm"
                 >
                     {item}
                 </button>
              ))}
-             <div className="h-px bg-zinc-800 my-2" />
-             <button onClick={() => navigate('/signup')} className="w-full py-3 bg-white text-black rounded-lg font-medium">
-                 Try It Now
-             </button>
         </div>
       )}
     </nav>

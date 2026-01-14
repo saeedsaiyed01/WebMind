@@ -2,25 +2,25 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    Check,
-    FileText,
-    Globe,
-    Link as LinkIcon,
-    Loader2,
-    StickyNote,
-    Twitter,
-    X
+   Check,
+   FileText,
+   Globe,
+   Link as LinkIcon,
+   Loader2,
+   StickyNote,
+   Twitter,
+   X
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
 enum ContentType {
   Tweet = "tweet",
   Note = "note",
   Document = "document",
-  Website = "website",
+  Website = "link",
 }
 
 interface CreateContentModalProps {

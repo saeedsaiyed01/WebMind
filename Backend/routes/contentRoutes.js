@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteContent, listContent, updateContent } from "../controllers/contentController.js";
+import { deleteContent, listContent, searchContent, updateContent } from "../controllers/contentController.js";
 import { userMiddleware } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
@@ -7,9 +7,13 @@ const router = express.Router();
 // GET  /api/v1/content
 router.get("/content", userMiddleware, listContent);
 
+// GET /api/v1/content/search?q=<query> - Search for @ mention autocomplete
+router.get("/content/search", userMiddleware, searchContent);
+
 // PUT  /api/v1/content
 router.put("/:contentId", userMiddleware, updateContent);
 
 // DELETE /api/v1/content
-router.delete("/:contentId", userMiddleware, deleteContent    );
+router.delete("/:contentId", userMiddleware, deleteContent);
 export default router;
+

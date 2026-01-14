@@ -12,13 +12,27 @@ const dodo = new DodoPayments({
 
 router.post("/create-session", userMiddleware, async (req, res) => {
   try {
-    const { plan, email, name } = req.body;
+    // Debug: Log the entire request body
+    console.log("🔵 RAW req.body:", JSON.stringify(req.body));
+    console.log("🔵 req.body type:", typeof req.body);
+
+    const { plan, email, name } = req.body || {};
     const userId = req.userId;
-    
+
+    console.log("🔵 Create session request:", { plan, email, name, userId });
+    console.log("🔵 Plan value:", plan, "Type:", typeof plan);
+
     // Validate plan
     const planInfo = PLANS[plan];
     if (!planInfo) {
-      return res.status(400).json({ error: "Invalid plan" });
+      console.error("❌ Invalid plan:", plan, "Available plans:", Object.keys(PLANS));
+      return res.status(400).json({
+        error: "Invalid plan",
+        received: plan,
+        receivedType: typeof plan,
+        rawBody: req.body,
+        available: Object.keys(PLANS)
+      });
     }
 
     // Prevent payment for free plan
@@ -33,6 +47,12 @@ router.post("/create-session", userMiddleware, async (req, res) => {
     }
 
     // Create checkout session
+    const successUrl = `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${process.env.FRONTEND_URL}/payment-cancel`;
+
+    console.log("🔗 Success URL:", successUrl);
+    console.log("🔗 Cancel URL:", cancelUrl);
+
     const session = await dodo.checkoutSessions.create({
       product_cart: [
         {
@@ -41,13 +61,13 @@ router.post("/create-session", userMiddleware, async (req, res) => {
         }
       ],
       customer: null,
-      metadata: { 
+      metadata: {
         plan: plan,
         userId: userId.toString(),
         credits: planInfo.credits.toString()
       },
-      success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`
+      success_url: successUrl,
+      cancel_url: cancelUrl
     });
 
     // Store pending transaction
@@ -60,16 +80,16 @@ router.post("/create-session", userMiddleware, async (req, res) => {
     });
     await user.save();
 
-    res.json({ 
+    res.json({
       checkout_url: session.checkout_url,
-      session_id: session.id 
+      session_id: session.id
     });
 
   } catch (err) {
     console.error("❌ Dodo session creation error:", err);
-    res.status(500).json({ 
+    res.status(500).json({
       error: "Payment creation failed",
-      details: err.message 
+      details: err.message
     });
   }
 });
@@ -79,7 +99,7 @@ router.get("/status/:sessionId", userMiddleware, async (req, res) => {
   try {
     const { sessionId } = req.params;
     const session = await dodo.checkoutSessions.retrieve(sessionId);
-    
+
     res.json({
       status: session.status,
       payment_id: session.payment_id

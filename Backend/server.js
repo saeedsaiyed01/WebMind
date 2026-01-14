@@ -10,15 +10,14 @@ import { generalLimiter } from "./middlewares/rateLimiter.js";
 import authRoutes from "./routes/authRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import contentRoutes from "./routes/contentRoutes.js";
+import modelRoutes from "./routes/modelRoutes.js";
 import paymentRoutes from "./routes/payment.js";
 import pricingRoutes from "./routes/pricingRoute.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import webhookRoutes from "./routes/webhook.js";
-
 dotenv.config();
 const app = express();
-app.use(express.json());
 
 const allowedOrigins = [
   'http://localhost:5173',
@@ -60,14 +59,17 @@ app.use(cors({
 async function bootstrap() {
   await connectDB();
 
-
-  
   app.set("trust proxy", 1);
   app.use(generalLimiter);
+
+  // Apply JSON body parser
   app.use(bodyParser.json());
+  app.use(express.json());
 
   // Initialize Passport
   app.use(passport.initialize());
+
+  // API Routes
   app.use("/api/v1", pricingRoutes);
   app.use("/api/v1/auth", googleAuth);
   app.use("/api/v1/auth", authRoutes);
@@ -75,8 +77,9 @@ async function bootstrap() {
   app.use("/api/v1", uploadRoutes);
   app.use("/api/v1", searchRoutes);
   app.use("/api/v1", chatRoutes);
-  app.use("/api/v1", webhookRoutes);
+  app.use("/api/v1", webhookRoutes);  // Webhook has its own raw body parser for the specific endpoint
   app.use("/api/v1", paymentRoutes);
+  app.use("/api/v1", modelRoutes);
 
   // // Directory for uploads: /tmp/uploads in production, or ./uploads in dev
   // const uploadDir = process.env.NODE_ENV === "production"

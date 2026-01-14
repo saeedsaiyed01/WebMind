@@ -24,16 +24,22 @@ export async function listContent(req, res) {
 
 
 // Update content (e.g., title)
+// Update content (title, link, content)
 export async function updateContent(req, res) {
-    const { contentId, newTitle } = req.body;
+    const { contentId, newTitle, link, content } = req.body;
     const userId = req.userId;
-    if (!contentId || typeof newTitle !== "string") {
-        return res.status(400).json({ message: "contentId and newTitle are required" });
+    if (!contentId) {
+        return res.status(400).json({ message: "contentId is required" });
     }
     try {
+        const updateFields = {};
+        if (newTitle) updateFields.title = newTitle;
+        if (link) updateFields.link = link;
+        if (content) updateFields.link = content; // Mapped to 'link' as per schema usage
+
         const updated = await ContentModel.findOneAndUpdate(
             { _id: contentId, userId },
-            { title: newTitle },
+            updateFields,
             { new: true }
         );
         if (!updated) {
@@ -120,7 +126,7 @@ export async function handleaddMemory(req, res) {
             userId,
             pineconeId,
             timestamp: extraMetadata.timestamp,
-         
+
         });
 
         res.status(201).json({ message: "Memory stored successfully", memory: memoryRecord });
@@ -339,6 +345,33 @@ export async function searchDocuments(req, res) {
         res.status(200).json({ results });
     } catch (error) {
         console.error("Search error:", error);
+        res.status(500).json({ message: "Search failed", error: error.message });
+    }
+};
+
+// Search content for @ mention autocomplete
+export async function searchContent(req, res) {
+    try {
+        const { q } = req.query;
+        const userId = req.userId;
+
+        // Build query - if q is provided, search by title or type
+        const query = { userId };
+        if (q && q.trim()) {
+            query.$or = [
+                { title: { $regex: q, $options: "i" } },
+                { type: { $regex: q, $options: "i" } }
+            ];
+        }
+
+        const results = await ContentModel.find(query)
+            .select("_id title type timestamp link pineconeId")
+            .limit(10)
+            .sort({ timestamp: -1 });
+
+        res.json({ results });
+    } catch (error) {
+        console.error("Search content error:", error);
         res.status(500).json({ message: "Search failed", error: error.message });
     }
 };

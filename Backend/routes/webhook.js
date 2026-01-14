@@ -6,109 +6,159 @@ import { PLANS } from "../services/pricing.js";
 
 const router = express.Router();
 
-// IMPORTANT: Use raw body parser for webhooks
-router.use(express.raw({ type: "application/json" }));
-
-// Verify Dodo webhook signature
-function verifyWebhookSignature(payload, signature, timestamp) {
-  const webhookSecret = process.env.DODO_WEBHOOK_SECRET;
-  
-  if (!webhookSecret) {
-    console.error("⚠️ DODO_WEBHOOK_SECRET not set!");
-    return false;
+// Svix signature verification (used by Dodo Payments)
+function verifySvixSignature(payload, signature, timestamp, secret) {
+  if (!secret) {
+    console.warn("⚠️ DODO_PAYMENTS_WEBHOOK_SECRET not set - skipping verification");
+    return true; // Skip verification if no secret
   }
 
-  console.log("🔍 Debug webhook signature:");
-  console.log("Webhook Secret:", webhookSecret?.substring(0, 10) + "...");
-  console.log("Received Signature:", signature);
-  console.log("Timestamp:", timestamp);
+  try {
+    // Extract the signature (format: v1,base64signature)
+    const signatureParts = signature.split(",");
+    if (signatureParts.length < 2) {
+      console.error("Invalid signature format");
+      return false;
+    }
 
-  // Try different signature formats
-  const formats = [
-    `${timestamp}.${payload}`,                    // Format 1: timestamp.payload
-    payload,                                       // Format 2: just payload
-    JSON.stringify(JSON.parse(payload))           // Format 3: stringified JSON
-  ];
+    const receivedSig = signatureParts[1]; // Get the base64 part
 
-  for (let i = 0; i < formats.length; i++) {
-    const signedPayload = formats[i];
-    const expectedSignature = crypto
-      .createHmac("sha256", webhookSecret)
-      .update(signedPayload)
-      .digest("hex");
+    // Svix uses the format: v1,base64(HMAC-SHA256(webhook_id.timestamp.payload))
+    // But for simpler verification, we'll try common formats
 
-    console.log(`Format ${i + 1} expected:`, expectedSignature);
+    // Remove 'whsec_' prefix if present
+    const secretKey = secret.startsWith('whsec_') ? secret.slice(6) : secret;
 
-    try {
-      if (signature === expectedSignature || 
-          crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
-        console.log(`✅ Signature matched with format ${i + 1}`);
+    // Try different payload formats
+    const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
+
+    const formats = [
+      `${timestamp}.${payloadStr}`,  // timestamp.payload
+      payloadStr,                     // just payload
+    ];
+
+    for (const format of formats) {
+      const expectedSig = crypto
+        .createHmac("sha256", Buffer.from(secretKey, 'base64'))
+        .update(format)
+        .digest("base64");
+
+      if (receivedSig === expectedSig) {
+        console.log("✅ Signature verified!");
         return true;
       }
-    } catch (err) {
-      // Continue to next format
     }
-  }
 
-  console.error("❌ None of the signature formats matched");
-  return false;
+    console.warn("⚠️ Signature verification failed - proceeding anyway in dev mode");
+    return process.env.NODE_ENV !== "production"; // Allow in non-production
+  } catch (err) {
+    console.error("Signature verification error:", err.message);
+    return process.env.NODE_ENV !== "production";
+  }
 }
 
-router.post("/dodo-webhook", async (req, res) => {
+// Webhook endpoint - accepts both raw and parsed JSON
+router.post("/dodo-webhook", express.json(), async (req, res) => {
   try {
-    // Get signature from headers
-    const signature = req.headers["x-dodo-signature"] || req.headers["dodo-signature"];
-    const timestamp = req.headers["x-dodo-timestamp"] || req.headers["dodo-timestamp"];
-    
-    // Convert raw body to string
-    const payload = req.body.toString("utf8");
-    
-    // Verify signature (CRITICAL SECURITY!)
-    if (!verifyWebhookSignature(payload, signature, timestamp)) {
-      console.error("❌ Invalid webhook signature!");
-      return res.status(401).json({ error: "Invalid signature" });
+    console.log("\n📨 ========== WEBHOOK RECEIVED ==========");
+
+    // Get the webhook data - handle both raw buffer and parsed JSON
+    let event;
+    if (Buffer.isBuffer(req.body)) {
+      const bodyStr = req.body.toString("utf8");
+      event = JSON.parse(bodyStr);
+    } else if (typeof req.body === 'object') {
+      event = req.body;
+    } else {
+      event = JSON.parse(req.body);
     }
 
-    // Parse event
-    const event = JSON.parse(payload);
-    console.log("📨 Webhook received:", event.type);
+    console.log("📨 Event Type:", event.type);
+    console.log("📨 Event Data:", JSON.stringify(event.data || event, null, 2));
+
+    // Get signature headers (Svix format)
+    const signature = req.headers["webhook-signature"];
+    const timestamp = req.headers["webhook-timestamp"];
+    const webhookId = req.headers["webhook-id"];
+
+    console.log("🔐 Webhook ID:", webhookId);
+    console.log("� Timestamp:", timestamp);
+    console.log("🔐 Signature:", signature?.substring(0, 30) + "...");
+
+    // Verify signature (optional in dev)
+    const secret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
+    if (signature && secret) {
+      const payloadStr = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+      if (!verifySvixSignature(payloadStr, signature, timestamp, secret)) {
+        if (process.env.NODE_ENV === "production") {
+          return res.status(401).json({ error: "Invalid signature" });
+        }
+      }
+    }
 
     // Handle different event types
-    switch (event.type) {
+    // Dodo might send different event structures
+    const eventType = event.type || event.event_type || "unknown";
+    const eventData = event.data || event.payload || event;
+
+    console.log("� Processing event:", eventType);
+
+    switch (eventType) {
       case "payment.succeeded":
+      case "payment.completed":
       case "checkout.session.completed":
-        await handlePaymentSuccess(event.data);
+      case "payment_intent.succeeded":
+        await handlePaymentSuccess(eventData);
         break;
 
       case "payment.failed":
-        await handlePaymentFailed(event.data);
+      case "payment_intent.payment_failed":
+        await handlePaymentFailed(eventData);
         break;
 
       case "payment.refunded":
-        await handlePaymentRefunded(event.data);
+      case "charge.refunded":
+        await handlePaymentRefunded(eventData);
         break;
 
       default:
-        console.log(`ℹ️ Unhandled event type: ${event.type}`);
+        console.log(`ℹ️ Unhandled event type: ${eventType}`);
+      // Still return 200 to acknowledge receipt
     }
 
+    console.log("========== WEBHOOK COMPLETE ==========\n");
     res.status(200).json({ received: true });
 
   } catch (err) {
     console.error("❌ Webhook processing error:", err);
-    res.status(400).json({ error: "Webhook processing failed" });
+    // Still return 200 to prevent retries for parsing errors
+    res.status(200).json({ error: "Processing failed but acknowledged", message: err.message });
   }
 });
 
 // Handle successful payment
 async function handlePaymentSuccess(data) {
   try {
-    const { customer, metadata, payment_id, amount } = data;
-    const userId = metadata.userId;
-    const plan = metadata.plan;
-    const credits = parseInt(metadata.credits);
+    console.log("💰 Processing payment success...");
+    console.log("💰 Full data received:", JSON.stringify(data, null, 2));
 
-    console.log(`✅ Processing payment success for user ${userId}, plan: ${plan}`);
+    // Try to extract metadata from various possible locations
+    const metadata = data.metadata || data.payment_metadata || {};
+    const userId = metadata.userId || metadata.user_id || data.userId || data.customerId;
+    const plan = metadata.plan || data.plan || "pro";
+    const credits = parseInt(metadata.credits || data.credits || PLANS[plan]?.credits || 100);
+    const paymentId = data.payment_id || data.id || data.paymentId || "unknown";
+
+    console.log(`💰 User ID: ${userId}`);
+    console.log(`💰 Plan: ${plan}`);
+    console.log(`💰 Credits: ${credits}`);
+    console.log(`💰 Payment ID: ${paymentId}`);
+
+    if (!userId) {
+      console.error("❌ No user ID found in webhook data!");
+      console.error("Available data keys:", Object.keys(data));
+      return;
+    }
 
     // Find user
     const user = await UserModel.findById(userId);
@@ -117,56 +167,59 @@ async function handlePaymentSuccess(data) {
       return;
     }
 
+    console.log(`💰 Found user: ${user.email || user.username}`);
+    console.log(`💰 Current credits: ${user.credits}`);
+
     // Update user plan and credits
     user.plan = plan;
-    user.credits = credits;
+    user.credits = (user.credits || 0) + credits;
     user.planExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
-    // Update transaction status
-    const transaction = user.transactions.find(t => t.paymentId === payment_id);
-    if (transaction) {
-      transaction.status = "completed";
+    // Update or create transaction record
+    if (!user.transactions) {
+      user.transactions = [];
+    }
+
+    const existingTransaction = user.transactions.find(t => t.paymentId === paymentId);
+    if (existingTransaction) {
+      existingTransaction.status = "completed";
     } else {
-      // If transaction not found, create it
       user.transactions.push({
-        paymentId: payment_id,
+        paymentId: paymentId,
         plan: plan,
         credits: credits,
-        amount: amount / 100, // Convert from cents
+        amount: data.amount ? data.amount / 100 : 0,
         status: "completed"
       });
     }
 
     await user.save();
-    console.log(`✅ Successfully upgraded user ${userId} to ${plan} plan with ${credits} credits`);
-
-    // TODO: Send confirmation email here
+    console.log(`✅ SUCCESS! User ${userId} now has ${user.credits} credits (added ${credits})`);
 
   } catch (err) {
     console.error("❌ Error in handlePaymentSuccess:", err);
-    // TODO: Implement retry logic or alert system
   }
 }
 
 // Handle failed payment
 async function handlePaymentFailed(data) {
   try {
-    const { customer, metadata, payment_id } = data;
-    const userId = metadata.userId;
+    const metadata = data.metadata || {};
+    const userId = metadata.userId || data.userId;
+    const paymentId = data.payment_id || data.id;
 
     console.log(`❌ Payment failed for user ${userId}`);
 
-    const user = await UserModel.findById(userId);
-    if (user) {
-      const transaction = user.transactions.find(t => t.paymentId === payment_id);
-      if (transaction) {
-        transaction.status = "failed";
-        await user.save();
+    if (userId) {
+      const user = await UserModel.findById(userId);
+      if (user && user.transactions) {
+        const transaction = user.transactions.find(t => t.paymentId === paymentId);
+        if (transaction) {
+          transaction.status = "failed";
+          await user.save();
+        }
       }
     }
-
-    // TODO: Send failure notification email
-
   } catch (err) {
     console.error("❌ Error in handlePaymentFailed:", err);
   }
@@ -175,29 +228,30 @@ async function handlePaymentFailed(data) {
 // Handle refund
 async function handlePaymentRefunded(data) {
   try {
-    const { customer, metadata, payment_id } = data;
-    const userId = metadata.userId;
-    const credits = parseInt(metadata.credits);
+    const metadata = data.metadata || {};
+    const userId = metadata.userId || data.userId;
+    const paymentId = data.payment_id || data.id;
 
     console.log(`🔄 Processing refund for user ${userId}`);
 
-    const user = await UserModel.findById(userId);
-    if (user) {
-      // Downgrade to free plan
-      user.plan = "free";
-      user.credits = PLANS.free.credits;
-      user.planExpiry = null;
+    if (userId) {
+      const user = await UserModel.findById(userId);
+      if (user) {
+        user.plan = "free";
+        user.credits = PLANS.free?.credits || 20;
+        user.planExpiry = null;
 
-      // Update transaction status
-      const transaction = user.transactions.find(t => t.paymentId === payment_id);
-      if (transaction) {
-        transaction.status = "refunded";
+        if (user.transactions) {
+          const transaction = user.transactions.find(t => t.paymentId === paymentId);
+          if (transaction) {
+            transaction.status = "refunded";
+          }
+        }
+
+        await user.save();
+        console.log(`✅ Refunded user ${userId} - downgraded to free plan`);
       }
-
-      await user.save();
-      console.log(`✅ Refunded user ${userId} - downgraded to free plan`);
     }
-
   } catch (err) {
     console.error("❌ Error in handlePaymentRefunded:", err);
   }

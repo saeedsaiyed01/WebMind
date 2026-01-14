@@ -11,7 +11,8 @@ const handlePayment = async (plan: string) => {
       return;
     }
 
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/api/v1'}/create-session`, {
+    const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+    const response = await fetch(`${API_BASE}/api/v1/create-session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,7 +55,7 @@ const PricingPage: React.FC = () => {
                    <span className="text-zinc-400 text-xs font-medium tracking-wide">Pricing</span>
                </div>
                
-               <h2 className="text-4xl md:text-5xl font-serif italic font-normal text-white mb-6">
+               <h2 className="text-4xl md:text-5xl font-mono font-bold text-white mb-6">
                   Choose the perfect plan to fit your business goals and budget
                </h2>
                <p className="text-zinc-500 text-base leading-relaxed max-w-2xl mx-auto">
@@ -81,7 +82,7 @@ const PricingPage: React.FC = () => {
                   <h3 className="text-xl font-medium text-white mb-1">Free Package</h3>
                   <p className="text-zinc-500 text-xs mb-8">Best for personal use.</p>
                   
-                  <div className="text-4xl font-serif text-white mb-8">FREE</div>
+                  <div className="text-4xl font-mono text-white mb-8">FREE</div>
                   <div className="h-px w-full bg-zinc-900 mb-8" />
                   
                   <div className="flex-grow">
@@ -119,7 +120,7 @@ const PricingPage: React.FC = () => {
                   <p className="text-zinc-500 text-xs mb-8">Most Popular</p>
                   
                   <div className="flex items-baseline gap-1 mb-8">
-                     <span className="text-4xl font-serif text-white">$8</span>
+                     <span className="text-4xl font-mono text-white">$8</span>
                      <span className="text-zinc-600 text-sm">/ per month</span>
                   </div>
                   <div className="h-px w-full bg-zinc-800 mb-8" />
@@ -159,7 +160,7 @@ const PricingPage: React.FC = () => {
                   <p className="text-zinc-500 text-xs mb-8">For Power Users</p>
                   
                   <div className="flex items-baseline gap-1 mb-8">
-                     <span className="text-4xl font-serif text-white">$16</span>
+                     <span className="text-4xl font-mono text-white">$16</span>
                      <span className="text-zinc-600 text-sm">/ per month</span>
                   </div>
                   <div className="h-px w-full bg-zinc-900 mb-8" />

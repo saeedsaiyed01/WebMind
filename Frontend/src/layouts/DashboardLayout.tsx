@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/Button";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
+import UserModal from "@/components/ui/UserModal";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
 import axios from "axios";
 import {
   Bell,
+  Brain,
   LogOut,
   Menu,
   Plus,
@@ -22,11 +24,12 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
-  const { user, logout, conversations, setConversations, setMessages } = useStore();
+  const { user, logout, conversations, setConversations, setMessages, credits, setCredits } = useStore();
   const navigate = useNavigate();
 
   // Delete Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userModalOpen, setUserModalOpen] = useState(false);
   const [convToDelete, setConvToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -45,6 +48,25 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
      };
      fetchConversations();
   }, [setConversations]);
+
+  useEffect(() => {
+    const fetchCredits = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) return;
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/plan`, {
+            headers: { 'Authorization': `${token}` }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setCredits(data.credits);
+          }
+        } catch (error) {
+          console.error('Failed to fetch credits:', error);
+        }
+    };
+    fetchCredits();
+  }, [setCredits]);
 
   useEffect(() => {
     if (location.pathname === "/dashboard") {
@@ -100,8 +122,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 pt-6 pb-5">
-          <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-white/5">
-            <div className="w-3 h-3 rounded-full border-[3px] border-black" />
+          <div className="w-8 h-8 rounded-xl bg-black flex items-center justify-center shadow-lg shadow-white/5">
+            <Brain className="text-white" />
           </div>
           <span className="text-lg font-bold text-white tracking-tight">
             WebMind
@@ -217,7 +239,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="flex-1 flex flex-col gap-3 min-w-0 my-1 mr-1">
         
         {/* ==================== TOP NAVBAR ISLAND (Glassy) ==================== */}
-        <header className="h-[52px] bg-[#0C0C0C]/50 backdrop-blur-xl rounded-full border border-white/[0.04] flex items-center justify-between px-3 flex-shrink-0 shadow-lg shadow-black/20">
+        <header className="h-[52px] bg-[#0C0C0C]/50 backdrop-blur-xl rounded-full border border-white/[0.04] flex items-center justify-between px-3 flex-shrink-0 shadow-lg shadow-black/20 relative z-50">
           
           {/* Left: Sidebar Toggle + Navigation */}
           <div className="flex items-center gap-4">
@@ -255,6 +277,21 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 AI Chat
               </Link>
             </div>
+
+            {/* Credit Display */}
+            <div className="hidden md:flex items-center gap-2 pl-2">
+               <button 
+                  onClick={() => navigate('/pricing')}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-[11px] font-semibold text-zinc-300 hover:bg-white/[0.08] transition-all group"
+               >
+                   <div className="w-3.5 h-3.5 rounded bg-white flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 rounded-full border-[1.5px] border-black" />
+                   </div>
+                   <span>{credits !== null ? credits : '...'} Credits</span>
+                   <span className="w-[1px] h-3 bg-white/10 mx-1" />
+                   <span className="text-zinc-500 hover:text-white transition-colors">Upgrade</span>
+               </button>
+            </div>
           </div>
 
           {/* Right: Actions */}
@@ -267,8 +304,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </Button>
             
             {/* User Avatar - Navbar Top */}
-            <div className="h-9 w-9 ml-1.5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 border border-white/10 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-md">
-               <span className="text-xs font-bold text-white uppercase tracking-wider">{user?.name?.charAt(0) || "U"}</span> 
+            <div className="relative">
+              <div 
+                onClick={() => setUserModalOpen(true)}
+                className="h-9 w-9 ml-1.5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 border border-white/10 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-md"
+              >
+                 <span className="text-xs font-bold text-white uppercase tracking-wider">{user?.name?.charAt(0) || "U"}</span> 
+              </div>
+              {userModalOpen && <UserModal onClose={() => setUserModalOpen(false)} />}
             </div>
           </div>
         </header>

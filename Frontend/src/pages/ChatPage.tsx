@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/Button";
+import { AttachedDocumentChip, ContentItem, DocumentMentionPopup } from "@/components/ui/DocumentMentionPopup";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
-import { Bot, Check, ChevronDown, Loader2, Mic, MoreVertical, Send, Sparkles } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Bot, Check, ChevronDown, Loader2, Mic, Send, Sparkles } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -15,13 +16,99 @@ interface Message {
 }
 
 export function ChatPage() {
-  const { user, selectedModel, credits, setCredits, addConversation, messages, setMessages } = useStore();
+  const { user, selectedModel, setCredits, addConversation, messages, setMessages } = useStore();
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const { id: conversationId } = useParams();
   const navigate = useNavigate();
+
+  const [attachedDocuments, setAttachedDocuments] = useState<ContentItem[]>([]);
+  const [showMentionPopup, setShowMentionPopup] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState("");
+  const [mentionIndex, setMentionIndex] = useState(0);
+  const [availableDocuments, setAvailableDocuments] = useState<ContentItem[]>([]);
+  const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [mentionStartPos, setMentionStartPos] = useState<number | null>(null);
+
+  // Fetch documents for @ mention autocomplete
+  const fetchDocuments = useCallback(async (query: string = "") => {
+    setDocumentsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const url = query 
+        ? `${API_BASE}/api/v1/content/search?q=${encodeURIComponent(query)}`
+        : `${API_BASE}/api/v1/content`;
+      
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        const docs = data.results || data.content || [];
+        // Filter out already attached documents
+        const filtered = docs.filter(
+          (d: ContentItem) => !attachedDocuments.some(ad => ad._id === d._id)
+        );
+        setAvailableDocuments(filtered);
+      }
+    } catch (e) {
+      console.error("Failed to fetch documents", e);
+      setAvailableDocuments([]);
+    } finally {
+      setDocumentsLoading(false);
+    }
+  }, [attachedDocuments]);
+
+  // Detect @ mentions in input
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    const cursorPos = e.target.selectionStart;
+    setInputValue(value);
+
+    // Find if we're in an @ mention context (letters, numbers, spaces allowed after @)
+    const textBeforeCursor = value.substring(0, cursorPos);
+    const atMatch = textBeforeCursor.match(/@([a-zA-Z0-9\s]*)$/);
+
+    if (atMatch) {
+      const query = atMatch[1] || "";
+      setMentionQuery(query);
+      setMentionStartPos(cursorPos - query.length - 1); // Position of @
+      setShowMentionPopup(true);
+      setMentionIndex(0);
+      fetchDocuments(query);
+    } else {
+      setShowMentionPopup(false);
+      setMentionQuery("");
+      setMentionStartPos(null);
+    }
+  };
+
+  // Handle document selection from popup
+  const handleDocumentSelect = (doc: ContentItem) => {
+    setAttachedDocuments(prev => [...prev, doc]);
+    
+    // Remove the @query from input
+    if (mentionStartPos !== null) {
+      const beforeMention = inputValue.substring(0, mentionStartPos);
+      const afterMention = inputValue.substring(mentionStartPos + mentionQuery.length + 1);
+      setInputValue(beforeMention + afterMention);
+    }
+    
+    setShowMentionPopup(false);
+    setMentionQuery("");
+    setMentionStartPos(null);
+    textareaRef.current?.focus();
+  };
+
+  // Remove attached document
+  const handleRemoveDocument = (docId: string) => {
+    setAttachedDocuments(prev => prev.filter(d => d._id !== docId));
+  };
 
   // Load conversation when ID changes
   useEffect(() => {
@@ -34,8 +121,9 @@ export function ChatPage() {
        
        try {
          const token = localStorage.getItem("token");
+         const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
          // Fetch conversation messages
-         const res = await fetch(`http://localhost:8000/api/v1/conversation/${conversationId}`, {
+         const res = await fetch(`${API_BASE}/api/v1/conversation/${conversationId}`, {
             headers: { Authorization: `Bearer ${token}` }
          });
 
@@ -60,23 +148,29 @@ export function ChatPage() {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() && attachedDocuments.length === 0) return;
 
-    // ... existing credit check (commented out) ...
+    // Build message content with attached doc info for display
+    const messageContent = inputValue.trim();
 
     const newMessage: Message = {
       role: "user",
-      content: inputValue,
+      content: messageContent,
       timestamp: Date.now(),
     };
 
+    // Store attached doc IDs before clearing
+    const attachedDocIds = attachedDocuments.map(d => d._id);
+
     setMessages((prev) => [...prev, newMessage]);
     setInputValue("");
+    setAttachedDocuments([]); // Clear after send
     setLoading(true);
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/api/v1/chat", {
+      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const res = await fetch(`${API_BASE}/api/v1/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -85,7 +179,8 @@ export function ChatPage() {
         body: JSON.stringify({
           message: newMessage.content,
           model: activeModel.id,
-          conversationId: conversationId // Pass ID if exists
+          conversationId: conversationId,
+          attachedDocumentIds: attachedDocIds // Send attached doc IDs for focused search
         })
       });
 
@@ -142,7 +237,7 @@ export function ChatPage() {
     { id: "mistralai/devstral-2512:free", name: "Mistral Devstral" }
   ];
 
-  const [showModels, setShowModels] = useState(false);
+  const [_showModels, setShowModels] = useState(false);
   const [showFooterModels, setShowFooterModels] = useState(false);
   // Default to first model if none selected
   const activeModel = selectedModel || SUPPORTED_MODELS[0];
@@ -155,63 +250,7 @@ export function ChatPage() {
       >
         
         {/* Chat Header (Floating Top) */}
-        <div className="px-5 py-3 flex items-center justify-between border-b border-white/[0.04]">
-           <div className="flex items-center gap-3 relative">
-              {/* Model Selector (Header - Optional) */}
-              <div className="relative" onClick={(e) => e.stopPropagation()}>
-                <button 
-                  onClick={() => setShowModels(!showModels)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.05] backdrop-blur-sm border border-white/[0.08] hover:bg-white/[0.08] transition-all text-zinc-200 font-medium text-[11px] group"
-                >
-                   {activeModel.name} <ChevronDown className={cn("h-3 w-3 text-zinc-500 group-hover:text-zinc-300 transition-transform duration-200", showModels ? "rotate-180" : "")} />
-                </button>
-                
-                {/* Dropdown Menu */}
-                {showModels && (
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-zinc-900/90 backdrop-blur-xl border border-white/[0.08] rounded-xl shadow-2xl overflow-hidden z-50 py-1 animate-in fade-in zoom-in-95 duration-100">
-                    {SUPPORTED_MODELS.map((model) => (
-                      <button
-                        key={model.id}
-                        onClick={() => {
-                          // @ts-ignore
-                          useStore.getState().setSelectedModel(model);
-                          setShowModels(false);
-                        }}
-                        className={cn(
-                          "w-full text-left px-4 py-2 text-[11px] hover:bg-white/[0.08] transition-colors flex items-center gap-2",
-                          activeModel.id === model.id ? "text-emerald-400 font-medium bg-white/[0.03]" : "text-zinc-400"
-                        )}
-                      >
-                        {activeModel.id === model.id && <Sparkles className="h-3 w-3" />}
-                        {model.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <button 
-                onClick={async () => {
-                   try {
-                     const token = localStorage.getItem("token");
-                     const res = await fetch("http://localhost:8000/api/v1/auth/refill", {
-                        method: "POST",
-                        headers: { "Authorization": `Bearer ${token}` }
-                     });
-                     if (res.ok) {
-                        setCredits(50);
-                        alert("Refilled to 50 credits!");
-                     }
-                   } catch (e) { console.error(e); }
-                }}
-                className="hidden md:flex bg-[#BEF264]/10 text-[#BEF264] border border-[#BEF264]/20 pl-3 pr-4 py-1.5 rounded-xl text-[10px] font-semibold items-center gap-2 hover:bg-[#BEF264]/20 transition-all backdrop-blur-sm cursor-pointer"
-              >
-                 <Sparkles className="h-3 w-3" /> 
-                 {credits} Credits • Upgrade
-              </button>
-           </div>
-           <button className="p-2 hover:bg-white/[0.05] rounded-xl text-zinc-500 transition-all">
-              <MoreVertical className="h-4 w-4" />
-           </button>
+        <div className="px-5 py-3 flex items-center justify-between border-b border-white/[0.04] opacity-0 pointer-events-none h-0 p-0 overflow-hidden">
         </div>
 
         {/* Main Scrollable Area */}
@@ -223,14 +262,14 @@ export function ChatPage() {
                {/* Hero Icon & Text */}
                <div className="space-y-5">
                   <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-                     {/* Swirl Effect Layers */}
-                     <div className="absolute inset-0 bg-emerald-500/30 rounded-full blur-[25px] animate-pulse" />
-                     <div className="absolute inset-0 border-2 border-emerald-500/20 rounded-full animate-[spin_8s_linear_infinite]" />
-                     <div className="absolute inset-1 border border-emerald-400/30 rounded-full border-t-transparent animate-[spin_12s_linear_infinite_reverse]" />
+                     {/* Swirl Effect Layers - Monochrome Glass */}
+                     <div className="absolute inset-0 bg-white/5 rounded-full blur-[25px] animate-pulse" />
+                     <div className="absolute inset-0 border-2 border-white/10 rounded-full animate-[spin_8s_linear_infinite]" />
+                     <div className="absolute inset-1 border border-white/20 rounded-full border-t-transparent animate-[spin_12s_linear_infinite_reverse]" />
                      
-                     <div className="relative w-12 h-12 bg-zinc-800 rounded-full border border-emerald-500/30 flex items-center justify-center shadow-xl overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 to-transparent opacity-50" />
-                        <Bot className="h-6 w-6 text-emerald-400 relative z-10" />
+                     <div className="relative w-12 h-12 bg-zinc-900 rounded-full border border-white/10 flex items-center justify-center shadow-xl overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent opacity-50" />
+                        <Bot className="h-6 w-6 text-white relative z-10" />
                      </div>
                   </div>
                   <div className="space-y-2">
@@ -251,13 +290,13 @@ export function ChatPage() {
                 <div key={i} className={cn("flex w-full gap-3", msg.role === "user" ? "justify-end" : "justify-start")}>
                    {msg.role === "assistant" && (
                       <div className="w-7 h-7 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center flex-shrink-0 mt-1">
-                         <Bot className="h-3.5 w-3.5 text-emerald-400" />
+                         <Bot className="h-3.5 w-3.5 text-white" />
                       </div>
                    )}
                    <div className={cn(
                       "px-4 py-2.5 rounded-2xl max-w-[85%] text-[12px] leading-6",
                       msg.role === "user"
-                         ? "bg-white text-black rounded-tr-sm"
+                         ? "bg-zinc-800 text-white border border-zinc-700 rounded-tr-sm"
                          : "bg-white/[0.04] backdrop-blur-sm text-zinc-200 border border-white/[0.06] rounded-tl-sm"
                    )}>
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
@@ -275,7 +314,7 @@ export function ChatPage() {
               {loading && (
                  <div className="flex gap-3">
                     <div className="w-7 h-7 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center flex-shrink-0">
-                        <Bot className="h-3.5 w-3.5 text-emerald-400" />
+                        <Bot className="h-3.5 w-3.5 text-white" />
                     </div>
                     <div className="bg-white/[0.04] backdrop-blur-sm px-4 py-2.5 rounded-2xl rounded-tl-sm border border-white/[0.06]">
                        <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
@@ -292,19 +331,65 @@ export function ChatPage() {
               {/* REMOVED: border border-white/[0.08] */}
               <div className="relative bg-[#18181b] rounded-3xl shadow-2xl p-4 min-h-[120px] flex flex-col justify-between">
                  
+                 {/* @ Mention Popup */}
+                 <DocumentMentionPopup
+                    isOpen={showMentionPopup}
+                    searchQuery={mentionQuery}
+                    documents={availableDocuments}
+                    selectedIndex={mentionIndex}
+                    onSelect={handleDocumentSelect}
+                    onClose={() => setShowMentionPopup(false)}
+                    loading={documentsLoading}
+                 />
+                 
+                 {/* Attached Documents Chips */}
+                 {attachedDocuments.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2 pb-2 border-b border-white/[0.06]">
+                       {attachedDocuments.map(doc => (
+                          <AttachedDocumentChip
+                             key={doc._id}
+                             document={doc}
+                             onRemove={() => handleRemoveDocument(doc._id)}
+                          />
+                       ))}
+                    </div>
+                 )}
+                 
                  {/* Input Field */}
                  <div className="relative z-10">
-                    {!inputValue && (
+                    {!inputValue && attachedDocuments.length === 0 && (
                         <div className="absolute top-0 left-0 pointer-events-none flex items-center gap-2 text-zinc-500 text-sm p-1">
-                           <Sparkles className="h-4 w-4 text-[#BEF264]/50" />
-                           <span>Start your request, and let WebMind handle everything</span>
+                           <Sparkles className="h-4 w-4 text-zinc-500" />
+                           <span>Type @ to attach docs, or start your request</span>
                         </div>
                     )}
                     {/* ADDED: outline-none to textarea */}
                     <textarea 
+                       ref={textareaRef}
                        value={inputValue}
-                       onChange={(e) => setInputValue(e.target.value)}
+                       onChange={handleInputChange}
                        onKeyDown={(e) => {
+                          // Handle popup navigation when popup is open
+                          if (showMentionPopup) {
+                             if (e.key === "ArrowUp") {
+                                e.preventDefault();
+                                setMentionIndex(prev => Math.max(0, prev - 1));
+                             } else if (e.key === "ArrowDown") {
+                                e.preventDefault();
+                                setMentionIndex(prev => Math.min(availableDocuments.length - 1, prev + 1));
+                             } else if (e.key === "Enter") {
+                                e.preventDefault();
+                                if (availableDocuments[mentionIndex]) {
+                                   handleDocumentSelect(availableDocuments[mentionIndex]);
+                                }
+                             } else if (e.key === "Escape") {
+                                e.preventDefault();
+                                setShowMentionPopup(false);
+                             }
+                             return;
+                          }
+                          
+                          // Normal enter to send
                           if(e.key === "Enter" && !e.shiftKey) {
                              e.preventDefault();
                              handleSend();
@@ -330,7 +415,7 @@ export function ChatPage() {
                              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-800/50 text-xs font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 transition-all"
                              title="Select Model"
                           >
-                              <Sparkles className="h-3.5 w-3.5 text-emerald-500/70" /> 
+                              <Sparkles className="h-3.5 w-3.5 text-zinc-400" /> 
                               <span className="truncate max-w-[100px]">{activeModel.name}</span>
                               <ChevronDown className={cn("h-3 w-3 opacity-50 transition-transform duration-200", showFooterModels ? "rotate-180" : "")} />
                           </button>
@@ -347,7 +432,7 @@ export function ChatPage() {
                                      }}
                                      className={cn(
                                        "w-full text-left px-3 py-2 text-[11px] hover:bg-white/[0.08] transition-colors flex items-center gap-2",
-                                       activeModel.id === model.id ? "text-emerald-400 font-medium bg-white/[0.03]" : "text-zinc-400"
+                                       activeModel.id === model.id ? "text-white font-medium bg-white/[0.05]" : "text-zinc-400"
                                      )}
                                    >
                                      <span className="flex-1 truncate">{model.name}</span>
@@ -366,9 +451,9 @@ export function ChatPage() {
                        </Button>
                        <Button 
                           onClick={handleSend} 
-                          disabled={loading || !inputValue.trim()}
+                          disabled={loading || (!inputValue.trim() && attachedDocuments.length === 0)}
                           size="icon"
-                          className="bg-[#BEF264] text-black hover:bg-[#d4f88a] rounded-full h-9 w-9 shadow-lg shadow-[#BEF264]/20 transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100"
+                          className="bg-white text-black hover:bg-zinc-200 rounded-full h-9 w-9 shadow-lg shadow-white/10 transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100"
                        >
                           <Send className="h-4 w-4 ml-0.5" />
                        </Button>
@@ -378,7 +463,7 @@ export function ChatPage() {
               
               <div className="text-center mt-2">
                 <span className="text-[8px] uppercase tracking-widest text-zinc-600 font-medium">
-                  WebMind v1.0 may make errors. Check important information.
+                  WebMind may make errors. Check important information.
                 </span>
               </div>
            </div>

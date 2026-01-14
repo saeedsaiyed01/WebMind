@@ -9,8 +9,8 @@ export async function userMiddleware(req, res, next) {
     return res.status(403).json({ message: "Authorization header missing" });
   }
 
-  // Since you're not using a Bearer scheme, we use the header value directly.
-  const token = header;
+  // Support both "Bearer <token>" and raw token
+  const token = header.startsWith("Bearer ") ? header.slice(7).trim() : header;
   console.log("Extracted Token:", token);
 
   try {

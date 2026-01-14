@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const ChatSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   contentId: { type: mongoose.Schema.Types.ObjectId, ref: "Content", required: false },
+  conversationId: { type: mongoose.Schema.Types.ObjectId, ref: "Conversation", required: false, index: true },
   message: { type: String, required: true },
   response: { type: String, required: true },
   creditsUsed: { type: Number, default: 1 }, // ✅ ADD THIS
@@ -17,3 +18,4 @@ ChatSchema.index({ userId: 1, createdAt: -1 });
 const ChatModel = mongoose.models.Chat || mongoose.model("Chat", ChatSchema);
 
 export { ChatModel };
+

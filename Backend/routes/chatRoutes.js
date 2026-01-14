@@ -26,14 +26,14 @@ router.get("/credits", userMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
     const user = await UserModel.findById(userId).select("credits plan planExpiry");
-    
+
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
     // Get total chats count
     const totalChats = await ChatModel.countDocuments({ userId });
-    
+
     // Get total credits used
     const creditsUsedResult = await ChatModel.aggregate([
       { $match: { userId: new mongoose.Types.ObjectId(userId) } },
@@ -58,6 +58,45 @@ router.get("/credits", userMiddleware, async (req, res) => {
 
 
 // ============================================
+// CONVERSATION SESSION ENDPOINTS (SIDEBAR)
+// ============================================
+import { ConversationModel } from "../models/conversation.model.js";
+
+// GET /conversations - List user's conversations
+router.get("/conversations", userMiddleware, async (req, res) => {
+  try {
+    const convs = await ConversationModel.find({ userId: req.userId })
+      .sort({ lastMessageAt: -1 })
+      .limit(50);
+    res.json(convs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /conversation/:id - Get messages for a specific conversation
+router.get("/conversation/:id", userMiddleware, async (req, res) => {
+  try {
+    const messages = await ChatModel.find({
+      conversationId: req.params.id,
+      userId: req.userId
+    }).sort({ createdAt: 1 }); // Oldest first
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /conversation/:id
+router.delete("/conversation/:id", userMiddleware, async (req, res) => {
+  try {
+    await ConversationModel.findOneAndDelete({ _id: req.params.id, userId: req.userId });
+    await ChatModel.deleteMany({ conversationId: req.params.id, userId: req.userId });
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ============================================
 // CHAT HISTORY ENDPOINTS
 // ============================================
 
@@ -79,9 +118,9 @@ router.get("/history", userMiddleware, async (req, res) => {
       .limit(parseInt(limit))
       .select('message response creditsUsed contentId createdAt');
 
-    res.json({ 
+    res.json({
       chats,
-      total: chats.length 
+      total: chats.length
     });
   } catch (error) {
     console.error("Get history error:", error);
@@ -96,17 +135,17 @@ router.get("/history/:contentId", userMiddleware, async (req, res) => {
     const { contentId } = req.params;
     const { limit = 50 } = req.query;
 
-    const chats = await ChatModel.find({ 
-      userId, 
-      contentId 
+    const chats = await ChatModel.find({
+      userId,
+      contentId
     })
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .select('message response creditsUsed createdAt');
 
-    res.json({ 
+    res.json({
       chats: chats.reverse(), // Oldest first for conversation flow
-      total: chats.length 
+      total: chats.length
     });
   } catch (error) {
     console.error("Get content history error:", error);
@@ -144,11 +183,11 @@ router.get("/stats", userMiddleware, async (req, res) => {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const recentChats = await ChatModel.aggregate([
-      { 
-        $match: { 
+      {
+        $match: {
           userId: new mongoose.Types.ObjectId(userId),
           createdAt: { $gte: sevenDaysAgo }
-        } 
+        }
       },
       {
         $group: {
@@ -198,9 +237,9 @@ router.delete("/:chatId", userMiddleware, async (req, res) => {
       return res.status(404).json({ error: "Chat not found" });
     }
 
-    res.json({ 
-      success: true, 
-      message: "Chat deleted successfully" 
+    res.json({
+      success: true,
+      message: "Chat deleted successfully"
     });
   } catch (error) {
     console.error("Delete chat error:", error);
@@ -219,8 +258,8 @@ router.delete("/content/:contentId", userMiddleware, async (req, res) => {
       userId: userId
     });
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: `Deleted ${result.deletedCount} chats`,
       deletedCount: result.deletedCount
     });

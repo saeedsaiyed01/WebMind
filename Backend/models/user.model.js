@@ -21,7 +21,13 @@ const UserSchema = new mongoose.Schema({
     amount: Number,
     status: { type: String, enum: ["pending", "completed", "failed", "refunded"] },
     createdAt: { type: Date, default: Date.now }
-  }]
+  }],
+
+  // Password reset fields
+  otp: String, // hashed
+  otpExpiry: Date,
+  resetToken: String,
+  resetTokenExpiry: Date
 }, { timestamps: true });
 
 export const UserModel = mongoose.model("User", UserSchema);
