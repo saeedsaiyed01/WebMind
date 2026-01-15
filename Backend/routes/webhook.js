@@ -9,8 +9,8 @@ const router = express.Router();
 // Svix signature verification (used by Dodo Payments)
 function verifySvixSignature(payload, signature, timestamp, secret) {
   if (!secret) {
-    console.warn("⚠️ DODO_PAYMENTS_WEBHOOK_SECRET not set - skipping verification");
-    return true; // Skip verification if no secret
+    console.error("❌ DODO_PAYMENTS_WEBHOOK_SECRET not set - rejecting webhook");
+    return false; // Reject if no secret
   }
 
   try {
@@ -49,11 +49,11 @@ function verifySvixSignature(payload, signature, timestamp, secret) {
       }
     }
 
-    console.warn("⚠️ Signature verification failed - proceeding anyway in dev mode");
-    return process.env.NODE_ENV !== "production"; // Allow in non-production
+    console.error("❌ Signature verification failed");
+    return false; // Always reject failed signatures
   } catch (err) {
     console.error("Signature verification error:", err.message);
-    return process.env.NODE_ENV !== "production";
+    return false;
   }
 }
 
@@ -85,15 +85,19 @@ router.post("/dodo-webhook", express.json(), async (req, res) => {
     console.log("� Timestamp:", timestamp);
     console.log("🔐 Signature:", signature?.substring(0, 30) + "...");
 
-    // Verify signature (optional in dev)
+    // Verify signature (required)
     const secret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
-    if (signature && secret) {
-      const payloadStr = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-      if (!verifySvixSignature(payloadStr, signature, timestamp, secret)) {
-        if (process.env.NODE_ENV === "production") {
-          return res.status(401).json({ error: "Invalid signature" });
-        }
-      }
+    if (!secret) {
+      return res.status(500).json({ error: "Webhook secret not configured" });
+    }
+    
+    if (!signature) {
+      return res.status(401).json({ error: "Signature required" });
+    }
+    
+    const payloadStr = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    if (!verifySvixSignature(payloadStr, signature, timestamp, secret)) {
+      return res.status(401).json({ error: "Invalid signature" });
     }
 
     // Handle different event types

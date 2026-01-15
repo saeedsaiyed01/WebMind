@@ -3,10 +3,12 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import helmet from "helmet";
 import googleAuth from "./config/googleAuth.js";
 import { passport } from "./config/passport.js";
 import connectDB from "./db/db.js";
 import { generalLimiter } from "./middlewares/rateLimiter.js";
+import { sanitizeInput, authLimiter } from "./middlewares/sanitization.js";
 import authRoutes from "./routes/authRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import contentRoutes from "./routes/contentRoutes.js";
@@ -25,29 +27,20 @@ const allowedOrigins = [
   'https://web-mind.vercel.app',
   'https://webmind.buzz', // your custom domain
   'https://www.webmind.buzz',
-  'http://webmind.buzz',
-  'http://www.webmind.buzz',
   'https://web-mind-be.vercel.app',
-  'http://localhost:8000',
-  null // Allow requests with no origin (like Postman)
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    console.log('CORS check for origin:', origin);
-    // Allow requests with no origin (like Postman, curl, etc.)
-    if (!origin) {
+    // Allow requests with no origin (like Postman, curl, etc.) only in development
+    if (!origin && process.env.NODE_ENV === "development") {
       return callback(null, true);
     }
 
-    // Allow specific origins
-    if (
-      allowedOrigins.includes(origin) ||
-      /^https?:\/\/.*vercel\.app$/.test(origin)
-    ) {
+    // Allow specific origins only
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log('Rejected origin:', origin);
       callback(new Error("Not allowed by CORS"));
     }
   },
@@ -60,11 +53,33 @@ async function bootstrap() {
   await connectDB();
 
   app.set("trust proxy", 1);
+  
+  // Security headers
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true
+    }
+  }));
+  
   app.use(generalLimiter);
 
-  // Apply JSON body parser
-  app.use(bodyParser.json());
-  app.use(express.json());
+// Apply JSON body parser with size limits
+  app.use(bodyParser.json({ limit: '10mb' }));
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  
+  // Apply input sanitization
+  app.use(sanitizeInput);
 
   // Initialize Passport
   app.use(passport.initialize());

@@ -55,8 +55,9 @@ const PricingPage: React.FC = () => {
                    <span className="text-zinc-400 text-xs font-medium tracking-wide">Pricing</span>
                </div>
                
-               <h2 className="text-4xl md:text-5xl font-mono font-bold text-white mb-6">
-                  Choose the perfect plan to fit your business goals and budget
+               <h2 className="text-4xl md:text-5xl lg:text-6xl font-mono font-bold text-white mb-6 tracking-tight leading-[1.1]">
+                  Choose the <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-500 selection:text-white">perfect plan</span> <br className="hidden md:block" />
+                  to fit your business goals
                </h2>
                <p className="text-zinc-500 text-base leading-relaxed max-w-2xl mx-auto">
                   Whether you're just getting started or looking to scale, we offer flexible pricing options that grow with you.
