@@ -13,8 +13,10 @@ const router = express.Router();
 // MAIN CHAT ENDPOINT
 // ============================================
 
+import { chatLimiter } from "../middlewares/rateLimiter.js";
+
 // POST /api/v1/chat - Send a message and get AI response
-router.post("/chat", userMiddleware, checkCredits, Chat);
+router.post("/chat", userMiddleware, chatLimiter, checkCredits, Chat);
 
 
 // ============================================
