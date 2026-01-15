@@ -47,7 +47,6 @@
     "twitter-api-v2": "^1.21.1",
     "uuid": "^11.1.0",
     "zod": "^3.24.2",
-    "@langchain/community": "^0.3.0",
     "@langchain/core": "^0.3.0",
     "@langchain/openai": "^0.3.0"
   },
