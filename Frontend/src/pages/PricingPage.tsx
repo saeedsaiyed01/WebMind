@@ -106,7 +106,7 @@ const PricingPage: React.FC = () => {
                   
                   <button 
                     onClick={() => navigate('/signup')}
-                    className="w-full mt-8 py-3 rounded-xl border border-zinc-800 text-zinc-300 font-medium text-sm hover:bg-zinc-900 hover:text-white transition-all"
+                    className="w-full mt-8 py-3 rounded-full border border-zinc-800 text-zinc-300 font-medium text-sm hover:bg-zinc-900 hover:text-white transition-all"
                   >
                      Get Started
                   </button>
@@ -146,7 +146,7 @@ const PricingPage: React.FC = () => {
                   
                   <button 
                     onClick={() => handlePayment('Pro')}
-                    className="w-full mt-8 py-3 rounded-xl bg-white text-black font-medium text-sm hover:bg-zinc-200 transition-all shadow-lg shadow-white/5"
+                    className="w-full mt-8 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-zinc-200 transition-all shadow-lg shadow-white/5"
                   >
                      Upgrade to Pro
                   </button>
@@ -186,7 +186,7 @@ const PricingPage: React.FC = () => {
                   
                   <button 
                     onClick={() => handlePayment('Premium')}
-                    className="w-full mt-8 py-3 rounded-xl border border-zinc-800 text-zinc-300 font-medium text-sm hover:bg-zinc-900 hover:text-white transition-all"
+                    className="w-full mt-8 py-3 rounded-full border border-zinc-800 text-zinc-300 font-medium text-sm hover:bg-zinc-900 hover:text-white transition-all"
                   >
                      Go Premium
                   </button>

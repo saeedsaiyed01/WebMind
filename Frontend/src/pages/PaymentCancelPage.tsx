@@ -22,13 +22,13 @@ export default function PaymentCancelPage() {
         <div className="pt-4 space-y-3">
           <button
             onClick={() => navigate("/pricing")}
-            className="w-full px-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-zinc-200 transition-all"
+            className="w-full px-6 py-3 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-all"
           >
             Try Again
           </button>
           <button
             onClick={() => navigate("/dashboard")}
-            className="w-full px-6 py-3 bg-zinc-800 text-white font-semibold rounded-xl hover:bg-zinc-700 transition-all"
+            className="w-full px-6 py-3 bg-zinc-800 text-white font-semibold rounded-full hover:bg-zinc-700 transition-all"
           >
             Go to Dashboard
           </button>

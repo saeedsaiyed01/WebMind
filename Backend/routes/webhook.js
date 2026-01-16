@@ -7,7 +7,7 @@ import { PLANS } from "../services/pricing.js";
 const router = express.Router();
 
 // Svix signature verification (used by Dodo Payments)
-function verifySvixSignature(payload, signature, timestamp, secret) {
+function verifySvixSignature(payload, signature, timestamp, secret, webhookId) {
   if (!secret) {
     console.error("❌ DODO_PAYMENTS_WEBHOOK_SECRET not set - rejecting webhook");
     return false; // Reject if no secret
@@ -33,8 +33,9 @@ function verifySvixSignature(payload, signature, timestamp, secret) {
     const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
 
     const formats = [
-      `${timestamp}.${payloadStr}`,  // timestamp.payload
-      payloadStr,                     // just payload
+      `${webhookId}.${timestamp}.${payloadStr}`, // standard Svix format: msgId.timestamp.payload
+      `${timestamp}.${payloadStr}`,              // backup format
+      payloadStr,                                // just payload
     ];
 
     for (const format of formats) {
@@ -90,13 +91,13 @@ router.post("/dodo-webhook", express.json(), async (req, res) => {
     if (!secret) {
       return res.status(500).json({ error: "Webhook secret not configured" });
     }
-    
+
     if (!signature) {
       return res.status(401).json({ error: "Signature required" });
     }
-    
-    const payloadStr = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-    if (!verifySvixSignature(payloadStr, signature, timestamp, secret)) {
+
+    const payloadStr = req.rawBody || (typeof req.body === 'string' ? req.body : JSON.stringify(req.body));
+    if (!verifySvixSignature(payloadStr, signature, timestamp, secret, webhookId)) {
       return res.status(401).json({ error: "Invalid signature" });
     }
 

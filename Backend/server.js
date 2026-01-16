@@ -1,5 +1,4 @@
 // server.js
-import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -78,9 +77,13 @@ async function bootstrap() {
 
   app.use(generalLimiter);
 
-  // Apply JSON body parser with size limits
-  app.use(bodyParser.json({ limit: '10mb' }));
-  app.use(express.json({ limit: '10mb' }));
+  // Apply JSON body parser with size limits and raw body capture for webhooks
+  app.use(express.json({
+    limit: '10mb',
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString();
+    }
+  }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Apply input sanitization

@@ -8,7 +8,7 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative w-full overflow-x-hidden bg-black">
+    <div className="relative w-full overflow-x-hidden bg-black dark">
       <NewNavbar variant="landing" />
       <LampContainer>
         <div className="flex flex-col items-center">
@@ -42,7 +42,7 @@ export default function LandingPage() {
           >
             <button 
               onClick={() => localStorage.getItem("token") ? navigate('/dashboard') : navigate('/signup')}
-              className="px-8 py-3.5 rounded-full bg-white text-black font-semibold hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] text-sm md:text-base"
+              className="cursor-pointer select-none inline-flex items-center duration-200 justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(255,255,255,0.3)] h-11 px-8"
             >
               {localStorage.getItem("token") ? "Go to Dashboard" : "Try Now"}
             </button>

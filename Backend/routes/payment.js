@@ -47,11 +47,7 @@ router.post("/create-session", userMiddleware, async (req, res) => {
     }
 
     // Create checkout session
-    const successUrl = `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${process.env.FRONTEND_URL}/payment-cancel`;
 
-    console.log("🔗 Success URL:", successUrl);
-    console.log("🔗 Cancel URL:", cancelUrl);
 
     const session = await dodo.checkoutSessions.create({
       product_cart: [
@@ -66,8 +62,7 @@ router.post("/create-session", userMiddleware, async (req, res) => {
         userId: userId.toString(),
         credits: planInfo.credits.toString()
       },
-      success_url: successUrl,
-      cancel_url: cancelUrl
+      return_url: `${process.env.FRONTEND_URL}/payment-success`
     });
 
     // Store pending transaction
