@@ -1,5 +1,5 @@
 // middlewares/sanitization.js
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 
 // Sanitize user input to prevent XSS
 // Helper for recursive sanitization
@@ -15,9 +15,9 @@ function deepSanitize(obj) {
   }
 
   if (typeof obj === 'string') {
-    return DOMPurify.sanitize(obj, {
-      ALLOWED_TAGS: [], // Strict stripping
-      ALLOWED_ATTR: []
+    return sanitizeHtml(obj, {
+      allowedTags: [], // Strict stripping
+      allowedAttributes: {}
     });
   }
 
