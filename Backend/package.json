@@ -28,7 +28,6 @@
     "express-rate-limit": "^7.5.1",
     "express-session": "^1.18.2",
     "helmet": "^8.1.0",
-    "isomorphic-dompurify": "^2.15.0",
     "jose": "^6.0.10",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.2",
