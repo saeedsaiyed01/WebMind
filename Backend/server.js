@@ -8,7 +8,7 @@ import googleAuth from "./config/googleAuth.js";
 import { passport } from "./config/passport.js";
 import connectDB from "./db/db.js";
 import { generalLimiter } from "./middlewares/rateLimiter.js";
-import { sanitizeInput, authLimiter } from "./middlewares/sanitization.js";
+import { sanitizeInput } from "./middlewares/sanitization.js";
 import authRoutes from "./routes/authRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import contentRoutes from "./routes/contentRoutes.js";
@@ -32,17 +32,22 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like Postman, curl, etc.) only in development
-    if (!origin && process.env.NODE_ENV === "development") {
+    // Allow requests with no origin (like mobile apps, curl, or standard browser navigation)
+    if (!origin) return callback(null, true);
+
+    // Check against allowed specific origins
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
-    // Allow specific origins only
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
+    // Check for Vercel preview URLs (e.g. web-mind-git-main.vercel.app)
+    const vercelPreviewPattern = /^https:\/\/web-mind.*\.vercel\.app$/;
+    if (vercelPreviewPattern.test(origin)) {
+      return callback(null, true);
     }
+
+    console.log('Blocked by CORS:', origin); // Log the blocked origin for debugging
+    callback(new Error("Not allowed by CORS"));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
@@ -53,7 +58,7 @@ async function bootstrap() {
   await connectDB();
 
   app.set("trust proxy", 1);
-  
+
   // Security headers
   app.use(helmet({
     contentSecurityPolicy: {
@@ -70,14 +75,14 @@ async function bootstrap() {
       preload: true
     }
   }));
-  
+
   app.use(generalLimiter);
 
-// Apply JSON body parser with size limits
+  // Apply JSON body parser with size limits
   app.use(bodyParser.json({ limit: '10mb' }));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-  
+
   // Apply input sanitization
   app.use(sanitizeInput);
 
