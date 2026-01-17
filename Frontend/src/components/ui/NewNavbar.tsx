@@ -85,11 +85,29 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
     return (
       <nav className="sticky top-0 z-50 backdrop-blur-lg bg-zinc-950/80 border-b border-zinc-800">
         <div className="container mx-auto px-4 flex items-center justify-between h-16">
-          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
-            <Brain className="text-white" />
-            <span className="text-xl font-semibold text-white">
-              Webmind
-            </span>
+          <div className="flex items-center gap-8">
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
+              <Brain className="text-white" />
+              <span className="text-xl font-semibold text-white">
+                Webmind
+              </span>
+            </div>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-1 bg-zinc-900/50 p-1 rounded-full border border-white/5">
+               <button 
+                  onClick={() => navigate('/dashboard')}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${location.pathname === '/dashboard' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+               >
+                  Dashboard
+               </button>
+               <button 
+                  onClick={() => navigate('/chat')}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${location.pathname.startsWith('/chat') ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
+               >
+                  Chat
+               </button>
+            </div>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -135,18 +153,70 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
                   {userModalOpen && <UserModal onClose={closeUserModal} />}
                 </div>
           </div>
+
+          {/* Mobile Menu Toggle */}
+          <div className="flex md:hidden items-center gap-4">
+             {(location.pathname === '/chat' || location.pathname.startsWith('/chat/')) && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-full">
+                  <CreditCard className="w-4 h-4 text-zinc-400" />
+                  <span className="font-bold text-xs text-zinc-300">{credits !== null ? credits : '..'}</span>
+                </div>
+             )}
+             <button
+                onClick={toggleMobileMenu}
+                className="p-2 text-zinc-400 hover:text-white"
+             >
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+             </button>
+          </div>
         </div>
         
-        {/* Mobile Menu for Dashboard - Simplified for brevity */}
+        {/* Mobile Menu for Dashboard */}
          {mobileMenuOpen && (
-             <div className="md:hidden bg-zinc-950 border-t border-zinc-800 p-4">
-                 {/* ... items ... */}
+             <div className="md:hidden bg-zinc-950 border-t border-zinc-800 p-4 space-y-4 shadow-xl animate-in slide-in-from-top-2">
+                 <div className="flex flex-col space-y-2">
+                    <button 
+                        onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }}
+                        className={`p-3 rounded-lg text-left font-medium transition-colors ${location.pathname === '/dashboard' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'}`}
+                    >
+                        Dashboard
+                    </button>
+                    <button 
+                        onClick={() => { navigate('/chat'); setMobileMenuOpen(false); }}
+                        className={`p-3 rounded-lg text-left font-medium transition-colors ${location.pathname.startsWith('/chat') ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'}`}
+                    >
+                        AI Chat
+                    </button>
+                 </div>
+                 
+                 <div className="pt-4 border-t border-zinc-800">
+                    <div className="flex items-center gap-3 mb-4" onClick={() => { openUserModal(); setMobileMenuOpen(false); }}>
+                        <div className="h-10 w-10 rounded-full overflow-hidden border border-zinc-700 flex items-center justify-center text-white bg-zinc-900">
+                            {userAvatar ? (
+                              <img src={userAvatar} alt={userName} className="h-full w-full object-cover" />
+                            ) : (
+                              <span className="text-lg font-medium">{username.charAt(0).toUpperCase()}</span>
+                            )}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium text-white">{userName || 'User'}</span>
+                            <span className="text-xs text-zinc-500">View Profile</span>
+                        </div>
+                    </div>
+                    {/* Github Link in Mobile */}
+                     <button
+                        onClick={() => { handleGithub(); setMobileMenuOpen(false); }}
+                        className="flex items-center gap-2 text-zinc-400 hover:text-white w-full p-2"
+                      >
+                        <div className="scale-75 origin-left"><Github /></div>
+                        <span className="text-sm">Star on GitHub</span>
+                      </button>
+                 </div>
              </div>
          )}
-         
-
       </nav>
     );
+
   }
 
   // Landing Page Navbar Implementation (Matching "Planora" reference)
@@ -158,7 +228,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
       {/* Logo */}
       <div className="flex items-center gap-2 pr-4 cursor-pointer border-r border-white/10 mr-2" onClick={() => navigate('/')}>
          <Brain className="w-5 h-5 text-white" />
-         <span className="text-sm font-bold text-white tracking-tight hidden sm:block">WebMind</span>
+         <span className="text-sm font-bold text-white tracking-tight block">WebMind</span>
       </div>
 
       {/* Links */}

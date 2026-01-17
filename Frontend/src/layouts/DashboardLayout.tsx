@@ -7,11 +7,14 @@ import axios from "axios";
 import {
   Bell,
   Brain,
+  CreditCard,
+  LayoutGrid,
   LogOut,
   Menu,
   Plus,
   Sun,
-  Trash2
+  Trash2,
+  X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -32,6 +35,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [convToDelete, setConvToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
      const fetchConversations = async () => {
@@ -72,7 +76,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (location.pathname === "/dashboard") {
       setSidebarOpen(false);
     } else {
-      setSidebarOpen(true);
+      // Only auto-open sidebar on desktop
+      if (window.innerWidth >= 768) {
+         setSidebarOpen(true);
+      } else {
+         setSidebarOpen(false);
+      }
     }
   }, [location.pathname]);
 
@@ -114,10 +123,26 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     )}>
       
       {/* ==================== SIDEBAR ISLAND (Glassy) ==================== */}
+      {/* Mobile Sidebar Backdrop */}
+      {sidebarOpen && (
+        <div 
+           className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden animate-in fade-in duration-200"
+           onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* ==================== SIDEBAR ISLAND (Glassy) ==================== */}
       <aside
         className={cn(
-          "w-[240px] bg-[#0C0C0C]/50 backdrop-blur-xl rounded-[24px] border border-white/[0.04] flex flex-col transition-all duration-300 overflow-hidden flex-shrink-0 shadow-2xl shadow-black/50 ml-1 my-1",
-          sidebarOpen ? "opacity-100 translate-x-0" : "w-0 opacity-0 -translate-x-full p-0 border-0 ml-0"
+          "bg-[#0C0C0C]/90 backdrop-blur-xl border-r border-white/10 flex flex-col transition-all duration-300 overflow-hidden flex-shrink-0 shadow-2xl z-50",
+          // Mobile Styles (Fixed Overlay)
+          "fixed inset-y-0 left-0 h-full w-[280px]",
+          // Desktop Styles (Relative Island)
+          "md:relative md:rounded-[24px] md:border md:border-white/[0.04] md:bg-[#0C0C0C]/50 md:shadow-black/50 md:ml-1 md:my-1 md:h-auto md:w-[240px]",
+          
+          sidebarOpen 
+            ? "translate-x-0 opacity-100" 
+            : "-translate-x-full opacity-0 md:w-0 md:ml-0 md:border-0 md:p-0"
         )}
       >
         {/* Logo */}
@@ -243,16 +268,32 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           
           {/* Left: Sidebar Toggle + Navigation */}
           <div className="flex items-center gap-4">
+            {/* Mobile: History Sidebar Toggle (Chat Only) */}
+            {location.pathname.startsWith('/chat') && (
+              <button 
+                  onClick={() => setSidebarOpen(true)} 
+                  className="md:hidden text-zinc-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full active:scale-95 -mr-2"
+              >
+                  <Menu className="h-5 w-5" />
+              </button>
+            )}
+
+            {/* Mobile: WebMind Logo */}
+            <div className="md:hidden flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+               <Brain className="h-5 w-5 text-zinc-100" />
+               <span className="text-sm font-bold text-white">WebMind</span>
+            </div>
+
             {location.pathname !== "/dashboard" && (
               <button 
                   onClick={() => setSidebarOpen(!sidebarOpen)} 
-                  className="text-zinc-400 hover:text-white transition-colors p-2.5 hover:bg-white/5 rounded-full active:scale-95"
+                  className="hidden md:block text-zinc-400 hover:text-white transition-colors p-2.5 hover:bg-white/5 rounded-full active:scale-95"
               >
                   <Menu className="h-4 w-4" />
               </button>
             )}
 
-            {/* Navigation Pills */}
+            {/* Desktop Navigation Pills */}
             <div className="hidden md:flex items-center p-1 bg-[#050505]/80 border border-white/[0.06] rounded-full shadow-inner">
               <Link 
                 to="/dashboard" 
@@ -296,14 +337,24 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
           {/* Right: Actions */}
           <div className="flex items-center gap-1.5">
-            <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-200 rounded-full h-9 w-9 hover:bg-white/5 transition-colors active:scale-95">
-              <Sun className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-200 rounded-full h-9 w-9 hover:bg-white/5 transition-colors active:scale-95">
-              <Bell className="h-4 w-4" />
-            </Button>
+             {/* Mobile Menu Toggle */}
+              <button 
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+                  className="md:hidden text-zinc-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full active:scale-95"
+              >
+                  {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+
+            <div className="hidden md:flex items-center gap-1.5">
+              <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-200 rounded-full h-9 w-9 hover:bg-white/5 transition-colors active:scale-95">
+                <Sun className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-200 rounded-full h-9 w-9 hover:bg-white/5 transition-colors active:scale-95">
+                <Bell className="h-4 w-4" />
+              </Button>
+            </div>
             
-            {/* User Avatar - Navbar Top */}
+            {/* User Avatar - Navbar Top (Visible on all) */}
             <div className="relative">
               <div 
                 onClick={() => setUserModalOpen(true)}
@@ -314,6 +365,34 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               {userModalOpen && <UserModal onClose={() => setUserModalOpen(false)} />}
             </div>
           </div>
+
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+             <div className="absolute top-[60px] right-0 left-0 bg-[#0C0C0C]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 flex flex-col space-y-2 md:hidden shadow-2xl z-50 mx-2 animate-in slide-in-from-top-2">
+                 <button 
+                    onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }}
+                    className={`flex items-center gap-3 p-3 rounded-xl text-left font-medium transition-colors ${location.pathname === '/dashboard' ? 'bg-white/10 text-white' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}
+                >
+                    <LayoutGrid className="h-4 w-4" />
+                    Dashboard
+                </button>
+                <button 
+                    onClick={() => { navigate('/chat'); setMobileMenuOpen(false); }}
+                    className={`flex items-center gap-3 p-3 rounded-xl text-left font-medium transition-colors ${location.pathname.startsWith('/chat') ? 'bg-white/10 text-white' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}
+                >
+                     <Brain className="h-4 w-4" />
+                    AI Chat
+                </button>
+                <div className="h-px bg-white/10 my-2" />
+                <button 
+                    onClick={() => { navigate('/pricing'); setMobileMenuOpen(false); }}
+                    className="flex items-center gap-3 p-3 rounded-xl text-left font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors"
+                >
+                    <CreditCard className="h-4 w-4" />
+                    <span>{credits !== null ? credits : '...'} Credits (Upgrade)</span>
+                </button>
+             </div>
+          )}
         </header>
 
         {/* ==================== MAIN CONTENT ISLAND (Glassy) ==================== */}

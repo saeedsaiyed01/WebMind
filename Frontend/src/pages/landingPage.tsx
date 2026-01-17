@@ -20,7 +20,7 @@ export default function LandingPage() {
               duration: 0.5,
               ease: "easeInOut",
             }}
-            className="mt-[-70px] bg-gradient-to-br from-white to-zinc-400 py-4 bg-clip-text text-center text-5xl font-bold font-mono tracking-tight text-transparent md:text-7xl leading-none"
+            className="mt-0 md:mt-[-70px] bg-gradient-to-br from-white to-zinc-400 py-4 bg-clip-text text-center text-4xl sm:text-5xl font-bold font-mono tracking-tight text-transparent md:text-7xl leading-none"
           >
             All Your Digital <br /> Memory Unleashed
           </motion.h1>
@@ -60,7 +60,7 @@ export default function LandingPage() {
              initial={{ opacity: 0, y: 100, scale: 0.9 }}
              animate={{ opacity: 1, y: 0, scale: 1 }}
              transition={{ delay: 0.4, duration: 0.5,  }}
-             className="mt-20 w-full max-w-6xl mx-auto relative z-20"
+             className="mt-12 md:mt-20 w-full max-w-6xl mx-auto relative z-20"
           >
              {/* Glow Effect behind dashboard */}
              <div className="absolute -inset-1 bg-gradient-to-r from-zinc-700 to-zinc-800 rounded-2xl blur opacity-20" />
@@ -80,9 +80,9 @@ export default function LandingPage() {
       </LampContainer>
 
       {/* Why Choose Our Chatbot Section - Matching Reference Exactly */}
-      <section id="features" className="py-24 relative z-20 bg-black overflow-hidden">
+      <section id="features" className="py-16 md:py-24 relative z-20 bg-black overflow-hidden">
          {/* Curved Horizon Light Effect - Above Title */}
-         <div className="absolute top-8 left-1/2 -translate-x-1/2 w-[700px] h-[300px] pointer-events-none">
+         <div className="absolute top-8 left-1/2 -translate-x-1/2 w-[350px] md:w-[700px] h-[150px] md:h-[300px] pointer-events-none">
             {/* Main curved line */}
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-zinc-500/50 to-transparent" 
                  style={{ borderRadius: '0 0 50% 50% / 0 0 100% 100%' }} />
@@ -91,7 +91,7 @@ export default function LandingPage() {
                  style={{ borderRadius: '50%' }} />
          </div>
 
-         <div className="container mx-auto px-6 relative z-10 pt-16">
+         <div className="container mx-auto px-6 relative z-10 pt-10 md:pt-16">
             <div className="text-center max-w-3xl mx-auto mb-12">
                {/* Pill Badge */}
                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 mb-6 backdrop-blur-sm">
@@ -109,7 +109,7 @@ export default function LandingPage() {
             </div>
 
             {/* Horizontal Card Row */}
-            <div className="flex flex-wrap justify-center gap-6 mt-16">
+            <div className="flex flex-wrap justify-center gap-3 md:gap-6 mt-10 md:mt-16">
                {[
                   { title: "Add Your\nContent", icon: <FolderPlus className="w-6 h-6 text-zinc-500" /> },
                   { title: "AI-Powered\nInsights", icon: <Wrench className="w-6 h-6 text-zinc-500" /> },
@@ -117,10 +117,10 @@ export default function LandingPage() {
                   { title: "Ask\nQuestions", icon: <MessageSquare className="w-6 h-6 text-zinc-500" /> },
                   { title: "Get\nAnswers", icon: <CheckCircle className="w-6 h-6 text-zinc-500" /> }
                ].map((feature, idx) => (
-                  <div key={idx} className="relative group flex flex-col items-center justify-between text-center w-[200px] h-[260px] rounded-2xl bg-[#0c0c0c] border border-zinc-900/60 hover:border-zinc-800/80 transition-all duration-300 overflow-hidden shadow-2xl">
+                  <div key={idx} className="relative group flex flex-col items-center justify-between text-center w-[160px] h-[200px] md:w-[200px] md:h-[260px] rounded-2xl bg-[#0c0c0c] border border-zinc-900/60 hover:border-zinc-800/80 transition-all duration-300 overflow-hidden shadow-2xl">
                      
                      {/* Arc Ripples - Semi-circular waves emanating from icon */}
-                     <div className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48">
+                     <div className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 md:w-48 md:h-48">
                         {/* Arc 1 - Innermost */}
                         <div className="absolute inset-0 rounded-full border-t-[1.5px] border-l-[1.5px] border-r-[1.5px] border-b-0 border-zinc-800/50 scale-[0.4]" />
                         {/* Arc 2 */}
@@ -133,13 +133,13 @@ export default function LandingPage() {
 
                      {/* Icon Container */}
                      <div className="relative z-10 mt-auto mb-auto flex items-center justify-center transform translate-y-2">
-                        <div className="w-14 h-14 rounded-full bg-[#0c0c0c] border border-zinc-800/60 flex items-center justify-center shadow-lg">
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-[#0c0c0c] border border-zinc-800/60 flex items-center justify-center shadow-lg">
                            {feature.icon}
                         </div>
                      </div>
                      
                      {/* Title - Two Lines at Bottom */}
-                     <div className="relative z-10 pb-8 px-4">
+                     <div className="relative z-10 pb-6 md:pb-8 px-3 md:px-4">
                         <h3 className="text-sm font-semibold text-zinc-300 leading-snug whitespace-pre-line group-hover:text-white transition-colors">{feature.title}</h3>
                      </div>
                   </div>

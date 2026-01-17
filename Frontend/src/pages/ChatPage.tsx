@@ -254,7 +254,7 @@ export function ChatPage() {
         </div>
 
         {/* Main Scrollable Area */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex-1 overflow-y-auto px-3 py-4 md:px-6 md:py-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {messages.length === 0 ? (
             /* Empty State / Hero */
             <div className="flex flex-col items-center justify-center min-h-[50vh] max-w-2xl mx-auto text-center space-y-10">
@@ -326,10 +326,10 @@ export function ChatPage() {
         </div>
 
         {/* Input Area (Nested at Bottom - Glassy) */}
-        <div className="p-4 pt-0">
+        <div className="p-2 md:p-4 pt-0">
            <div className="max-w-2xl mx-auto">
               {/* REMOVED: border border-white/[0.08] */}
-              <div className="relative bg-[#18181b] rounded-3xl shadow-2xl p-4 min-h-[120px] flex flex-col justify-between">
+              <div className="relative bg-[#18181b] rounded-3xl shadow-2xl p-3 md:p-4 min-h-[80px] md:min-h-[120px] flex flex-col justify-between">
                  
                  {/* @ Mention Popup */}
                  <DocumentMentionPopup
@@ -396,7 +396,7 @@ export function ChatPage() {
                           }
                        }}
                        placeholder=""
-                       className="w-full bg-transparent border-none focus-visible:ring-0 outline-none text-white text-sm p-1 min-h-[50px] resize-none placeholder:text-zinc-600 leading-relaxed font-medium z-10 relative"
+                       className="w-full bg-transparent border-none focus-visible:ring-0 outline-none text-white text-sm p-1 min-h-[40px] md:min-h-[50px] resize-none placeholder:text-zinc-600 leading-relaxed font-medium z-10 relative"
                        style={{ whiteSpace: 'pre-wrap' }}
                     />
                  </div>
