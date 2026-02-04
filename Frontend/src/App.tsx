@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { Toaster } from "sonner"; // Import the Toaster from Sonner
+import { Analytics } from "@vercel/analytics/react";
 import "./App.css";
 import { ChatPage } from "./pages/ChatPage";
 import { Dashboard } from "./pages/dashboard";
@@ -80,6 +81,7 @@ function AppContent() {
         <Route path="/payment-cancel" element={<PaymentCancelPage />} />
       </Routes>
       <Toaster position="top-right" />
+      <Analytics />
     </>
   );
 }

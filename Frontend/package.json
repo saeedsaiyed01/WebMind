@@ -10,29 +10,31 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "add": "^2.0.6",
-    "axios": "^1.8.4",
-    "cors": "^2.8.5",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.0",
-    "framer-motion": "^12.6.3",
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-slot": "^1.0.2",
-    "tailwind-merge": "^2.2.1",
-    "tailwindcss-animate": "^1.0.7",
-    "zustand": "^4.5.1",
+    "@vercel/analytics": "^1.6.1",
+    "add": "^2.0.6",
+    "axios": "^1.8.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "cors": "^2.8.5",
+    "framer-motion": "^12.6.3",
     "lucide-react": "^0.483.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
+    "react-markdown": "^9.0.1",
     "react-masonry-css": "^1.0.16",
     "react-router-dom": "^7.4.0",
     "react-spinners": "^0.15.0",
     "sonner": "^2.0.3",
-    "react-markdown": "^9.0.1"
+    "tailwind-merge": "^2.2.1",
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^4.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@types/node": "^20.11.24",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
@@ -45,7 +47,6 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.0",
-    "@types/node": "^20.11.24"
+    "vite": "^6.2.0"
   }
 }
