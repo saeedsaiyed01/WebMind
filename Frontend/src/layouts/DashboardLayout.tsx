@@ -5,14 +5,12 @@ import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
 import axios from "axios";
 import {
-  Bell,
   Brain,
   CreditCard,
   LayoutGrid,
   LogOut,
   Menu,
   Plus,
-  Sun,
   Trash2,
   X
 } from "lucide-react";
@@ -246,8 +244,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="p-4 mt-auto">
           <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.05] transition-all cursor-pointer group shadow-sm active:scale-[0.98]">
             {/* Dynamic Avatar */}
-            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 border border-white/10 flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-indigo-500/20 transition-all">
-               <span className="text-xs font-bold text-white uppercase tracking-wider">{user?.name?.charAt(0) || "U"}</span>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 border border-white/10 flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-indigo-500/20 transition-all overflow-hidden">
+               {user?.avatar ? (
+                 <img src={user.avatar} alt={user?.name || "User"} className="h-full w-full object-cover" />
+               ) : (
+                 <span className="text-xs font-bold text-white uppercase tracking-wider">{user?.name?.charAt(0) || "U"}</span>
+               )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-semibold text-zinc-200 truncate group-hover:text-white transition-colors">{user?.name || "User"}</p>
@@ -350,14 +352,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
 
-            <div className="hidden md:flex items-center gap-1.5">
-              <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-200 rounded-full h-9 w-9 hover:bg-white/5 transition-colors active:scale-95">
-                <Sun className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-200 rounded-full h-9 w-9 hover:bg-white/5 transition-colors active:scale-95">
-                <Bell className="h-4 w-4" />
-              </Button>
-            </div>
+            <div className="hidden md:flex items-center gap-1.5" />
             
             {/* User Avatar - Navbar Top (Visible on all) */}
             <div className="relative">
@@ -365,7 +360,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 onClick={() => setUserModalOpen(true)}
                 className="h-9 w-9 ml-1.5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 border border-white/10 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-md"
               >
-                 <span className="text-xs font-bold text-white uppercase tracking-wider">{user?.name?.charAt(0) || "U"}</span> 
+                 {user?.avatar ? (
+                   <img src={user.avatar} alt={user?.name || "User"} className="h-full w-full object-cover" />
+                 ) : (
+                   <span className="text-xs font-bold text-white uppercase tracking-wider">{user?.name?.charAt(0) || "U"}</span>
+                 )}
               </div>
               {userModalOpen && <UserModal onClose={() => setUserModalOpen(false)} />}
             </div>
