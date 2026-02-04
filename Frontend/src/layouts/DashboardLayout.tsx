@@ -134,11 +134,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* ==================== SIDEBAR ISLAND (Glassy) ==================== */}
       <aside
         className={cn(
-          "bg-[#0C0C0C]/90 backdrop-blur-xl border-r border-white/10 flex flex-col transition-all duration-300 overflow-hidden flex-shrink-0 shadow-2xl z-50",
+          "bg-[#0C0C0C]/90 backdrop-blur-xl border-r border-white/10 flex flex-col transition-all duration-300 overflow-hidden flex-shrink-0 shadow-2xl z-50 ring-1 ring-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_18px_50px_rgba(0,0,0,0.55)]",
           // Mobile Styles (Fixed Overlay)
           "fixed inset-y-0 left-0 h-full w-[280px]",
           // Desktop Styles (Relative Island)
-          "md:relative md:rounded-[24px] md:border md:border-white/[0.04] md:bg-[#0C0C0C]/50 md:shadow-black/50 md:ml-1 md:my-1 md:h-auto md:w-[240px]",
+          "md:relative md:rounded-[24px] md:border md:border-white/[0.06] md:bg-[#0C0C0C]/55 md:shadow-black/50 md:ml-1 md:my-1 md:h-auto md:w-[240px] md:ring-1 md:ring-white/10 md:shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_22px_60px_rgba(0,0,0,0.6)]",
           
           sidebarOpen 
             ? "translate-x-0 opacity-100" 
@@ -264,10 +264,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="flex-1 flex flex-col gap-3 min-w-0 my-1 mr-1">
         
         {/* ==================== TOP NAVBAR ISLAND (Glassy) ==================== */}
-        <header className="h-[52px] bg-[#0C0C0C]/50 backdrop-blur-xl rounded-full border border-white/[0.04] flex items-center justify-between px-3 flex-shrink-0 shadow-lg shadow-black/20 relative z-50">
+        <header
+          className={cn(
+            "h-[52px] bg-[#0C0C0C]/55 backdrop-blur-xl rounded-2xl md:rounded-full border border-white/[0.06] flex items-center justify-between px-2 md:px-3 flex-shrink-0 shadow-lg shadow-black/20 relative z-50 ring-1 ring-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_14px_40px_rgba(0,0,0,0.55)] overflow-hidden min-w-0 max-w-full",
+            sidebarOpen ? "hidden md:flex" : "flex"
+          )}
+        >
           
           {/* Left: Sidebar Toggle + Navigation */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4 min-w-0">
             {/* Mobile: History Sidebar Toggle (Chat Only) */}
             {location.pathname.startsWith('/chat') && (
               <button 
@@ -336,7 +341,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
              {/* Mobile Menu Toggle */}
               <button 
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
@@ -396,7 +401,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* ==================== MAIN CONTENT ISLAND (Glassy) ==================== */}
-        <main className="flex-1 bg-[#0C0C0C]/40 backdrop-blur-2xl rounded-[24px] border border-white/[0.04] overflow-hidden relative flex flex-col shadow-2xl shadow-black/50">
+        <main className="flex-1 bg-[#0C0C0C]/45 backdrop-blur-2xl rounded-[24px] border border-white/[0.06] overflow-hidden relative flex flex-col shadow-2xl shadow-black/50 ring-1 ring-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_24px_70px_rgba(0,0,0,0.6)]">
           {children}
         </main>
       </div>
