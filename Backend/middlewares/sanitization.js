@@ -6,7 +6,7 @@ import sanitizeHtml from 'sanitize-html';
 function deepSanitize(obj) {
   if (Array.isArray(obj)) {
     return obj.map(item => deepSanitize(item));
-  }
+  }                                                                                         
 
   if (typeof obj === 'object' && obj !== null) {
     for (const key in obj) {

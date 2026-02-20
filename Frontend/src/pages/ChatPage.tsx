@@ -234,7 +234,7 @@ export function ChatPage() {
     { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
     { id: "openai/gpt-oss-120b:free", name: "GPT OSS 120B" },
     { id: "openai/gpt-oss-20b:free", name: "GPT OSS 20B" },
-    { id: "mistralai/devstral-2512:free", name: "Mistral Devstral" }
+    { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air" }
   ];
 
   const [_showModels, setShowModels] = useState(false);

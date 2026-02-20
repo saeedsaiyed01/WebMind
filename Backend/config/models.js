@@ -23,10 +23,10 @@ export const SUPPORTED_MODELS = [
         description: "Efficient open model"
     },
     {
-        id: "mistralai/devstral-2512:free",
-        name: "Mistral Devstral (Free)",
+        id: "z-ai/glm-4.5-air:free",
+        name: "GLM 4.5 Air (Free)",
         provider: "openrouter",
         isFree: true,
-        description: "Experimental model by Mistral"
+        description: "Lightweight MoE model by Z.ai with 131K context"
     }
 ];
