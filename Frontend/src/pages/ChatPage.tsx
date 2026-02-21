@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import SEO from "@/components/SEO";
 import { AttachedDocumentChip, ContentItem, DocumentMentionPopup } from "@/components/ui/DocumentMentionPopup";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { cn } from "@/lib/utils";
@@ -244,6 +245,7 @@ export function ChatPage() {
 
   return (
     <DashboardLayout>
+      <SEO title="Chat — WebMind" noindex={true} />
       <div 
         className="flex flex-col h-full relative" 
         onClick={() => { setShowModels(false); setShowFooterModels(false); }}

@@ -1,14 +1,39 @@
 import { motion } from "framer-motion";
 import { CheckCircle, FolderPlus, GalleryVerticalEnd, MessageSquare, Sparkles, Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/SEO";
 import { LampContainer } from "../components/ui/lamp.tsx";
 import NewNavbar from "../components/ui/NewNavbar.tsx";
+
+const webAppJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "WebMind",
+  "url": "https://webmind.buzz",
+  "description": "Store tweets, notes, PDFs, and more into an AI-searchable personal knowledge base.",
+  "applicationCategory": "ProductivityApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+};
 
 export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
     <div className="relative w-full overflow-x-hidden bg-black dark scroll-smooth">
+      <SEO
+        title="WebMind — All Your Digital Memory Unleashed"
+        description="Store tweets, notes, PDFs, and more into an AI-searchable personal knowledge base. Recall anything instantly with AI."
+        url="https://webmind.buzz"
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppJsonLd) }}
+      />
       <NewNavbar variant="landing" />
       <LampContainer>
         <div className="flex flex-col items-center px-4">

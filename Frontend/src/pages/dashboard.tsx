@@ -6,6 +6,7 @@ import { useStore } from "@/store/useStore";
 import { AlertCircle, FileText, Filter, LayoutGrid, Link as LinkIcon, Plus, StickyNote, Twitter, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import SEO from "@/components/SEO";
 import { CreateContentModal } from "../components/ui/CreateContentModal";
 import { DeleteConfirmationModal } from "../components/ui/DeleteConfirmationModal";
 import { useContent } from "../hooks/useContent";
@@ -98,6 +99,7 @@ export function Dashboard() {
 
   return (
     <DashboardLayout>
+      <SEO title="Dashboard — WebMind" noindex={true} />
       <div className="h-full w-full overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="space-y-8 p-6 md:p-10 max-w-[1600px] mx-auto pb-20">
             

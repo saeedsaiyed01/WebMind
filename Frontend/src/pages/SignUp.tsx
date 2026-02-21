@@ -3,6 +3,7 @@ import { ArrowLeft, Brain } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import SEO from "../components/SEO";
 import { AuthForm } from "../components/auth/auth-form";
 import { signUp } from "../services/authSerivces";
 
@@ -31,6 +32,11 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-black text-white relative flex flex-col items-center justify-center p-4">
+      <SEO
+        title="Get Started Free — WebMind"
+        description="Create your free WebMind account and start building your AI-powered personal knowledge base today."
+        url="https://webmind.buzz/signup"
+      />
       {/* Background - Minimalist Grid or darker elements */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 

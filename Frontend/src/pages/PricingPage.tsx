@@ -1,6 +1,7 @@
 import { Check, CreditCard, Flame, Globe, MessageSquare } from 'lucide-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import SEO from '../components/SEO';
 import NewNavbar from '../components/ui/NewNavbar';
 
 const handlePayment = async (plan: string) => {
@@ -37,11 +38,43 @@ const handlePayment = async (plan: string) => {
   }
 };
 
+const pricingJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "WebMind",
+  "description": "AI-searchable personal knowledge base. Store tweets, notes, PDFs, and more.",
+  "url": "https://webmind.buzz",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Free Plan",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    {
+      "@type": "Offer",
+      "name": "Pro Plan",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    }
+  ]
+};
+
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
     <div className="bg-black min-h-screen text-white selection:bg-zinc-800 overflow-x-hidden">
+      <SEO
+        title="Pricing — WebMind"
+        description="Simple, transparent pricing for WebMind. Start free and upgrade when you're ready. No hidden fees."
+        url="https://webmind.buzz/pricing"
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingJsonLd) }}
+      />
       <NewNavbar variant="landing" />
 
       {/* Pricing Section from Landing Page */}
