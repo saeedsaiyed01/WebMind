@@ -4,7 +4,7 @@ import { AttachedDocumentChip, ContentItem, DocumentMentionPopup } from "@/compo
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
-import { Bot, Check, ChevronDown, Loader2, Mic, Send, Sparkles } from "lucide-react";
+import { Bot, Check, ChevronDown, Copy, Loader2, Mic, Send, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useParams } from "react-router-dom";
@@ -33,6 +33,19 @@ export function ChatPage() {
   const [availableDocuments, setAvailableDocuments] = useState<ContentItem[]>([]);
   const [documentsLoading, setDocumentsLoading] = useState(false);
   const [mentionStartPos, setMentionStartPos] = useState<number | null>(null);
+  const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
+
+  const handleCopyMessage = useCallback(async (content: string, messageKey: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedMessageKey(messageKey);
+      window.setTimeout(() => {
+        setCopiedMessageKey((current) => (current === messageKey ? null : current));
+      }, 1800);
+    } catch (error) {
+      console.error("Failed to copy message", error);
+    }
+  }, []);
 
   // Fetch documents for @ mention autocomplete
   const fetchDocuments = useCallback(async (query: string = "") => {
@@ -288,20 +301,48 @@ export function ChatPage() {
           ) : (
             /* Message List */
             <div ref={scrollRef} className="space-y-5 max-w-2xl mx-auto">
-              {messages.map((msg, i) => (
-                <div key={i} className={cn("flex w-full gap-3", msg.role === "user" ? "justify-end" : "justify-start")}>
+              {messages.map((msg, i) => {
+                const messageKey = `${msg.timestamp}-${i}`;
+                const isCopied = copiedMessageKey === messageKey;
+
+                return (
+                <div key={i} className={cn("flex w-full gap-3", msg.role === "user" ? "justify-end group" : "justify-start")}>
                    {msg.role === "assistant" && (
                       <div className="w-7 h-7 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center flex-shrink-0 mt-1">
                          <Bot className="h-3.5 w-3.5 text-white" />
                       </div>
                    )}
-                   <div className={cn(
-                      "px-4 py-2.5 rounded-2xl max-w-[85%] text-[12px] leading-6",
-                      msg.role === "user"
-                         ? "bg-zinc-800 text-white border border-zinc-700 rounded-tr-sm"
-                         : "bg-white/[0.04] backdrop-blur-sm text-zinc-200 border border-white/[0.06] rounded-tl-sm"
-                   )}>
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                   <div className={cn("flex flex-col gap-1", msg.role === "user" ? "items-end max-w-[85%] shrink-0" : "items-start max-w-[85%]")}>
+                      <div className={cn(
+                         "inline-block w-auto px-4 py-2.5 rounded-2xl text-[12px] leading-6",
+                         msg.role === "user"
+                            ? "bg-zinc-800 text-white border border-zinc-700 rounded-tr-sm"
+                            : "bg-white/[0.04] backdrop-blur-sm text-zinc-200 border border-white/[0.06] rounded-tl-sm [&_p]:m-0"
+                      )}>
+                         {msg.role === "user" ? (
+                           <div className="whitespace-pre-wrap break-words">{msg.content}</div>
+                         ) : (
+                           <ReactMarkdown>{msg.content}</ReactMarkdown>
+                         )}
+                      </div>
+                      {msg.role === "user" && (
+                         <button
+                            type="button"
+                            onClick={() => handleCopyMessage(msg.content, messageKey)}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-medium text-zinc-400 transition-all",
+                              isCopied
+                                ? "opacity-100 translate-y-0"
+                                : "opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto",
+                              "hover:bg-white/[0.08] hover:text-white"
+                            )}
+                            aria-label={isCopied ? "Message copied" : "Copy message"}
+                            title={isCopied ? "Copied" : "Copy"}
+                         >
+                            {isCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                            <span>{isCopied ? "Copied" : "Copy"}</span>
+                         </button>
+                      )}
                    </div>
                    {/* User Avatar - Gmail Style */}
                    {msg.role === "user" && (
@@ -312,7 +353,7 @@ export function ChatPage() {
                       </div>
                    )}
                 </div>
-              ))}
+              )})}
               {loading && (
                  <div className="flex gap-3">
                     <div className="w-7 h-7 rounded-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center flex-shrink-0">
