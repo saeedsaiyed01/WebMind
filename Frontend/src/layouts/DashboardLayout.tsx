@@ -14,7 +14,7 @@ import {
   Trash2,
   X
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -23,7 +23,8 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Start closed so the chat sidebar never flashes open on load; open only via the menu button.
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const { user, logout, conversations, setConversations, setMessages, credits, setCredits } = useStore();
   const navigate = useNavigate();
@@ -71,17 +72,54 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [setCredits]);
 
   useEffect(() => {
+    // Closing when entering Dashboard is enough. Do not auto-open the chat history
+    // sidebar when switching Dashboard / Chat (or on desktop) — that felt like an
+    // unwanted left-panel popup. Users open it explicitly with the menu button.
     if (location.pathname === "/dashboard") {
       setSidebarOpen(false);
-    } else {
-      // Only auto-open sidebar on desktop
-      if (window.innerWidth >= 768) {
-         setSidebarOpen(true);
-      } else {
-         setSidebarOpen(false);
-      }
     }
   }, [location.pathname]);
+
+  /** Mobile /chat: edge swipe opens chat history; swipe left on content closes it */
+  const chatSwipeStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const onChatAreaTouchStart = (e: React.TouchEvent) => {
+    if (!location.pathname.startsWith("/chat")) return;
+    if (typeof window !== "undefined" && window.innerWidth >= 768) return;
+    const t = e.touches[0];
+    chatSwipeStartRef.current = { x: t.clientX, y: t.clientY };
+  };
+
+  const onChatAreaTouchEnd = (e: React.TouchEvent) => {
+    if (!location.pathname.startsWith("/chat")) return;
+    if (typeof window !== "undefined" && window.innerWidth >= 768) return;
+    const start = chatSwipeStartRef.current;
+    chatSwipeStartRef.current = null;
+    if (!start) return;
+
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    if (absX < 44) return;
+    if (absY > absX * 0.65) return;
+
+    if (!sidebarOpen) {
+      const EDGE_PX = 36;
+      if (start.x <= EDGE_PX && dx > 50) {
+        setSidebarOpen(true);
+      }
+    } else {
+      if (dx < -45) {
+        setSidebarOpen(false);
+      }
+    }
+  };
+
+  const onChatAreaTouchCancel = () => {
+    chatSwipeStartRef.current = null;
+  };
 
   const handleDeleteClick = (e: React.MouseEvent, convId: string) => {
       e.preventDefault();
@@ -268,7 +306,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* ==================== TOP NAVBAR ISLAND (Glassy) ==================== */}
         <header
           className={cn(
-            "h-[52px] bg-[#0C0C0C]/55 backdrop-blur-xl rounded-2xl md:rounded-full border border-white/[0.06] flex items-center justify-between px-2 md:px-3 flex-shrink-0 shadow-lg shadow-black/20 relative z-50 ring-1 ring-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_14px_40px_rgba(0,0,0,0.55)] overflow-hidden min-w-0 max-w-full",
+            "h-[52px] bg-[#0C0C0C]/55 backdrop-blur-xl rounded-2xl md:rounded-full border border-white/[0.06] flex items-center justify-between px-2 md:px-3 flex-shrink-0 shadow-lg shadow-black/20 relative z-50 ring-1 ring-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_14px_40px_rgba(0,0,0,0.55)] min-w-0 max-w-full overflow-visible",
             sidebarOpen ? "hidden md:flex" : "flex"
           )}
         >
@@ -317,7 +355,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 to="/chat" 
                 className={cn(
                   "px-5 py-1.5 rounded-full text-[12px] font-medium transition-all duration-300",
-                  location.pathname === "/chat" || location.pathname === "/"
+                  location.pathname.startsWith("/chat")
                     ? "bg-white/10 text-white shadow-sm" 
                     : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
                 )}
@@ -399,8 +437,44 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           )}
         </header>
 
+        {/* Mobile: Dashboard / Chat (NewNavbar is not used in this layout — pills were desktop-only) */}
+        <nav
+          className="flex shrink-0 flex-col gap-1 md:hidden"
+          aria-label="Primary"
+        >
+          <div className="flex w-full items-center gap-1 rounded-2xl border border-white/[0.06] bg-[#0C0C0C]/55 p-1 shadow-inner ring-1 ring-white/5">
+            <Link
+              to="/dashboard"
+              className={cn(
+                "min-h-[40px] flex-1 rounded-xl px-3 py-2 text-center text-sm font-medium transition-all",
+                location.pathname === "/dashboard"
+                  ? "bg-white/10 text-white shadow-sm"
+                  : "text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
+              )}
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/chat"
+              className={cn(
+                "min-h-[40px] flex-1 rounded-xl px-3 py-2 text-center text-sm font-medium transition-all",
+                location.pathname.startsWith("/chat")
+                  ? "bg-white/10 text-white shadow-sm"
+                  : "text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
+              )}
+            >
+              AI Chat
+            </Link>
+          </div>
+        </nav>
+
         {/* ==================== MAIN CONTENT ISLAND (Glassy) ==================== */}
-        <main className="flex-1 bg-[#0C0C0C]/45 backdrop-blur-2xl rounded-[24px] border border-white/[0.06] overflow-hidden relative flex flex-col shadow-2xl shadow-black/50 ring-1 ring-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_24px_70px_rgba(0,0,0,0.6)]">
+        <main
+          className="flex-1 bg-[#0C0C0C]/45 backdrop-blur-2xl rounded-[24px] border border-white/[0.06] overflow-hidden relative flex flex-col shadow-2xl shadow-black/50 ring-1 ring-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_24px_70px_rgba(0,0,0,0.6)]"
+          onTouchStart={onChatAreaTouchStart}
+          onTouchEnd={onChatAreaTouchEnd}
+          onTouchCancel={onChatAreaTouchCancel}
+        >
           {children}
         </main>
       </div>

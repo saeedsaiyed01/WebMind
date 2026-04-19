@@ -6,6 +6,7 @@ import { UserDetails } from "../../services/userDetails";
 import UserModal from "./UserModal";
 
 import { CreditCard } from 'lucide-react';
+/** `dashboard` branch is unused — app shell uses DashboardLayout. Only `landing` is mounted (landing + pricing). */
 export type NavbarVariant = "landing" | "dashboard";
 
 interface NewNavbarProps {
@@ -83,97 +84,159 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
   // Dashboard Navbar Implementation
   if (variant === "dashboard") {
     return (
-      <nav className="sticky top-0 z-50 backdrop-blur-lg bg-zinc-950/80 border-b border-zinc-800">
-        <div className="container mx-auto px-4 flex items-center justify-between h-16">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
-              <Brain className="text-white" />
-              <span className="text-xl font-semibold text-white">
-                Webmind
-              </span>
-            </div>
-            
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1 bg-zinc-900/50 p-1 rounded-full border border-white/5">
-               <button 
-                  onClick={() => navigate('/dashboard')}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${location.pathname === '/dashboard' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
-               >
-                  Dashboard
-               </button>
-               <button 
-                  onClick={() => navigate('/chat')}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${location.pathname.startsWith('/chat') ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
-               >
-                  Chat
-               </button>
-            </div>
-          </div>
+      <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-lg">
+        <div className="container mx-auto px-4">
+          {/* Row 1: logo + actions (mobile); full bar on md+ */}
+          <div className="flex h-14 items-center justify-between gap-3 md:h-16">
+            <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-8">
+              <div
+                className="flex min-w-0 shrink-0 cursor-pointer items-center space-x-2"
+                onClick={() => navigate("/")}
+              >
+                <Brain className="h-5 w-5 shrink-0 text-white" />
+                <span className="truncate text-base font-semibold text-white md:text-xl">
+                  Webmind
+                </span>
+              </div>
 
-          <div className="hidden md:flex items-center space-x-4">
-              <div className="relative flex items-center space-x-4">
-                  {(location.pathname === '/chat' || location.pathname.startsWith('/chat/')) && (
-                    <div className="flex items-center gap-2 px-4 py-2 bg-transparent border border-zinc-700 rounded-3xl">
-                      <CreditCard className="w-5 h-5 text-zinc-400" />
-                      <span className="font-bold text-zinc-300">{credits !== null ? `${credits} credits` : 'Loading...'}</span>
+              {/* Desktop Navigation only */}
+              <div className="hidden items-center space-x-1 rounded-full border border-white/5 bg-zinc-900/50 p-1 md:flex">
+                <button
+                  type="button"
+                  onClick={() => navigate("/dashboard")}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                    location.pathname === "/dashboard"
+                      ? "bg-zinc-800 text-white shadow-sm"
+                      : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  Dashboard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/chat")}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                    location.pathname.startsWith("/chat")
+                      ? "bg-zinc-800 text-white shadow-sm"
+                      : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  Chat
+                </button>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-4">
+              <div className="hidden items-center space-x-4 md:flex">
+                <div className="relative flex items-center space-x-4">
+                  {(location.pathname === "/chat" ||
+                    location.pathname.startsWith("/chat/")) && (
+                    <div className="flex items-center gap-2 rounded-3xl border border-zinc-700 bg-transparent px-4 py-2">
+                      <CreditCard className="h-5 w-5 text-zinc-400" />
+                      <span className="font-bold text-zinc-300">
+                        {credits !== null ? `${credits} credits` : "Loading..."}
+                      </span>
                     </div>
                   )}
-                <input
-                  type="text"
-                  value={query}
-                  onChange={handleSearchChange}
-                  placeholder="Search..."
-                  className="px-3 py-2 pr-10 rounded-xl border border-zinc-800 bg-zinc-900 text-white focus:outline-none focus:ring-2 focus:ring-zinc-700"
-                />
-              </div>
-                
+                  <input
+                    type="text"
+                    value={query}
+                    onChange={handleSearchChange}
+                    placeholder="Search..."
+                    className="rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-zinc-700"
+                  />
+                </div>
+
                 <button
+                  type="button"
                   onClick={handleGithub}
-                  className=" text-gray-200 hover:text-white transition-colors"
+                  className="text-gray-200 transition-colors hover:text-white"
                 >
                   <Github />
                 </button>
-                <div className="relative">
-                  <button
-                    onClick={openUserModal}
-                    className="h-8 w-8 rounded-full overflow-hidden border-2 border-zinc-700 flex items-center justify-center text-white transition hover:border-zinc-500"
-                  >
-                    {userAvatar ? (
-                      <img
-                        src={userAvatar}
-                        alt={userName}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-sm font-medium">
-                        {username.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                  </button>
-                  {userModalOpen && <UserModal onClose={closeUserModal} />}
+              </div>
+
+              {(location.pathname === "/chat" ||
+                location.pathname.startsWith("/chat/")) && (
+                <div className="flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 px-2.5 py-1.5 md:hidden">
+                  <CreditCard className="h-3.5 w-3.5 text-zinc-400" />
+                  <span className="text-xs font-bold text-zinc-300">
+                    {credits !== null ? credits : ".."}
+                  </span>
                 </div>
+              )}
+
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={openUserModal}
+                  className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border-2 border-zinc-700 text-white transition hover:border-zinc-500"
+                >
+                  {userAvatar ? (
+                    <img
+                      src={userAvatar}
+                      alt={userName}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm font-medium">
+                      {username.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </button>
+                {userModalOpen && <UserModal onClose={closeUserModal} />}
+              </div>
+
+              <button
+                type="button"
+                onClick={toggleMobileMenu}
+                className="p-2 text-zinc-400 hover:text-white md:hidden"
+                aria-label="Open menu"
+              >
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <div className="flex md:hidden items-center gap-4">
-             {(location.pathname === '/chat' || location.pathname.startsWith('/chat/')) && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-full">
-                  <CreditCard className="w-4 h-4 text-zinc-400" />
-                  <span className="font-bold text-xs text-zinc-300">{credits !== null ? credits : '..'}</span>
-                </div>
-             )}
-             <button
-                onClick={toggleMobileMenu}
-                className="p-2 text-zinc-400 hover:text-white"
-             >
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-             </button>
+          {/* Row 2 (mobile only): full-width Dashboard / Chat — avoids squeeze between logo and actions */}
+          <div className="border-t border-zinc-800/80 pb-2.5 pt-2 md:hidden">
+            <div className="flex w-full items-center gap-1 rounded-full border border-white/5 bg-zinc-900/50 p-1">
+              <button
+                type="button"
+                onClick={() => navigate("/dashboard")}
+                className={`min-h-[40px] flex-1 rounded-full px-3 py-2 text-center text-sm font-medium transition-all ${
+                  location.pathname === "/dashboard"
+                    ? "bg-zinc-800 text-white shadow-sm"
+                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                Dashboard
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/chat")}
+                className={`min-h-[40px] flex-1 rounded-full px-3 py-2 text-center text-sm font-medium transition-all ${
+                  location.pathname.startsWith("/chat")
+                    ? "bg-zinc-800 text-white shadow-sm"
+                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                Chat
+              </button>
+            </div>
           </div>
         </div>
         
         {/* Mobile Menu for Dashboard */}
          {mobileMenuOpen && (
              <div className="md:hidden bg-zinc-950 border-t border-zinc-800 p-4 space-y-4 shadow-xl animate-in slide-in-from-top-2">
+                 <input
+                   type="search"
+                   value={query}
+                   onChange={handleSearchChange}
+                   placeholder="Search..."
+                   className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-700"
+                 />
                  <div className="flex flex-col space-y-2">
                     <button 
                         onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }}

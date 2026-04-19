@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
 import { AlertCircle, FileText, Filter, LayoutGrid, Link as LinkIcon, Plus, StickyNote, Twitter, Zap } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import { toast } from "sonner";
 import SEO from "@/components/SEO";
 import { CreateContentModal } from "../components/ui/CreateContentModal";
@@ -82,25 +82,40 @@ export function Dashboard() {
     }
   };
 
-  const FilterChip = ({ label, value, icon: Icon }: { label: string, value: typeof filter, icon: any }) => (
-     <button
-        onClick={() => setFilter(value)}
-        className={cn(
-           "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95 border",
-           filter === value 
-              ? "bg-zinc-100 text-zinc-900 border-zinc-100 shadow-sm" 
-              : "bg-transparent text-zinc-500 border-transparent hover:bg-white/5 hover:text-zinc-300"
-        )}
-     >
-        <Icon className="h-3.5 w-3.5" />
-        {label}
-     </button>
+  const FilterChip = ({
+    label,
+    shortLabel,
+    value,
+    icon: Icon,
+  }: {
+    label: string;
+    shortLabel?: string;
+    value: typeof filter;
+    icon: ComponentType<{ className?: string }>;
+  }) => (
+    <button
+      type="button"
+      onClick={() => setFilter(value)}
+      title={label}
+      className={cn(
+        "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-2 text-xs font-medium transition-all active:scale-[0.98] sm:gap-2 sm:px-3.5 sm:py-2 sm:text-[13px]",
+        filter === value
+          ? "border-zinc-100 bg-zinc-100 text-zinc-900 shadow-sm"
+          : "border-transparent bg-transparent text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
+      )}
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0 opacity-90 sm:h-4 sm:w-4" aria-hidden />
+      <span className="leading-none">
+        <span className="sm:hidden">{shortLabel ?? label}</span>
+        <span className="hidden sm:inline">{label}</span>
+      </span>
+    </button>
   );
 
   return (
     <DashboardLayout>
       <SEO title="Dashboard — WebMind" noindex={true} />
-      <div className="h-full w-full overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="h-full w-full min-w-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="space-y-8 p-6 md:p-10 max-w-[1600px] mx-auto pb-20">
             
             {/* Header */}
@@ -141,14 +156,24 @@ export function Dashboard() {
             {/* Content Section */}
             <div className="space-y-6 pt-4">
                 
-                {/* Filter Row */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none mask-linear-fade">
-                   <FilterChip label="All View" value="all" icon={LayoutGrid} />
-                   <div className="h-4 w-px bg-white/10 mx-2" />
-                   <FilterChip label="Tweets" value="tweet" icon={Twitter} />
-                   <FilterChip label="Links" value="link" icon={LinkIcon} />
-                   <FilterChip label="Notes" value="note" icon={StickyNote} />
-                   <FilterChip label="Docs" value="document" icon={FileText} />
+                {/* Filter row: horizontal scroll on narrow screens; chips never wrap */}
+                <div className="relative border-b border-white/[0.06] pb-3">
+                  <div
+                    className="-mx-6 flex touch-pan-x snap-x snap-mandatory gap-2 overflow-x-auto px-6 pb-1 [-ms-overflow-style:none] [scrollbar-width:thin] [scrollbar-color:theme(colors.zinc.700)_transparent] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-700"
+                    style={{ WebkitOverflowScrolling: "touch" }}
+                  >
+                    <div className="flex w-max flex-nowrap items-center gap-2 md:gap-2.5">
+                      <FilterChip label="All View" shortLabel="All" value="all" icon={LayoutGrid} />
+                      <div
+                        className="hidden h-8 w-px shrink-0 self-center bg-white/10 sm:block"
+                        aria-hidden
+                      />
+                      <FilterChip label="Tweets" value="tweet" icon={Twitter} />
+                      <FilterChip label="Links" value="link" icon={LinkIcon} />
+                      <FilterChip label="Notes" value="note" icon={StickyNote} />
+                      <FilterChip label="Docs" value="document" icon={FileText} />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Masonry Grid */}

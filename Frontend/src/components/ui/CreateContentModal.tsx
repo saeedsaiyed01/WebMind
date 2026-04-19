@@ -226,26 +226,34 @@ export function CreateContentModal({
 
               <div className="p-6 md:p-8 space-y-7">
                  
-                 {/* Segmented Control Tabs */}
-                 <div className="p-1 bg-black/40 rounded-full border border-white/5 flex relative">
+                 {/* Segmented Control Tabs — 2×2 grid on mobile to avoid overlap; single row on md+ */}
+                 <div
+                    className={cn(
+                       "relative border border-white/5 bg-black/40 p-1.5",
+                       "grid grid-cols-2 gap-2 rounded-2xl",
+                       "md:flex md:gap-0 md:rounded-full md:p-1"
+                    )}
+                 >
                     {CONTENT_TYPES.map((tab) => (
                        <button
                           key={tab.id}
+                          type="button"
                           onClick={() => setType(tab.id)}
                           className={cn(
-                             "flex-1 relative z-10 py-2 text-[13px] font-medium transition-colors flex items-center justify-center gap-2 rounded-full",
+                             "relative z-10 flex w-full items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-center text-[12px] font-medium transition-colors sm:text-[13px]",
+                             "md:flex-1 md:rounded-full md:py-2 md:text-center",
                              type === tab.id ? "text-white" : "text-zinc-500 hover:text-zinc-300"
                           )}
                        >
                           {type === tab.id && (
                              <motion.div
                                 layoutId="active-tab"
-                                className="absolute inset-0 bg-zinc-800 rounded-full shadow-sm -z-10"
+                                className="absolute inset-0 -z-10 rounded-xl bg-zinc-800 shadow-sm md:rounded-full"
                                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                              />
                           )}
-                          <tab.icon className="w-3.5 h-3.5" />
-                          {tab.label}
+                          <tab.icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                          <span className="min-w-0 truncate">{tab.label}</span>
                        </button>
                     ))}
                  </div>
