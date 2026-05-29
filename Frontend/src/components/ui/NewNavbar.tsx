@@ -286,19 +286,20 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
   return (
     <>
      
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 p-2 pl-6 pr-2 bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl transition-all duration-300 w-full max-w-4xl justify-between">
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 p-2 pl-5 pr-2 wm-glass-nav rounded-full shadow-2xl transition-all duration-300 w-[calc(100%-2rem)] max-w-4xl justify-between font-sans">
       
       {/* Logo */}
-      <div className="flex items-center gap-2 pr-4 cursor-pointer border-r border-white/10 mr-2" onClick={() => navigate('/')}>
+      <div className="flex items-center gap-2 pr-3 cursor-pointer border-r border-white/10 mr-1 shrink-0" onClick={() => navigate('/')}>
          <Brain className="w-5 h-5 text-white" />
-         <span className="text-sm font-bold text-white tracking-tight block">WebMind</span>
+         <span className="font-display text-sm font-bold text-white tracking-tight">WebMind</span>
       </div>
 
       {/* Links */}
-      <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
+      <div className="hidden md:flex items-center gap-0.5 flex-1 justify-center">
         {['Pricing', 'Features'].map((item) => (
            <button 
              key={item}
+             type="button"
              onClick={() => {
                 if(item === 'Pricing') navigate('/pricing');
                 else if(item === 'Features') {
@@ -313,7 +314,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
                     }
                 }
              }}
-             className="px-6 py-2 text-[13px] font-medium text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/10"
+             className="px-5 py-2 text-caption font-medium text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/10"
            >
              {item}
            </button>
@@ -321,12 +322,12 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
       </div>
 
       {/* Right Side */}
-      <div className="flex items-center gap-3 pl-2">
-  
+      <div className="flex items-center gap-2 pl-1 shrink-0">
         
         <button 
+           type="button"
            onClick={() => localStorage.getItem("token") ? navigate('/dashboard') : navigate('/signup')}
-           className="px-6 py-2.5 rounded-full bg-white text-black text-[13px] font-bold hover:bg-zinc-200 transition-all shadow-lg active:scale-95 flex items-center gap-2"
+           className="hidden sm:inline-flex px-5 py-2.5 rounded-full bg-white text-black text-caption font-semibold hover:bg-zinc-200 transition-all shadow-lg active:scale-95"
         >
           {localStorage.getItem("token") ? "Dashboard" : "Get Started"}
         </button>
@@ -342,10 +343,11 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
 
          {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="absolute top-[120%] left-0 right-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-3xl p-4 flex flex-col space-y-2 md:hidden shadow-2xl overflow-hidden">
-             {['Pricing', 'Features', 'Contact'].map((item) => (
+        <div className="absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-zinc-950/95 backdrop-blur-xl border border-white/10 rounded-2xl p-3 flex flex-col gap-1 md:hidden shadow-2xl overflow-hidden">
+             {['Pricing', 'Features'].map((item) => (
                 <button 
                     key={item}
+                    type="button"
                     onClick={() => {
                         if (item === 'Features') {
                             const element = document.getElementById('features');
@@ -360,15 +362,25 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
                                 }, 100);
                             }
                         } else {
-                            navigate(`/${item.toLowerCase()}`);
+                            navigate('/pricing');
                             setMobileMenuOpen(false);
                         }
                     }}
-                    className="text-left text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white py-3 px-4 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium text-sm"
+                    className="text-left text-zinc-300 hover:text-white py-3 px-4 rounded-xl hover:bg-white/5 transition-colors font-medium text-caption"
                 >
                     {item}
                 </button>
              ))}
+             <button
+               type="button"
+               onClick={() => {
+                 localStorage.getItem("token") ? navigate('/dashboard') : navigate('/signup');
+                 setMobileMenuOpen(false);
+               }}
+               className="mt-1 w-full py-3 rounded-xl bg-white text-black text-caption font-semibold hover:bg-zinc-200 transition-colors sm:hidden"
+             >
+               {localStorage.getItem("token") ? "Dashboard" : "Get Started"}
+             </button>
         </div>
       )}
     </nav>

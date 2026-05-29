@@ -54,17 +54,19 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
   return (
     <div className="w-full max-w-md space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-white">
+        <h2 className="font-display text-2xl font-bold tracking-tight text-white">
           {type === "signin" ? "Welcome back" : "Create account"}
         </h2>
-        <p className="text-sm text-zinc-400 mt-2">
-          {type === "signin" ? "Enter your credentials to access your account" : "Enter your email below to create your account"}
+        <p className="text-body-muted text-sm mt-2">
+          {type === "signin"
+            ? "Sign in to access your knowledge base"
+            : "Start building your personal knowledge base"}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white">
+          <label htmlFor="email" className="text-caption font-medium text-zinc-300">
              Email
           </label>
           <Input
@@ -79,7 +81,7 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white">
+          <label htmlFor="password" className="text-caption font-medium text-zinc-300">
             Password
           </label>
           <div className="relative">
@@ -104,7 +106,7 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
 
         <Button
           type="submit"
-          className="w-full bg-white text-black hover:bg-zinc-200"
+          className="w-full h-11 rounded-full bg-white text-black font-semibold hover:bg-zinc-200"
           disabled={isLoading}
         >
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -116,14 +118,14 @@ export function AuthForm({ type, onSubmit, isLoading }: AuthFormProps) {
             <span className="w-full border-t border-zinc-800" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-black px-2 text-zinc-400">Or continue with</span>
+            <span className="bg-zinc-950 px-2 text-caption text-zinc-500">Or continue with</span>
           </div>
         </div>
 
         <Button
           type="button"
           variant="outline"
-          className="w-full bg-zinc-950 border-zinc-800 text-white hover:bg-zinc-900 hover:text-white"
+          className="w-full h-11 rounded-full bg-transparent border-zinc-800 text-white hover:bg-zinc-900 hover:text-white"
           onClick={handleGoogleSignIn}
         >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

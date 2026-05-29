@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -26,6 +26,16 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
+
+    /* WebMind semantic tokens */
+    --wm-bg: 0 0% 0%;
+    --wm-surface: 240 6% 6%;
+    --wm-surface-elevated: 240 5% 10%;
+    --wm-text: 0 0% 98%;
+    --wm-text-secondary: 240 5% 72%;
+    --wm-text-muted: 240 4% 58%;
+    --wm-border: 240 4% 16%;
+    --wm-border-subtle: 0 0% 100% / 0.08;
   }
 
   .dark {
@@ -57,12 +67,95 @@
   }
 
   html {
-    /* Reset to default 100% (16px) for larger text visibility */
     font-size: 100%;
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  .wm-container {
+    @apply mx-auto w-full max-w-6xl px-6;
+  }
+
+  .wm-section {
+    @apply py-24 md:py-32;
+  }
+
+  .wm-section-divider {
+    @apply absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent;
+  }
+
+  /* Typography scale */
+  .text-display-hero {
+    @apply font-display font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-zinc-100 to-zinc-400;
+    font-size: clamp(2.25rem, 5.5vw, 4.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+
+  .text-display {
+    @apply font-display font-bold tracking-tight text-white;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.12;
+    letter-spacing: -0.025em;
+  }
+
+  .text-heading {
+    @apply font-display font-semibold text-white tracking-tight;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    line-height: 1.25;
+  }
+
+  .text-body-lg {
+    @apply text-lg text-zinc-300 leading-relaxed;
+  }
+
+  .text-body {
+    @apply text-base text-zinc-300 leading-relaxed;
+  }
+
+  .text-body-muted {
+    @apply text-base text-zinc-400 leading-relaxed;
+  }
+
+  .text-caption {
+    @apply text-[0.8125rem] text-zinc-400 leading-normal;
+  }
+
+  .text-overline {
+    @apply text-xs font-medium uppercase tracking-[0.08em] text-zinc-400;
+  }
+
+  /* Buttons */
+  .wm-btn-primary {
+    @apply inline-flex items-center justify-center h-12 px-8 rounded-full text-sm font-semibold bg-white text-black shadow-[0_0_24px_rgba(255,255,255,0.12)] hover:shadow-[0_0_32px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-black;
+  }
+
+  .wm-btn-secondary {
+    @apply inline-flex items-center justify-center h-12 px-8 rounded-full text-sm font-medium bg-zinc-900/80 border border-zinc-700/80 text-zinc-200 hover:bg-zinc-800 hover:border-zinc-600 hover:text-white active:scale-[0.98] transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black;
+  }
+
+  /* Surfaces */
+  .wm-card {
+    @apply rounded-2xl border border-zinc-800/60 bg-gradient-to-b from-zinc-900/95 to-zinc-950;
+  }
+
+  .wm-glass-nav {
+    @apply bg-zinc-900/50 backdrop-blur-xl border border-white/10;
+  }
+
+  .wm-auth-card {
+    @apply relative w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950/90 p-8 shadow-2xl backdrop-blur-sm;
   }
 }

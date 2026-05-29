@@ -172,7 +172,7 @@ export function CreateContentModal({
       onContentAdded?.();
     } catch (err: any) {
       // Clean error message
-      const msg = err.response?.data?.message || "Error saving content.";
+      const msg = err.response?.data?.error || err.response?.data?.message || "Error saving content.";
       toast.error(msg);
       setError(msg);
     } finally {

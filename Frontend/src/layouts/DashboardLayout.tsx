@@ -154,7 +154,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "h-screen bg-[#030303] text-zinc-100 overflow-hidden p-3 flex font-sans antialiased selection:bg-white/20",
+      "h-screen bg-black text-zinc-100 overflow-hidden p-3 flex font-sans antialiased selection:bg-white/20",
       sidebarOpen ? "gap-3" : "gap-0"
     )}>
       
@@ -186,7 +186,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="w-8 h-8 rounded-xl bg-black flex items-center justify-center shadow-lg shadow-white/5">
             <Brain className="text-white" />
           </div>
-          <span className="text-lg font-bold text-white tracking-tight">
+          <span className="font-display text-lg font-bold text-white tracking-tight">
             WebMind
           </span>
         </div>

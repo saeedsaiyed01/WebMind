@@ -13,14 +13,23 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1.5rem",
       screens: {
-        "2xl": "1400px",
+        "2xl": "72rem",
       },
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["DM Sans", "Inter", "system-ui", "sans-serif"],
+      },
+      maxWidth: {
+        content: "72rem",
+        prose: "40rem",
+      },
+      spacing: {
+        18: "4.5rem",
+        22: "5.5rem",
       },
       colors: {
         border: "hsl(var(--border))",
@@ -56,6 +65,10 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        wm: {
+          bg: "hsl(var(--wm-bg))",
+          surface: "hsl(var(--wm-surface))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -80,4 +93,3 @@ export default {
   },
   plugins: [tailwindAnimate],
 }
-
