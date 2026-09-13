@@ -12,8 +12,32 @@ import { DeleteConfirmationModal } from "../components/ui/DeleteConfirmationModa
 import { motion } from "framer-motion";
 import { useContent } from "../hooks/useContent";
 
+const CardSkeleton = () => (
+  <div className="break-inside-avoid mb-6 rounded-2xl border border-border/80 bg-background/50 p-5 space-y-4 animate-pulse">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="h-8 w-8 rounded-full bg-zinc-800" />
+        <div className="space-y-1.5">
+          <div className="h-3.5 w-24 rounded bg-zinc-800" />
+          <div className="h-2.5 w-16 rounded bg-zinc-800/60" />
+        </div>
+      </div>
+      <div className="h-4 w-4 rounded bg-zinc-800" />
+    </div>
+    <div className="space-y-2 pt-2">
+      <div className="h-3.5 w-full rounded bg-zinc-800" />
+      <div className="h-3.5 w-4/5 rounded bg-zinc-800" />
+      <div className="h-3.5 w-2/3 rounded bg-zinc-800/60" />
+    </div>
+    <div className="pt-3 flex items-center justify-between border-t border-border/40">
+      <div className="h-3 w-12 rounded bg-zinc-800/60" />
+      <div className="h-3 w-8 rounded bg-zinc-800/60" />
+    </div>
+  </div>
+);
+
 export function Dashboard() {
-  const { contents, refresh, deleteContent, updateContent } = useContent();
+  const { contents, refresh, loading, deleteContent, updateContent } = useContent();
   const { credits } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -167,7 +191,11 @@ export function Dashboard() {
             </div>
 
             <div className="columns-1 gap-6 space-y-6 px-1 pb-20 md:columns-2 lg:columns-3 xl:columns-4">
-              {filteredContents.length === 0 ? (
+              {loading ? (
+                Array.from({ length: 8 }).map((_, i) => (
+                  <CardSkeleton key={i} />
+                ))
+              ) : filteredContents.length === 0 ? (
                 <div className="flex break-inside-avoid flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-background/40 p-24 text-center">
                   <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-background/60">
                     <Sparkles className="h-8 w-8 text-zinc-400" />

@@ -3,10 +3,11 @@ import rateLimit from 'express-rate-limit';
 // General limiter (for entire app)
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 mins
-  max: 100, // 100 requests per IP per window
+  max: 500, // 500 requests per IP per window
   message: 'Too many requests. Please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => process.env.NODE_ENV !== 'production' || req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1',
 });
 
 // Specific limiter (e.g., for uploading)
