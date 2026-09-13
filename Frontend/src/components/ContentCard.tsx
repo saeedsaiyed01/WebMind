@@ -8,6 +8,7 @@ interface ContentCardProps {
     title: string;
     type: "tweet" | "video" | "document" | "link" | "note";
     link?: string;
+    originalLink?: string;
     content?: string;
     tags?: string[];
     createdAt?: string;
@@ -109,10 +110,9 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
   };
 
   // Determine content type
-  // Determine content type
-  const isTwitter = item.type === "tweet" || (item.link && (item.link.includes("twitter.com") || item.link.includes("x.com")));
-  const isYoutube = item.type === "video" || (item.link && (item.link.includes("youtube.com") || item.link.includes("youtu.be")));
-  const ytEmbed = isYoutube && item.link ? getYoutubeEmbed(item.link) : null;
+  const isTwitter = item.type === "tweet" || (item.originalLink && (item.originalLink.includes("twitter.com") || item.originalLink.includes("x.com"))) || (item.link && (item.link.includes("twitter.com") || item.link.includes("x.com")));
+  const isYoutube = item.type === "video" || (item.originalLink && (item.originalLink.includes("youtube.com") || item.originalLink.includes("youtu.be"))) || (item.link && (item.link.includes("youtube.com") || item.link.includes("youtu.be")));
+  const ytEmbed = isYoutube ? getYoutubeEmbed(item.originalLink || item.link || "") : null;
   const isImageStart = !isTwitter && !isYoutube && item.link && (item.link.match(/\.(jpeg|jpg|gif|png|webp)$/) != null || item.link.includes("cloudinary"));
 
   const tweetContainerRef = useRef<HTMLDivElement>(null);
@@ -124,7 +124,7 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
     const match = text.match(/(?:twitter|x)\.com\/.*\/status\/(\d+)/);
     return match ? match[1] : null;
   };
-  const tweetId = (isTwitter) ? (extractTweetId(item.link) || extractTweetId(item.content)) : null;
+  const tweetId = isTwitter ? (extractTweetId(item.originalLink) || extractTweetId(item.link) || extractTweetId(item.content)) : null;
 
   useEffect(() => {
     let isCancelled = false;
@@ -325,7 +325,9 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
                        <Twitter className="w-4 h-4 text-sky-500 fill-current" />
                     </div>
                     <div className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                       {item.content || item.link || "No content."}
+                       {(item.content || item.link || "No content.")
+                         .replace(/^@[^:]+:\s*"/, "")
+                         .replace(/"$/, "")}
                     </div>
                     <div className="flex items-center justify-between pt-2 text-muted-foreground">
                        <div className="flex items-center gap-1.5 hover:text-sky-500 transition-colors cursor-pointer group">
