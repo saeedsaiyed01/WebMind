@@ -34,36 +34,26 @@ export function DeleteConfirmationModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
       <div
         ref={modalRef}
-        className="relative w-full max-w-md p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl animate-in fade-in zoom-in-95 duration-200"
+        className="glass-strong relative w-full max-w-md rounded-3xl border border-border p-6 shadow-lift animate-in zoom-in-95 duration-200"
       >
-        <div className="flex flex-col items-center text-center gap-4">
-          <div className="p-3 bg-red-500/10 rounded-full border border-red-500/20">
-            <AlertTriangle className="w-8 h-8 text-red-500" />
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="rounded-full border border-destructive/30 bg-destructive/10 p-3">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
           </div>
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-white">Are you sure?</h3>
-            <p className="text-sm text-zinc-400">
+            <h3 className="text-xl font-semibold text-foreground">Are you sure?</h3>
+            <p className="text-sm text-muted-foreground">
               This action cannot be undone. This will permanently delete this item from your dashboard.
             </p>
           </div>
-          <div className="flex items-center gap-3 w-full mt-2">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              disabled={loading}
-              className="flex-1 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-white"
-            >
+          <div className="mt-2 flex w-full items-center gap-3">
+            <Button variant="outline" onClick={onClose} disabled={loading} className="flex-1">
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={onConfirm}
-              disabled={loading}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white border-none"
-            >
+            <Button variant="destructive" onClick={onConfirm} disabled={loading} className="flex-1">
               {loading ? "Deleting..." : "Delete Content"}
             </Button>
           </div>

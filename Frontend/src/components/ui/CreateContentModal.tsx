@@ -252,7 +252,7 @@ export function CreateContentModal({
                                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                              />
                           )}
-                          <tab.icon className={cn("h-3.5 w-3.5 shrink-0", type === tab.id && "text-gold")} aria-hidden />
+                          <tab.icon className={cn("h-3.5 w-3.5 shrink-0", type === tab.id && "text-white")} aria-hidden />
                           <span className="min-w-0 truncate">{tab.label}</span>
                        </button>
                     ))}
@@ -268,7 +268,7 @@ export function CreateContentModal({
                           onChange={(e) => setTitle(e.target.value)}
                           type="text"
                           placeholder="Title"
-                          className="w-full rounded-xl border border-border bg-background/50 px-4 py-3 text-sm text-foreground transition-all placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-1 focus:ring-gold/40"
+                          className="w-full rounded-xl border border-border bg-background/50 px-4 py-3 text-sm text-foreground transition-all placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-1 focus:ring-white/40"
                        />
                     </div>
 
@@ -284,7 +284,7 @@ export function CreateContentModal({
                                 onChange={(e) => setLink(e.target.value)}
                                 type="url"
                                 placeholder={type === ContentType.Tweet ? "Paste X/Twitter link" : "https://example.com/..."}
-                                className="w-full rounded-xl border border-border bg-background/50 pl-10 pr-4 py-3 text-sm text-foreground transition-all placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-1 focus:ring-gold/40"
+                                className="w-full rounded-xl border border-border bg-background/50 pl-10 pr-4 py-3 text-sm text-foreground transition-all placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-1 focus:ring-white/40"
                              />
                           </div>
                        </div>
@@ -296,7 +296,7 @@ export function CreateContentModal({
                              value={content}
                              onChange={(e) => setContent(e.target.value)}
                              placeholder="Write your note..."
-                             className="w-full min-h-[120px] resize-none rounded-xl border border-border bg-background/50 px-4 py-3 text-sm leading-relaxed text-foreground transition-all placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-1 focus:ring-gold/40"
+                             className="w-full min-h-[120px] resize-none rounded-xl border border-border bg-background/50 px-4 py-3 text-sm leading-relaxed text-foreground transition-all placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-1 focus:ring-white/40"
                           />
                        </div>
                     )}
@@ -312,15 +312,15 @@ export function CreateContentModal({
                                 className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                              />
                              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                <FileText className="h-8 w-8 text-muted-foreground/60 transition-colors group-hover:text-gold" />
+                                <FileText className="h-8 w-8 text-muted-foreground/60 transition-colors group-hover:text-white" />
                                 <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground">
                                    {selectedFile ? selectedFile.name : "Choose PDF file"}
                                 </span>
                              </div>
                           </div>
                           {selectedFile && (
-                             <div className="flex items-center gap-2 px-1 pt-1 text-xs text-gold animate-in fade-in slide-in-from-top-1">
-                                <Check className="w-3 h-3" />
+                             <div className="flex items-center gap-2 px-1 pt-1 text-xs text-white animate-in fade-in slide-in-from-top-1">
+                                <Check className="w-3 h-3 text-emerald-400" />
                                 Ready to upload
                              </div>
                           )}
@@ -339,7 +339,7 @@ export function CreateContentModal({
                  {(title || link || content || selectedFile) && (
                     <div className="pt-2 pb-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div className="text-overline mb-3 flex items-center gap-2 px-1">
-                            <span className="h-1.5 w-1.5 rounded-full bg-gold/60" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-white/60" />
                             Live Preview
                         </div>
                         <div className="pointer-events-none origin-top scale-[0.98] transform opacity-100">
@@ -354,7 +354,7 @@ export function CreateContentModal({
                     <button
                        onClick={addContent}
                        disabled={isLoading}
-                       className="wm-btn-gold w-full rounded-xl py-3 disabled:pointer-events-none disabled:opacity-50"
+                       className="w-full rounded-xl py-3 font-semibold text-sm bg-white text-black hover:bg-zinc-200 active:scale-98 transition-all disabled:pointer-events-none disabled:opacity-50"
                     >
                        {isLoading ? (
                           <div className="flex items-center justify-center gap-2">

@@ -126,23 +126,23 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
         ref={dropdownRef}
         role="dialog"
         aria-modal="true"
-        className="fixed z-[200] right-4 top-[max(6.5rem,calc(env(safe-area-inset-top,0px)+5rem))] w-[min(calc(100vw-2rem),20rem)] max-h-[min(90vh,32rem)] overflow-y-auto overflow-x-hidden rounded-xl border border-zinc-800 bg-[#18181b] shadow-2xl sm:top-24 sm:max-h-[min(90vh,32rem)]"
+        className="glass-strong fixed z-[200] right-4 top-[max(6.5rem,calc(env(safe-area-inset-top,0px)+5rem))] w-[min(calc(100vw-2rem),20rem)] max-h-[min(90vh,32rem)] overflow-y-auto overflow-x-hidden rounded-2xl border border-border shadow-lift sm:top-24"
         onClick={(e) => e.stopPropagation()}
       >
-      <div className="p-4 border-b border-zinc-800 flex items-center bg-[#202023]">
+      <div className="flex items-center border-b border-border bg-background/30 p-4">
         <div className="flex-1">
           {isloading ? (
             <div className="space-y-2">
-              <div className="bg-zinc-700 animate-pulse h-4 w-32 rounded"></div>
-              <div className="bg-zinc-700 animate-pulse h-3 w-40 rounded"></div>
+              <div className="h-4 w-32 animate-pulse rounded bg-muted"></div>
+              <div className="h-3 w-40 animate-pulse rounded bg-muted"></div>
             </div>
           ) : (
             <div>
-              <p className="font-semibold text-white truncate">
+              <p className="truncate font-semibold text-foreground">
                 {userName || username}
               </p>
               {email && (
-                <p className="text-xs text-zinc-400 truncate">
+                <p className="truncate text-xs text-muted-foreground">
                   {email}
                 </p>
               )}
@@ -150,20 +150,20 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
           )}
         </div>
       </div>
-      
-      <div className="p-2 space-y-1">
+
+      <div className="space-y-1 p-2">
          {/* Credits Display */}
-         <div className="px-3 py-2 flex items-center justify-between text-sm text-zinc-300 bg-zinc-900/50 rounded-lg mx-2 my-2 border border-zinc-800/50">
+         <div className="mx-2 my-2 flex items-center justify-between rounded-lg border border-border bg-background/40 px-3 py-2 text-sm text-foreground">
             <div className="flex items-center gap-2">
-               <CreditCard className="w-4 h-4 text-purple-400" />
+               <CreditCard className="h-4 w-4 text-gold" />
                <span>Credits</span>
             </div>
-            <span className="font-bold text-white">{credits !== null ? credits : '-'}</span>
+            <span className="font-bold text-foreground">{credits !== null ? credits : '-'}</span>
          </div>
 
-        <div className="mx-2 mb-2 rounded-lg border border-zinc-800/50 bg-zinc-900/50 p-2">
-          <div className="mb-2 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-zinc-500">
-            <Sparkles className="h-3.5 w-3.5 text-violet-400" />
+        <div className="mx-2 mb-2 rounded-lg border border-border bg-background/40 p-2">
+          <div className="mb-2 flex items-center gap-2 px-1 text-overline">
+            <Sparkles className="h-3.5 w-3.5 text-gold" />
             AI model
           </div>
           <div className="max-h-40 space-y-0.5 overflow-y-auto pr-0.5">
@@ -178,12 +178,12 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
                   }}
                   className={`flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm transition-colors ${
                     active
-                      ? "bg-white/[0.08] font-medium text-white"
-                      : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                      ? "bg-accent font-medium text-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
                 >
                   <span className="truncate pr-2">{m.name}</span>
-                  {active && <Check className="h-3.5 w-3.5 shrink-0 text-violet-400" />}
+                  {active && <Check className="h-3.5 w-3.5 shrink-0 text-gold" />}
                 </button>
               );
             })}
@@ -191,19 +191,19 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <button
-          className="w-full flex items-center px-4 py-2.5 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
+          className="flex w-full items-center rounded-lg px-4 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           onClick={navigateProfile}
         >
-          <User className="w-4 h-4 mr-3" /> Profile
+          <User className="mr-3 h-4 w-4" /> Profile
         </button>
-        
-        <div className="h-px bg-zinc-800 my-1 mx-2" />
-        
+
+        <div className="wm-divider mx-2 my-1" />
+
         <button
-          className="w-full flex items-center px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors"
+          className="flex w-full items-center rounded-lg px-4 py-2.5 text-sm text-destructive transition-colors hover:bg-destructive/10 hover:text-destructive"
           onClick={handleLogout}
         >
-          <LogOut className="w-4 h-4 mr-3" /> Logout
+          <LogOut className="mr-3 h-4 w-4" /> Logout
         </button>
       </div>
     </div>

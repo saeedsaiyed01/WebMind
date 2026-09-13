@@ -1,48 +1,48 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  CheckCircle,
+  Brain,
   FolderPlus,
-  GalleryVerticalEnd,
+  Layers,
   MessageSquare,
-  Wrench,
 } from "lucide-react";
+
+export type FeatureVisual = "sources" | "models" | "network" | "knowledge";
 
 export type LandingFeature = {
   title: string;
   description: string;
   icon: LucideIcon;
+  visual: FeatureVisual;
 };
 
 export const landingFeatures: LandingFeature[] = [
   {
-    title: "Add Your Content",
+    title: "Save Anything Instantly",
     description:
-      "Import tweets, notes, and documents to build your digital repository.",
+      "Drop tweets, notes, PDFs, and links into one place — your second brain starts here.",
     icon: FolderPlus,
+    visual: "sources",
   },
   {
-    title: "AI-Powered Insights",
+    title: "Choose Any AI Model",
     description:
-      "Turn unstructured data into organized, actionable knowledge.",
-    icon: Wrench,
+      "Switch between Gemini, GPT, GLM, and more — pick the model that fits the task.",
+    icon: Layers,
+    visual: "models",
   },
   {
-    title: "Smart Organization",
+    title: "Powered By Latest AI",
     description:
-      "Automatically categorize content so your base stays searchable.",
-    icon: GalleryVerticalEnd,
+      "Stay on the cutting edge with models that evolve as the AI landscape moves.",
+    icon: Brain,
+    visual: "network",
   },
   {
-    title: "Ask Questions",
+    title: "Intelligent Knowledge Hub",
     description:
-      "Query everything in natural language and uncover what matters.",
+      "Turn scattered saves into searchable, actionable intelligence you can query.",
     icon: MessageSquare,
-  },
-  {
-    title: "Get Answers",
-    description:
-      "Retrieve precise, knowledge-based answers from your own content.",
-    icon: CheckCircle,
+    visual: "knowledge",
   },
 ];
 

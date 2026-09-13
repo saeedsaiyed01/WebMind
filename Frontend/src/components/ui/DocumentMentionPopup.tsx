@@ -59,35 +59,28 @@ export function DocumentMentionPopup({
   if (!isOpen) return null;
 
   return (
-    <div className="absolute bottom-full left-0 mb-2 w-80 max-h-64 overflow-hidden bg-zinc-900/95 backdrop-blur-xl border border-white/[0.08] rounded-xl shadow-2xl z-50 animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200">
+    <div className="glass-strong absolute bottom-full left-0 z-50 mb-2 max-h-64 w-80 overflow-hidden rounded-xl shadow-lift animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.06]">
+      <div className="flex items-center justify-between border-b border-border px-3 py-2">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-semibold">
-            Attach Document
-          </span>
+          <span className="text-overline">Attach Document</span>
           {searchQuery && (
-            <span className="text-[10px] text-zinc-400 bg-white/[0.05] px-2 py-0.5 rounded-full">
+            <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] text-muted-foreground">
               "{searchQuery}"
             </span>
           )}
         </div>
-        <button
-          onClick={onClose}
-          className="p-1 hover:bg-white/[0.05] rounded transition-colors"
-        >
-          <X className="h-3 w-3 text-zinc-500" />
+        <button onClick={onClose} className="rounded p-1 transition-colors hover:bg-accent">
+          <X className="h-3 w-3 text-muted-foreground" />
         </button>
       </div>
 
       {/* List */}
-      <div ref={listRef} className="overflow-y-auto max-h-48 py-1">
+      <div ref={listRef} className="max-h-48 overflow-y-auto py-1">
         {loading ? (
-          <div className="px-3 py-4 text-center text-zinc-500 text-xs">
-            Loading documents...
-          </div>
+          <div className="px-3 py-4 text-center text-xs text-muted-foreground">Loading documents...</div>
         ) : documents.length === 0 ? (
-          <div className="px-3 py-4 text-center text-zinc-500 text-xs">
+          <div className="px-3 py-4 text-center text-xs text-muted-foreground">
             {searchQuery ? `No documents matching "${searchQuery}"` : "No documents found"}
           </div>
         ) : (
@@ -96,25 +89,16 @@ export function DocumentMentionPopup({
               key={doc._id}
               onClick={() => onSelect(doc)}
               className={cn(
-                "w-full text-left px-3 py-2.5 flex items-center gap-3 transition-colors",
-                index === selectedIndex
-                  ? "bg-white/[0.08] text-white"
-                  : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200"
+                "flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors",
+                index === selectedIndex ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
               )}
             >
-              {/* Type Icon */}
-              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center">
-                {typeIcons[doc.type] || <FileText className="h-4 w-4 text-zinc-400" />}
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-background/60">
+                {typeIcons[doc.type] || <FileText className="h-4 w-4 text-muted-foreground" />}
               </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">
-                  {doc.title || "Untitled"}
-                </div>
-                <div className="text-[10px] text-zinc-500">
-                  {typeLabels[doc.type] || doc.type}
-                </div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-medium">{doc.title || "Untitled"}</div>
+                <div className="text-[10px] text-muted-foreground">{typeLabels[doc.type] || doc.type}</div>
               </div>
             </button>
           ))
@@ -122,17 +106,11 @@ export function DocumentMentionPopup({
       </div>
 
       {/* Footer Hint */}
-      <div className="px-3 py-1.5 border-t border-white/[0.06] bg-white/[0.02]">
-        <div className="flex items-center gap-3 text-[9px] text-zinc-500">
-          <span>
-            <kbd className="px-1 py-0.5 bg-zinc-800 rounded text-[8px]">↑↓</kbd> navigate
-          </span>
-          <span>
-            <kbd className="px-1 py-0.5 bg-zinc-800 rounded text-[8px]">↵</kbd> select
-          </span>
-          <span>
-            <kbd className="px-1 py-0.5 bg-zinc-800 rounded text-[8px]">esc</kbd> close
-          </span>
+      <div className="border-t border-border bg-background/30 px-3 py-1.5">
+        <div className="flex items-center gap-3 text-[9px] text-muted-foreground">
+          <span><span className="wm-kbd text-[8px]">↑↓</span> navigate</span>
+          <span><span className="wm-kbd text-[8px]">↵</span> select</span>
+          <span><span className="wm-kbd text-[8px]">esc</span> close</span>
         </div>
       </div>
     </div>
@@ -147,7 +125,7 @@ interface AttachedDocumentChipProps {
 
 export function AttachedDocumentChip({ document, onRemove }: AttachedDocumentChipProps) {
   return (
-    <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-white/[0.06] border border-white/[0.08] rounded-lg text-xs text-zinc-300 hover:bg-white/[0.08] transition-colors group">
+    <div className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background/60 px-2 py-1 text-xs text-foreground transition-colors hover:bg-accent group">
       {typeIcons[document.type] || <FileText className="h-3 w-3" />}
       <span className="max-w-[150px] truncate">{document.title || "Untitled"}</span>
       <button
@@ -155,7 +133,7 @@ export function AttachedDocumentChip({ document, onRemove }: AttachedDocumentChi
           e.stopPropagation();
           onRemove();
         }}
-        className="p-0.5 hover:bg-white/[0.1] rounded transition-colors opacity-60 group-hover:opacity-100"
+        className="rounded p-0.5 opacity-60 transition-colors hover:bg-accent group-hover:opacity-100"
       >
         <X className="h-3 w-3" />
       </button>

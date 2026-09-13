@@ -1,8 +1,9 @@
 import { useStore } from "@/store/useStore";
-import axios from "axios";
+import { GlowOrb, PageTransition } from "@/components/ui/motion";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
 
 export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
@@ -18,33 +19,24 @@ export default function PaymentSuccessPage() {
       try {
         const token = localStorage.getItem("token");
         const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
-        
-        // Refresh user data to get updated credits
         const res = await axios.get(`${API_BASE}/api/v1/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
-        
         if (res.data) {
           setUser(res.data);
-          if (res.data.credits !== undefined) {
-            setCredits(res.data.credits);
-          }
+          if (res.data.credits !== undefined) setCredits(res.data.credits);
         }
-        
         setStatus("success");
       } catch (error) {
         console.error("Failed to verify payment", error);
-        setStatus("success"); // Still show success, webhook handles the actual credit addition
+        setStatus("success");
       }
     };
-
     verifyAndRedirect();
   }, [sessionId, setCredits, setUser]);
 
-  // Countdown and redirect
   useEffect(() => {
     if (status !== "success") return;
-    
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -55,47 +47,48 @@ export default function PaymentSuccessPage() {
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(interval);
   }, [status, navigate]);
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-      <div className="max-w-md w-full text-center space-y-6">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-4">
+      <div aria-hidden className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 grid-overlay grid-overlay-fade opacity-30 dark:opacity-20" />
+        <GlowOrb className="left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" size={520} intensity={0.35} />
+      </div>
+      <PageTransition className="w-full max-w-md space-y-6 text-center">
         {status === "loading" ? (
           <>
-            <Loader2 className="h-16 w-16 animate-spin text-white mx-auto" />
-            <h1 className="text-2xl font-bold text-white">Processing Payment...</h1>
-            <p className="text-zinc-400">Please wait while we confirm your payment.</p>
+            <Loader2 className="mx-auto h-16 w-16 animate-spin text-gold" />
+            <h1 className="font-display text-3xl tracking-tight text-foreground">Processing Payment...</h1>
+            <p className="text-muted-foreground">Please wait while we confirm your payment.</p>
           </>
         ) : (
           <>
-            <div className="relative w-20 h-20 mx-auto">
-              <div className="absolute inset-0 bg-green-500/20 rounded-full blur-xl animate-pulse" />
-              <div className="relative w-20 h-20 bg-green-500/10 rounded-full border-2 border-green-500 flex items-center justify-center">
-                <CheckCircle className="h-10 w-10 text-green-500" />
+            <div className="relative mx-auto h-20 w-20">
+              <div className="absolute inset-0 rounded-full bg-gold/20 blur-xl animate-pulse-glow" />
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-full border-2 border-gold bg-gold/10">
+                <CheckCircle className="h-10 w-10 text-gold" />
               </div>
             </div>
-            
-            <h1 className="text-3xl font-bold text-white">Payment Successful! 🎉</h1>
-            <p className="text-zinc-400">
+            <h1 className="font-display text-3xl tracking-tight text-foreground">Payment Successful!</h1>
+            <p className="text-muted-foreground">
               Thank you for your purchase! Your credits have been added to your account.
             </p>
-            
             <div className="pt-4">
-              <p className="text-zinc-500 text-sm">
-                Redirecting to dashboard in <span className="text-white font-bold">{countdown}</span> seconds...
+              <p className="text-sm text-muted-foreground">
+                Redirecting to dashboard in <span className="font-bold text-foreground">{countdown}</span> seconds...
               </p>
               <button
                 onClick={() => navigate("/dashboard")}
-                className="mt-4 px-6 py-3 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-all"
+                className="wm-btn-gold mt-4"
               >
                 Go to Dashboard Now
               </button>
             </div>
           </>
         )}
-      </div>
+      </PageTransition>
     </div>
   );
 }

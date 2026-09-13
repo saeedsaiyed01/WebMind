@@ -1,50 +1,192 @@
 import { cn } from "@/lib/utils";
-import type { LandingFeature } from "@/data/landingFeatures";
-import { motion } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
+import type { FeatureVisual, LandingFeature } from "@/data/landingFeatures";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  Brain,
+  Check,
+  FileText,
+  Sparkles,
+  StickyNote,
+  Twitter,
+} from "lucide-react";
 
 type FeatureCardProps = {
   feature: LandingFeature;
   index: number;
 };
 
+function FeatureVisualPanel({ visual }: { visual: FeatureVisual }) {
+  if (visual === "sources") {
+    return (
+      <div className="relative flex h-full items-center justify-center bg-zinc-950">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0)",
+            backgroundSize: "18px 18px",
+          }}
+        />
+        <div className="relative z-10 flex items-center gap-1.5 rounded-xl border border-white/10 bg-zinc-900/90 px-2.5 py-2 shadow-2xl">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/20 ring-1 ring-sky-400/30">
+            <Twitter className="h-3.5 w-3.5 text-sky-400" />
+          </span>
+          <span className="text-[10px] text-zinc-600">→</span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 ring-1 ring-amber-400/30">
+            <StickyNote className="h-3.5 w-3.5 text-amber-400" />
+          </span>
+          <span className="text-[10px] text-zinc-600">→</span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/20 ring-1 ring-rose-400/30">
+            <FileText className="h-3.5 w-3.5 text-rose-400" />
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (visual === "models") {
+    const models = [
+      { name: "gemini-2.5-flash", active: false },
+      { name: "gpt-oss-120b", active: true },
+      { name: "glm-4.5-air", active: false },
+    ];
+    return (
+      <div className="relative flex h-full items-center justify-center bg-zinc-950 px-4">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-40"
+          style={{
+            background:
+              "radial-gradient(ellipse 70% 60% at 50% 40%, rgba(99,102,241,0.18), transparent 70%)",
+          }}
+        />
+        <div className="relative z-10 w-full max-w-[188px] overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-2xl">
+          <div className="flex items-center gap-1.5 border-b border-white/5 px-3 py-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
+            <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
+            <span className="text-[10px] font-medium text-zinc-500">models</span>
+          </div>
+          <div className="space-y-0.5 p-1.5">
+            {models.map((m) => (
+              <div
+                key={m.name}
+                className={cn(
+                  "flex items-center justify-between rounded-md px-2.5 py-1.5 font-mono text-[10px]",
+                  m.active
+                    ? "bg-white text-zinc-950"
+                    : "text-zinc-500"
+                )}
+              >
+                <span className="truncate">{m.name}</span>
+                {m.active && <Check className="h-3 w-3 shrink-0" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (visual === "network") {
+    return (
+      <div className="relative flex h-full items-center justify-center bg-zinc-950">
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06), transparent 55%)",
+          }}
+        />
+        <div className="relative z-10 grid grid-cols-3 gap-3">
+          {["Gemini", "GPT", "GLM", "Flash", "OSS", "Air"].map((label, i) => (
+            <span
+              key={label}
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-lg border text-[9px] font-semibold tracking-wide",
+                i === 1
+                  ? "border-white/20 bg-white text-zinc-950"
+                  : "border-white/10 bg-zinc-900 text-zinc-400"
+              )}
+            >
+              {label.slice(0, 3)}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // knowledge
+  return (
+    <div className="relative flex h-full items-center justify-center bg-zinc-950 px-4">
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-50"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 50% at 50% 100%, rgba(16,185,129,0.12), transparent 60%)",
+        }}
+      />
+      <div className="relative z-10 w-full max-w-[200px] overflow-hidden rounded-xl border border-white/10 bg-zinc-900 p-3 shadow-2xl">
+        <div className="mb-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-zinc-950">
+              <Brain className="h-3.5 w-3.5" />
+            </span>
+            <span className="text-[11px] font-semibold text-zinc-100">Library</span>
+          </div>
+          <Sparkles className="h-3 w-3 text-zinc-500" />
+        </div>
+        <div className="space-y-2 border-t border-white/5 pt-2.5 text-[10px]">
+          <div className="flex justify-between gap-2">
+            <span className="text-zinc-500">Source</span>
+            <span className="font-mono text-zinc-300">DOC-07</span>
+          </div>
+          <div className="flex justify-between gap-2">
+            <span className="text-zinc-500">Entry</span>
+            <span className="max-w-[110px] truncate text-right text-zinc-200">
+              Q3 research notes
+            </span>
+          </div>
+          <div className="pt-0.5">
+            <span className="inline-flex rounded-md bg-emerald-500/15 px-1.5 py-0.5 font-medium text-emerald-400 ring-1 ring-emerald-500/25">
+              indexed
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function FeatureCard({ feature, index }: FeatureCardProps) {
-  const Icon = feature.icon as LucideIcon;
+  const reduce = useReducedMotion();
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: reduce ? 0 : 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.4, delay: index * 0.06 }}
+      transition={{ duration: 0.5, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        "group relative flex flex-col items-center text-center",
-        "min-h-[280px] sm:min-h-[300px] p-6 sm:p-8 rounded-2xl wm-card",
-        "hover:border-zinc-600/70 transition-all duration-300 overflow-hidden",
-        "shadow-xl hover:shadow-2xl hover:shadow-zinc-900/50 hover:-translate-y-1"
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl",
+        "border border-white/10 bg-zinc-950/80",
+        "transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-zinc-950"
       )}
     >
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-600/50 to-transparent opacity-60" />
-
-      <div className="absolute top-[36%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-36 sm:h-36 pointer-events-none">
-        <div className="absolute inset-0 rounded-full border-t border-l border-r border-b-0 border-zinc-700/40 scale-[0.5]" />
-        <div className="absolute inset-0 rounded-full border-t border-l border-r border-b-0 border-zinc-700/30 scale-[0.7]" />
-        <div className="absolute inset-0 rounded-full border-t border-l border-r border-b-0 border-zinc-700/20 scale-[0.9]" />
+      <div className="relative h-[168px] shrink-0 border-b border-white/10">
+        <FeatureVisualPanel visual={feature.visual} />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center flex-1 w-full gap-5 pt-2">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center shadow-inner group-hover:border-zinc-500/60 group-hover:bg-zinc-800/90 transition-all duration-300">
-          <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-zinc-400 group-hover:text-white transition-colors duration-300" />
-        </div>
-
-        <div className="flex flex-col gap-2 mt-auto w-full">
-          <h3 className="text-heading text-base sm:text-lg font-semibold text-zinc-200 group-hover:text-white transition-colors">
-            {feature.title}
-          </h3>
-          <p className="text-caption text-zinc-500 group-hover:text-zinc-400 transition-colors max-w-[14rem] mx-auto">
-            {feature.description}
-          </p>
-        </div>
+      <div className="relative z-10 flex flex-1 flex-col gap-2 px-5 py-5">
+        <h3 className="text-[15px] font-semibold tracking-tight text-zinc-50">
+          {feature.title}
+        </h3>
+        <p className="text-[13px] leading-relaxed text-zinc-400">
+          {feature.description}
+        </p>
       </div>
     </motion.article>
   );

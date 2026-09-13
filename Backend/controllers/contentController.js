@@ -101,9 +101,11 @@ export async function handleaddMemory(req, res) {
             } else {
                 const tweetText = await fetchTweetTextWithRetry(url, 3, 2000);
                 if (!tweetText) {
-                    return res.status(400).json({ error: "Could not fetch tweet text" });
+                    console.warn("Could not fetch tweet text, falling back to URL.");
+                    finalContent = url;
+                } else {
+                    finalContent = tweetText;
                 }
-                finalContent = tweetText;
             }
         }
         if (type === "website" && !finalContent.trim() && url) {

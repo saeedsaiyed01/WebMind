@@ -19,7 +19,7 @@ export function PageSection({
   return (
     <section
       id={id}
-      className={cn("wm-section relative z-20 bg-black overflow-hidden scroll-mt-24", className)}
+      className={cn("wm-section relative z-20 overflow-hidden scroll-mt-24", className)}
     >
       {withDivider && <div className="wm-section-divider" aria-hidden />}
       <div className={cn("wm-container relative z-10", containerClassName)}>
