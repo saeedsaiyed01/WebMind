@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://web-mind-be.vercel.app/api/v1";
 
 type ContentType = "note" | "tweet" | "document" | "website";
 

@@ -3,7 +3,7 @@ import axios from "axios";
 
 // or your actual backend
 
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://web-mind-be.vercel.app/api/v1";
 export async function signUp(username: string, password: string) {
   // POST to /api/v1/signup
   const response = await axios.post(`${BACKEND_URL}/auth/signup`, {
