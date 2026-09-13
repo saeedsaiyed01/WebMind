@@ -24,8 +24,8 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174', // Frontend is running on port 5174
   'https://web-mind.vercel.app',
-  'https://webmind.buzz', // your custom domain
-  'https://www.webmind.buzz',
+  'https://webmind.space', // your custom domain
+  'https://www.webmind.space',
   'https://web-mind-be.vercel.app',
 ];
 
@@ -54,6 +54,17 @@ app.use(cors({
 
 
 async function bootstrap() {
+  // Force Node's c-ares resolver (used by mongodb+srv SRV lookups) to reliable
+  // public DNS servers. Some ISPs (e.g. GTPL ns01.gtpl.net) refuse c-ares SRV
+  // queries, causing `querySrv ECONNREFUSED` even though `nslookup` works.
+  try {
+    const dns = await import("node:dns");
+    dns.setServers(["1.1.1.1", "8.8.8.8", "9.9.9.9"]);
+    dns.setDefaultResultOrder("ipv4first");
+  } catch (e) {
+    console.warn("Could not override DNS servers:", e);
+  }
+
   await connectDB();
 
   app.set("trust proxy", 1);

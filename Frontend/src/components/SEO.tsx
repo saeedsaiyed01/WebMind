@@ -8,7 +8,7 @@ interface SEOProps {
   noindex?: boolean;
 }
 
-const BASE_URL = "https://webmind.buzz";
+const BASE_URL = "https://webmind.space";
 const DEFAULT_IMAGE = `${BASE_URL}/og-banner.png`;
 const DEFAULT_DESCRIPTION =
   "Store tweets, notes, PDFs, and more into an AI-searchable personal knowledge base.";
