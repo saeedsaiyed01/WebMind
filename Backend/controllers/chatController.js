@@ -6,23 +6,34 @@ import { getChatHistory, saveChatTurn } from "../services/chatHistoryService.js"
 import generateAnswer from "../services/generateAnswer.js";
 import searchDocuments from "../services/queryPinecone.js";
 
+function beginChatStream(res) {
+  res.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("X-Accel-Buffering", "no");
+  if (typeof res.flushHeaders === "function") res.flushHeaders();
+
+  return (event) => {
+    if (!res.writableEnded) res.write(`${JSON.stringify(event)}\n`);
+  };
+}
+
 export async function Chat(req, res) {
+  const { message, contentId, attachedDocumentIds } = req.body;
+  let { conversationId } = req.body;
+  const userId = req.userId;
+
+  if (!message) {
+    return res.status(400).json({ error: "Missing message" });
+  }
+
+  const send = beginChatStream(res);
+
   try {
-    const { message, contentId, attachedDocumentIds } = req.body;
-    let { conversationId } = req.body; // User might send existing ID
-    const userId = req.userId;
-    const user = req.user;
+    send({ type: "phase", phase: "working" });
 
-    if (!message) {
-      return res.status(400).json({ error: "Missing message" });
-    }
-
-    // 1. Manage Conversation Session
     if (conversationId) {
-      // Update existing conversation timestamp
       await ConversationModel.findByIdAndUpdate(conversationId, { lastMessageAt: new Date() });
     } else {
-      // Create NEW Conversation
       const newConv = await ConversationModel.create({
         userId,
         title: message.substring(0, 30) + (message.length > 30 ? "..." : ""),
@@ -31,58 +42,54 @@ export async function Chat(req, res) {
       conversationId = newConv._id;
     }
 
-    // Get chat history (scoped to conversation if possible, or simplified)
-    // For RAG, we might still want recent global history or specific doc history
-    // Get chat history (scoped to conversation)
     const chatHistory = await getChatHistory(userId, contentId, conversationId, 10);
 
-    // 2. Get pineconeIds for focused search (if documents attached via @ mention)
     let pineconeIdFilter = [];
     if (attachedDocumentIds && attachedDocumentIds.length > 0) {
       const attachedDocs = await ContentModel.find({
         _id: { $in: attachedDocumentIds },
-        userId // Security: ensure user owns these documents
+        userId
       });
 
       pineconeIdFilter = attachedDocs.map(doc => doc.pineconeId);
       console.log(`Focused search: ${pineconeIdFilter.length} document(s) attached`);
     }
 
-    // Search user memories (RAG) - focused if docs attached, otherwise searches all
+    send({ type: "phase", phase: "searching" });
     const userMemories = await searchDocuments(message, userId, 5, pineconeIdFilter);
 
-    // Extract optional model and imageUrl from request
     const { model = "gemini-2.5-flash", imageUrl } = req.body;
 
-    // Generate AI answer
+    send({ type: "phase", phase: "solving" });
     const answer = await generateAnswer(message, userMemories, chatHistory, model, imageUrl);
 
-    // ✅ DEDUCT CREDITS (only after successful response)
     const creditResult = await deductCredits(userId, 1);
-
-    // Save the chat turn with credits used AND conversationId
     await saveChatTurn(userId, contentId, conversationId, message, answer, 1);
 
-    // Return response with credit info
-    res.json({
+    send({
+      type: "result",
       answer,
-      conversationId, // ✅ Return this so frontend can update URL
+      conversationId,
       timestamp: new Date().toISOString(),
       creditsUsed: 1,
       remainingCredits: creditResult.remainingCredits
     });
-
+    res.end();
   } catch (error) {
     console.error("Chat error:", error);
 
-    // Handle specific errors
-    if (error.message === "Insufficient credits") {
-      return res.status(403).json({
-        error: "Insufficient credits",
-        needsUpgrade: true
-      });
-    }
+    const payload = error.message === "Insufficient credits"
+      ? { type: "error", error: "Insufficient credits", needsUpgrade: true }
+      : { type: "error", error: "Failed to generate answer" };
 
-    res.status(500).json({ error: "Failed to generate answer" });
+    try {
+      send(payload);
+      res.end();
+    } catch (writeError) {
+      console.error("Failed to write chat error event:", writeError);
+      if (!res.headersSent) {
+        res.status(500).json({ error: payload.error });
+      }
+    }
   }
 }
