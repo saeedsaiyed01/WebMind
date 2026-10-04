@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/Button";
 import SEO from "@/components/SEO";
 import { AttachedDocumentChip, ContentItem, DocumentMentionPopup } from "@/components/ui/DocumentMentionPopup";
+import { ThinkingStatus } from "@/components/ui/ThinkingStatus";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
+import { type ChatPhase, readChatStream } from "@/lib/chatStream";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
-import { Bot, Check, ChevronDown, Copy, Loader2, Mic, Send, Sparkles } from "lucide-react";
+import { Bot, Check, ChevronDown, Copy, Mic, Send, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -35,6 +37,7 @@ export function ChatPage() {
   const { user, selectedModel, setCredits, addConversation, messages, setMessages } = useStore();
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
+  const [agentPhase, setAgentPhase] = useState<ChatPhase | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -154,7 +157,7 @@ export function ChatPage() {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, agentPhase]);
 
   const activeModel = selectedModel || SUPPORTED_MODELS[0];
   const [, setShowModels] = useState(false);
@@ -169,6 +172,7 @@ export function ChatPage() {
     setInputValue("");
     setAttachedDocuments([]);
     setLoading(true);
+    setAgentPhase("working");
     try {
       const token = localStorage.getItem("token");
       const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -182,7 +186,7 @@ export function ChatPage() {
           attachedDocumentIds: attachedDocIds,
         }),
       });
-      const data = await res.json();
+      const data = await readChatStream(res, setAgentPhase);
       if (data.answer) {
         setMessages((prev) => [
           ...prev,
@@ -206,6 +210,7 @@ export function ChatPage() {
       ]);
     } finally {
       setLoading(false);
+      setAgentPhase(null);
     }
   };
 
@@ -282,14 +287,13 @@ export function ChatPage() {
                   </motion.div>
                 );
               })}
-              {loading && (
-                <div className="flex gap-3">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-background/60">
-                    <Bot className="h-3.5 w-3.5 text-white" />
-                  </div>
-                  <div className="glass rounded-2xl rounded-tl-sm px-4 py-2.5">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  </div>
+              {loading && agentPhase && (
+                <div className="flex justify-start">
+                  <ThinkingStatus
+                    phase={agentPhase}
+                    size={32}
+                    label={agentPhase === "searching" ? "Searching your library…" : undefined}
+                  />
                 </div>
               )}
             </div>

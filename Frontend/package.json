@@ -31,6 +31,7 @@
     "sonner": "^2.0.3",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "thinking-orbs": "^0.3.2",
     "zustand": "^4.5.1"
   },
   "devDependencies": {

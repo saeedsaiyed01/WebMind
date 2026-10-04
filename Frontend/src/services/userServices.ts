@@ -1,27 +1,31 @@
   // userServices.ts
   import axios from "axios";
+  import { type ChatPhase, readChatStream } from "../lib/chatStream";
 
 
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://web-mind-be.vercel.app/api/v1";
 
-  export async function onSendMessage(message: string, contentId: string): Promise<string> {
+  export async function onSendMessage(
+    message: string,
+    contentId: string,
+    onPhase?: (phase: ChatPhase) => void,
+  ): Promise<string> {
     const token = localStorage.getItem("token") || "";
 
-    const response = await axios.post(
-      `${BACKEND_URL}/chat`,
-      {
+    const response = await fetch(`${BACKEND_URL}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${token}`,
+      },
+      body: JSON.stringify({
         message,
         contentId,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${token}`,
-        },
-      }
-    );
+      }),
+    });
 
-    return response.data.answer;
+    const result = await readChatStream(response, onPhase);
+    return result.answer;
   }
 
 

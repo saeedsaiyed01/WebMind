@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
+import type { ChatPhase } from "../../lib/chatStream";
 import { onSendMessage as sendChatMessage } from "../../services/userServices";
 import styles from "./AiChatModal.module.css";
+import { ThinkingStatus } from "./ThinkingStatus";
 
 interface CreditsData {
   credits: number;
@@ -30,6 +32,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [agentPhase, setAgentPhase] = useState<ChatPhase>("working");
   const [credits, setCredits] = useState<number | null>(null);
   const [showNoCredits, setShowNoCredits] = useState(false);
   const [hasCheckedCredits, setHasCheckedCredits] = useState(false);
@@ -163,9 +166,10 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
     }
 
     setIsLoading(true);
+    setAgentPhase("working");
 
     try {
-      const response = await sendChatMessage(userMessage.content, contentId);
+      const response = await sendChatMessage(userMessage.content, contentId, setAgentPhase);
       const aiMessage: Message = {
         id: `ai-${Date.now()}`,
         content: response,
@@ -324,12 +328,12 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
 
               {/* Enhanced Loading animation with accessibility */}
               {isLoading && (
-                <div className={styles.messageRow} role="status" aria-live="polite" aria-label="AI is typing">
-                  <div className={`${styles.messageBubble} ${styles.messageBubbleAi} ${styles.loadingBubble}`}>
-                    <div className={styles.loadingDot}></div>
-                    <div className={styles.loadingDot}></div>
-                    <div className={styles.loadingDot}></div>
-                  </div>
+                <div className={styles.messageRow}>
+                  <ThinkingStatus
+                    phase={agentPhase}
+                    size={32}
+                    label={agentPhase === "searching" ? "Searching your library…" : undefined}
+                  />
                 </div>
               )}
 

@@ -1,3 +1,4 @@
+import { ThinkingStatus } from "@/components/ui/ThinkingStatus";
 import { cn } from "@/lib/utils";
 import { FileText, Globe, MessageSquare, StickyNote, X } from "lucide-react";
 import { useEffect, useRef } from "react";
@@ -78,7 +79,9 @@ export function DocumentMentionPopup({
       {/* List */}
       <div ref={listRef} className="max-h-48 overflow-y-auto py-1">
         {loading ? (
-          <div className="px-3 py-4 text-center text-xs text-muted-foreground">Loading documents...</div>
+          <div className="flex justify-center px-3 py-4">
+            <ThinkingStatus phase="searching" size={20} label="Searching documents…" />
+          </div>
         ) : documents.length === 0 ? (
           <div className="px-3 py-4 text-center text-xs text-muted-foreground">
             {searchQuery ? `No documents matching "${searchQuery}"` : "No documents found"}
