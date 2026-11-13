@@ -1,3 +1,6 @@
+"use client";
+
+import { BACKEND_URL } from "@/config";
 import { Button } from "@/components/ui/Button";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import UserModal from "@/components/ui/UserModal";
@@ -15,8 +18,11 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
+
+import type { Conversation } from "@/types/models";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -24,9 +30,10 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
+  const location = { pathname: usePathname() };
   const { user, logout, conversations, setConversations, setMessages, credits, setCredits } = useStore();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = router.push;
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [userModalOpen, setUserModalOpen] = useState(false);
@@ -39,7 +46,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const res = await axios.get("http://localhost:8000/api/v1/conversations", {
+        const res = await axios.get(`${BACKEND_URL}/conversations`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setConversations(res.data);
@@ -55,7 +62,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/plan`, {
+        const response = await fetch(`${BACKEND_URL}/plan`, {
           headers: { Authorization: `${token}` },
         });
         if (response.ok) {
@@ -118,7 +125,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     setIsDeleting(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:8000/api/v1/conversation/${convToDelete}`, {
+      await axios.delete(`${BACKEND_URL}/conversation/${convToDelete}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setConversations(conversations.filter((c) => c._id !== convToDelete));
@@ -133,14 +140,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   };
 
-  const grouped: Record<string, any[]> = {
+  const grouped: Record<string, Conversation[]> = {
     Today: [],
     Yesterday: [],
     "Previous 7 Days": [],
     Older: [],
   };
-  conversations.forEach((conv: any) => {
-    const date = new Date(conv.lastMessageAt || conv.createdAt);
+  conversations.forEach((conv: Conversation) => {
+    const date = new Date(conv.lastMessageAt || conv.createdAt || 0);
     const now = new Date();
     const yesterday = new Date();
     yesterday.setDate(now.getDate() - 1);
@@ -204,10 +211,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   {label}
                 </h3>
                 <div className="space-y-0.5">
-                  {convs.map((conv: any) => (
+                  {convs.map((conv: Conversation) => (
                     <Link
                       key={conv._id}
-                      to={`/chat/${conv._id}`}
+                      href={`/chat/${conv._id}`}
                       className={cn(
                         "group relative flex items-center gap-2.5 rounded-lg px-3 py-2 pr-8 text-[13px] font-medium transition-all",
                         location.pathname.includes(conv._id)
@@ -282,7 +289,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <nav className="flex shrink-0 flex-col gap-1 md:hidden" aria-label="Primary">
           <div className="glass flex w-full items-center gap-1 rounded-2xl p-1">
             <Link
-              to="/dashboard"
+              href="/dashboard"
               className={cn(
                 "min-h-[40px] flex-1 rounded-xl px-3 py-2 text-center text-sm font-medium transition-all",
                 location.pathname === "/dashboard" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"
@@ -291,7 +298,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               Dashboard
             </Link>
             <Link
-              to="/chat"
+              href="/chat"
               className={cn(
                 "min-h-[40px] flex-1 rounded-xl px-3 py-2 text-center text-sm font-medium transition-all",
                 location.pathname.startsWith("/chat") ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"
@@ -335,8 +342,8 @@ function SidebarHeader({
   userModalOpen,
   user,
 }: {
-  location: ReturnType<typeof useLocation>;
-  navigate: ReturnType<typeof useNavigate>;
+  location: { pathname: string };
+  navigate: ReturnType<typeof useRouter>["push"];
   sidebarOpen: boolean;
   setSidebarOpen: (v: boolean | ((p: boolean) => boolean)) => void;
   mobileMenuOpen: boolean;
@@ -384,7 +391,7 @@ function SidebarHeader({
 
         <div className="hidden items-center rounded-full border border-border bg-background/50 p-1 md:flex">
           <Link
-            to="/dashboard"
+            href="/dashboard"
             className={cn(
               "rounded-full px-5 py-1.5 text-[12px] font-medium transition-all",
               location.pathname === "/dashboard"
@@ -395,7 +402,7 @@ function SidebarHeader({
             Dashboard
           </Link>
           <Link
-            to="/chat"
+            href="/chat"
             className={cn(
               "rounded-full px-5 py-1.5 text-[12px] font-medium transition-all",
               location.pathname.startsWith("/chat")

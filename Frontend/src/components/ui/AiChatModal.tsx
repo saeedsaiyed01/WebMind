@@ -1,3 +1,6 @@
+"use client";
+
+import { BACKEND_URL } from "@/config";
 import React, { useEffect, useRef, useState } from "react";
 import type { ChatPhase } from "../../lib/chatStream";
 import { onSendMessage as sendChatMessage } from "../../services/userServices";
@@ -51,14 +54,14 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
         onClose();
       }
     };
-    
+
     if (isOpen) {
       // Add slight delay to prevent immediate close on first click
       setTimeout(() => {
         document.addEventListener("mousedown", handleOutsideClick);
       }, 100);
     }
-    
+
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
@@ -66,7 +69,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
 
   // Enhanced scroll behavior for mobile
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ 
+    messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "end"
     });
@@ -89,7 +92,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/plan`, {
+      const response = await fetch(`${BACKEND_URL}/plan`, {
         headers: { 'Authorization': `${token}` }
       });
 
@@ -125,11 +128,11 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
         onClose();
       }
     };
-    
+
     if (isOpen) {
       document.addEventListener("keydown", handleEscKey);
     }
-    
+
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };
@@ -195,7 +198,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
           setShowNoCredits(false);
         }
       }
-    } catch (error) {
+    } catch {
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         content: "Sorry, I couldn't process your request. Please try again.",
@@ -223,7 +226,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
   return (
     <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="chat-modal-title">
       {/* Enhanced backdrop with better blur */}
-      <div 
+      <div
         className={styles.backdrop}
         aria-hidden="true"
       />
@@ -266,7 +269,7 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
         </div>
 
         {/* Enhanced Messages container with proper accessibility */}
-        <div 
+        <div
           className={styles.messagesContainer}
           role="log"
           aria-live="polite"
@@ -348,18 +351,18 @@ const LLMChatModal: React.FC<LLMChatModalProps> = ({
           {hasCheckedCredits && credits !== null && credits <= 0 && (
             <div className={`${styles.warningBanner} ${styles.noCreditsWarning}`} role="alert">
               <div className={styles.warningContent}>
-                <svg 
-                  className={styles.warningIcon} 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className={styles.warningIcon}
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
                   />
                 </svg>
                 <span className={styles.warningText}>No credits remaining</span>

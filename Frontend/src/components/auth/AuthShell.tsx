@@ -1,7 +1,9 @@
+"use client";
+
 import { Button } from "@/components/ui/Button";
 import { GlowOrb, PageTransition } from "@/components/ui/motion";
 import { ArrowLeft, Brain } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 
 export function AuthShell({
@@ -13,7 +15,8 @@ export function AuthShell({
   title: string;
   subtitle: string;
 }) {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = router.push;
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background p-6 font-sans text-foreground">
       <div aria-hidden className="absolute inset-0 -z-10">

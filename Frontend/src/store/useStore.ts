@@ -1,11 +1,6 @@
-import { create, StateCreator } from 'zustand';
-import { persist, PersistOptions } from 'zustand/middleware';
-
-interface Model {
-  id: string;
-  name: string;
-  isFree?: boolean;
-}
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { Model, Conversation, ChatMessage } from '@/types/models';
 
 interface User {
   id: string;
@@ -21,29 +16,24 @@ interface AppState {
   credits: number;
   selectedModel: Model | null;
   models: Model[];
-  conversations: any[];
-  messages: any[]; // Current chat messages
+  conversations: Conversation[];
+  messages: ChatMessage[]; // Current chat messages
 
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
   setCredits: (credits: number) => void;
-  
+
   setSelectedModel: (model: Model | null) => void;
   setModels: (models: Model[]) => void;
-  setConversations: (conversations: any[]) => void;
-  addConversation: (conversation: any) => void;
-  setMessages: (messages: any[] | ((prev: any[]) => any[])) => void;
-  
+  setConversations: (conversations: Conversation[]) => void;
+  addConversation: (conversation: Conversation) => void;
+  setMessages: (messages: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) => void;
+
   logout: () => void;
 }
 
-type AppPersist = (
-  config: StateCreator<AppState>,
-  options: PersistOptions<AppState>
-) => StateCreator<AppState>;
-
-export const useStore = create<AppState>(
-  (persist as AppPersist)(
+export const useStore = create<AppState>()(
+  persist(
     (set): AppState => ({
       user: null,
       token: null,
@@ -54,21 +44,29 @@ export const useStore = create<AppState>(
       messages: [],
 
       setUser: (user: User | null): void => set({ user }),
-      setToken: (token: string | null): void => set({ token }),
+      setToken: (token: string | null): void => {
+        if (token) localStorage.setItem('token', token);
+        else localStorage.removeItem('token');
+        set({ token });
+      },
       setCredits: (credits: number): void => set({ credits }),
-      
+
       setSelectedModel: (model: Model | null): void => set({ selectedModel: model }),
       setModels: (models: Model[]): void => set({ models }),
-      setConversations: (conversations: any[]): void => set({ conversations }),
-      addConversation: (conversation: any): void => set((state) => ({ conversations: [conversation, ...state.conversations] })),
-      setMessages: (messagesOrFn: any[] | ((prev: any[]) => any[])): void => set((state) => ({ 
-        messages: typeof messagesOrFn === 'function' ? messagesOrFn(state.messages) : messagesOrFn 
+      setConversations: (conversations: Conversation[]): void => set({ conversations }),
+      addConversation: (conversation: Conversation): void => set((state) => ({ conversations: [conversation, ...state.conversations] })),
+      setMessages: (messagesOrFn: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])): void => set((state) => ({
+        messages: typeof messagesOrFn === 'function' ? messagesOrFn(state.messages) : messagesOrFn
       })),
-      
-      logout: (): void => set({ user: null, token: null, selectedModel: null, credits: 0, conversations: [], messages: [] }),
+
+      logout: (): void => {
+        localStorage.removeItem('token');
+        set({ user: null, token: null, selectedModel: null, credits: 0, conversations: [], messages: [] });
+      },
     }),
     {
       name: 'webmind-storage',
+      skipHydration: true,
     }
   )
 );

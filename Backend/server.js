@@ -21,6 +21,7 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
+  'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:5174', // Frontend is running on port 5174
   'https://web-mind.vercel.app',

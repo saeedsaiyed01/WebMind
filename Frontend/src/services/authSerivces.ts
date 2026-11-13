@@ -1,9 +1,11 @@
 // authService.ts (or .js)
 import axios from "axios";
+import { useStore } from "@/store/useStore";
 
 // or your actual backend
 
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://web-mind-be.vercel.app/api/v1";
+export { BACKEND_URL } from "@/config";
+import { BACKEND_URL } from "@/config";
 export async function signUp(username: string, password: string) {
   // POST to /api/v1/signup
   const response = await axios.post(`${BACKEND_URL}/auth/signup`, {
@@ -11,7 +13,7 @@ export async function signUp(username: string, password: string) {
     password
   });
   if (response.data.token) {
-    localStorage.setItem("token", response.data.token); // Store token
+    useStore.getState().setToken(response.data.token);
   }
   return response.data; // e.g., { message: "User signed up" }
 }
@@ -23,7 +25,7 @@ export async function signIn(username: string, password: string) {
   });
 
   if (response.data.token) {
-    localStorage.setItem("token", response.data.token); // Store token
+    useStore.getState().setToken(response.data.token);
   }
 
   return response.data;

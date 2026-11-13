@@ -1,6 +1,9 @@
+"use client";
+
+import { useStore } from "@/store/useStore";
 import { Brain, Menu, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -14,8 +17,9 @@ interface NewNavbarProps {
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 const NewNavbar: React.FC<NewNavbarProps> = ({ variant }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const navigate = router.push;
+  const location = { pathname: usePathname() };
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const reduce = useReducedMotion();
@@ -31,7 +35,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({ variant }) => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  const isLoggedIn = Boolean(localStorage.getItem("token"));
+  const isLoggedIn = Boolean(useStore((state) => state.token));
   const goToPrimary = () => navigate(isLoggedIn ? "/dashboard" : "/signup");
 
   const goFeatures = () => {

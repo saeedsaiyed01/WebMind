@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { AnimatePresence, motion } from "framer-motion";
@@ -14,7 +16,10 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://web-mind-be.vercel.app/api/v1";
+export { BACKEND_URL } from "@/config";
+import { BACKEND_URL } from "@/config";
+
+import type { ContentItem } from "@/types/models";
 
 enum ContentType {
   Tweet = "tweet",
@@ -27,7 +32,7 @@ interface CreateContentModalProps {
   onOpen: boolean;
   onClose: () => void;
   onContentAdded?: () => void;
-  initialData?: any; 
+  initialData?: ContentItem | null;
 }
 
 const CONTENT_TYPES = [
@@ -51,7 +56,7 @@ export function CreateContentModal({
   const [title, setTitle] = useState("");
   const [link, setLink] = useState("");
   const [content, setContent] = useState("");
-  
+
   const modalRef = useRef<HTMLDivElement>(null);
   const [type, setType] = useState<ContentType>(ContentType.Tweet);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -60,13 +65,17 @@ export function CreateContentModal({
 
   useEffect(() => {
     if (onOpen && initialData) {
-      setType(initialData.type);
+      setType(initialData.type === "website" || initialData.type === "video" ? ContentType.Website : initialData.type as ContentType);
       setTitle(initialData.title || "");
       setLink(initialData.link || "");
       setContent(initialData.content || initialData.link || "");
     } else if (onOpen) {
       setType(ContentType.Tweet);
-      resetForm();
+      setTitle("");
+      setLink("");
+      setContent("");
+      setSelectedFile(null);
+      setError(null);
     }
   }, [onOpen, initialData]);
 
@@ -131,7 +140,7 @@ export function CreateContentModal({
         setError(`${type === ContentType.Tweet ? "Tweet link" : "Website link"} is required.`);
         return;
       }
-      try { new URL(link); } catch (_) {
+      try { new URL(link); } catch {
         setError("Please enter a valid URL.");
         return;
       }
@@ -140,11 +149,11 @@ export function CreateContentModal({
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token") || "";
-      
+
       if (initialData) {
          await axios.put(`${BACKEND_URL}/${initialData._id}`, {
              contentId: initialData._id,
-             newTitle: title, 
+             newTitle: title,
              link: (type === ContentType.Note) ? undefined : link,
              content: (type === ContentType.Note) ? content : undefined
          }, { headers: { Authorization: token } });
@@ -157,12 +166,12 @@ export function CreateContentModal({
             await axios.post(`${BACKEND_URL}/upload-document`, formData, {
               headers: { "Content-Type": "multipart/form-data", Authorization: token },
             });
-            await new Promise(r => setTimeout(r, 500)); 
+            await new Promise(r => setTimeout(r, 500));
           } else {
-            const payload: any = { title, type };
+            const payload: { title: string; type: ContentType; content?: string; url?: string } = { title, type };
             if (type === ContentType.Note) payload.content = content;
-            else payload.url = link; 
-            
+            else payload.url = link;
+
             await axios.post(`${BACKEND_URL}/memory`, payload, { headers: { Authorization: token } });
           }
            toast.success("Content saved successfully.");
@@ -170,9 +179,10 @@ export function CreateContentModal({
       resetForm();
       onClose();
       onContentAdded?.();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const data = axios.isAxiosError<{ error?: string; message?: string }>(err) ? err.response?.data : undefined;
       // Clean error message
-      const msg = err.response?.data?.error || err.response?.data?.message || "Error saving content.";
+      const msg = data?.error || data?.message || "Error saving content.";
       toast.error(msg);
       setError(msg);
     } finally {
@@ -183,7 +193,7 @@ export function CreateContentModal({
   const previewItem = {
      _id: "preview",
      title: title || "Untitled Title",
-     type: type as any,
+     type,
      link: link,
      content: content || (type === ContentType.Note ? "Start typing to see preview..." : undefined),
      createdAt: new Date().toISOString()
@@ -225,7 +235,7 @@ export function CreateContentModal({
               </div>
 
               <div className="p-6 md:p-8 space-y-7">
-                 
+
                  {/* Segmented Control Tabs — 2×2 grid on mobile to avoid overlap; single row on md+ */}
                  <div
                     className={cn(
@@ -260,7 +270,7 @@ export function CreateContentModal({
 
                  {/* Inputs */}
                  <div className="space-y-5">
-                    
+
                     {/* Title Input */}
                     <div className="space-y-1.5">
                        <input
@@ -343,7 +353,6 @@ export function CreateContentModal({
                             Live Preview
                         </div>
                         <div className="pointer-events-none origin-top scale-[0.98] transform opacity-100">
-                           {/* @ts-ignore */}
                            <ContentCard item={previewItem} />
                         </div>
                     </div>

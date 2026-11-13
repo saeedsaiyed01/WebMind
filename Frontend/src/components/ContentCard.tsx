@@ -1,26 +1,21 @@
+"use client";
+
 import { Card, CardContent, CardTitle } from "@/components/ui/Card";
 import { Check, ExternalLink, FilePenLine, FileText, Globe, Heart, ImageOff, Link2, MessageCircle, Repeat2, Share, StickyNote, Trash2, Twitter, X, Youtube } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import type { ContentItem } from "@/types/models";
+
 interface ContentCardProps {
-  item: {
-    _id: string;
-    title: string;
-    type: "tweet" | "video" | "document" | "link" | "note";
-    link?: string;
-    originalLink?: string;
-    content?: string;
-    tags?: string[];
-    createdAt?: string;
-  };
+  item: ContentItem;
   onDelete?: (id: string) => void;
-  onEdit?: (item: any) => void;
+  onEdit?: (item: ContentItem) => void;
   onUpdate?: (id: string, newTitle: string) => Promise<void>; // New prop for inline update
 }
 
 export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardProps) {
   const [imgError, setImgError] = useState(false);
-  
+
   // Inline Edit State
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(item.title);
@@ -43,7 +38,7 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
     if (days < 7) return `${days}d ago`;
     return date.toLocaleDateString();
   }, [item.createdAt]);
-  
+
   // Sync state if prop changes
   useEffect(() => {
      if (!isEditing) setEditTitle(item.title);
@@ -128,16 +123,15 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
 
   useEffect(() => {
     let isCancelled = false;
+    const tweetContainer = tweetContainerRef.current;
 
     if (isTwitter && tweetId && tweetContainerRef.current) {
       setTweetEmbedFailed(false); // Reset error state
 
       const renderTweet = () => {
          if (isCancelled) return;
-         // @ts-ignore
          if (window.twttr?.widgets && tweetContainerRef.current) {
             tweetContainerRef.current.innerHTML = ""; // Ensure clear before render
-            // @ts-ignore
             window.twttr.widgets.createTweet(
               tweetId,
               tweetContainerRef.current,
@@ -146,7 +140,7 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
                 dnt: true,
                 align: 'center'
               }
-            ).then((el: any) => {
+            ).then((el: HTMLElement | undefined) => {
                 if (isCancelled) {
                     if (el) el.remove();
                     return;
@@ -157,8 +151,6 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
             });
          }
       };
-
-      // @ts-ignore
       if (!window.twttr) {
          if (!document.querySelector('script[src="https://platform.twitter.com/widgets.js"]')) {
             const script = document.createElement("script");
@@ -170,7 +162,6 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
             document.body.appendChild(script);
          } else {
              const interval = setInterval(() => {
-                 // @ts-ignore
                  if (window.twttr?.widgets) {
                      clearInterval(interval);
                      if (!isCancelled) renderTweet();
@@ -190,8 +181,8 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
 
     return () => {
         isCancelled = true;
-        if (tweetContainerRef.current) {
-            tweetContainerRef.current.innerHTML = "";
+        if (tweetContainer) {
+            tweetContainer.innerHTML = "";
         }
     };
   }, [isTwitter, tweetId]);
@@ -280,8 +271,8 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
         {/* Content Preview Area */}
         {ytEmbed ? (
            <div className="w-full aspect-video">
-             <iframe 
-               src={ytEmbed} 
+             <iframe
+               src={ytEmbed}
                title={item.title}
                className="w-full h-full object-cover"
                allowFullScreen
@@ -294,11 +285,11 @@ export function ContentCard({ item, onDelete, onEdit, onUpdate }: ContentCardPro
         ) : isImageStart ? (
            <div className="w-full h-full">
              {!imgError ? (
-               <img 
-                 src={item.link} 
-                 alt={item.title} 
+               <img
+                 src={item.link}
+                 alt={item.title}
                  onError={() => setImgError(true)}
-                 className="w-full h-auto object-cover hover:opacity-90 transition-opacity" 
+                 className="w-full h-auto object-cover hover:opacity-90 transition-opacity"
                />
              ) : (
                 <div className="w-full h-32 flex flex-col items-center justify-center gap-2 border-t border-border bg-muted/30 text-muted-foreground/50">

@@ -119,7 +119,7 @@ router.get("/google/callback", (req, res, next) => {
     }
     const token = jwt.sign({ id: user._id }, JWT_PASSWORD, { expiresIn: "7d" });
     const frontend = new URL(
-      process.env.FRONTEND_URL || "http://localhost:5173",
+      process.env.FRONTEND_URL || "http://localhost:3000",
     );
     frontend.searchParams.set("token", token);
     return res.redirect(frontend.toString());

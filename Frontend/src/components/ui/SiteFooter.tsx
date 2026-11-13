@@ -1,13 +1,16 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Brain } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 type SiteFooterProps = {
   className?: string;
 };
 
 export function SiteFooter({ className }: SiteFooterProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = router.push;
   const year = new Date().getFullYear();
 
   const scrollToFeatures = () => {
@@ -83,17 +86,6 @@ export function SiteFooter({ className }: SiteFooterProps) {
             <ul className="flex flex-col gap-3">
               <li>
                 <a
-                  href="https://x.com/saeedsaiyedtwt"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-zinc-400 hover:text-white transition-colors inline-flex items-center gap-2"
-                >
-                  @saeedsaiyedtwt
-                  <span className="text-zinc-600" aria-hidden>↗</span>
-                </a>
-              </li>
-              <li>
-                <a
                   href="https://webmind.space"
                   className="text-sm text-zinc-400 hover:text-white transition-colors"
                 >
@@ -107,17 +99,6 @@ export function SiteFooter({ className }: SiteFooterProps) {
         <div className="mt-10 pt-6 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-zinc-500 text-center sm:text-left">
             © {year} WebMind. All rights reserved.
-          </p>
-          <p className="text-sm text-zinc-500 text-center sm:text-right">
-            Built by{" "}
-            <a
-              href="https://x.com/saeedsaiyedtwt"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-300 hover:text-white font-medium transition-colors underline decoration-zinc-700 underline-offset-4"
-            >
-              Saeed Saiyed
-            </a>
           </p>
         </div>
       </div>

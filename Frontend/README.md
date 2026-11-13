@@ -1,54 +1,46 @@
-# React + TypeScript + Vite
+# WebMind frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 3, and Zustand. The Express API remains in `../Backend`.
 
-Currently, two official plugins are available:
+## Local setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Use Node.js 20.9+ (Node.js 24 LTS recommended).
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```sh
+npm ci
+cp .env.example .env.local
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+On Windows PowerShell, use `npm.cmd` if execution policy blocks `npm.ps1`, and `Copy-Item .env.example .env.local` to create the environment file.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The frontend runs at http://localhost:3000. Start Express separately on port 8000. Set the backend's `FRONTEND_URL=http://localhost:3000` so Google OAuth and checkout return to the frontend. Keep backend API keys in the backend environment; `NEXT_PUBLIC_*` variables are public.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+Set `NEXT_PUBLIC_API_URL` to the backend origin or its `/api/v1` URL. `NEXT_PUBLIC_BACKEND_URL` is also accepted as a fallback. All API calls use the same normalized URL. Replace previous `VITE_API_URL` / `VITE_BACKEND_URL` deployment variables; Next.js reads public variables when building, so rebuild after changing them.
+
+## Commands
+
+```sh
+npm run dev
+npm run lint
+npm run typecheck
+npm run build
+npm start
+npm run test:e2e
 ```
+
+The browser suite runs against a production build and intercepts API requests with deterministic fixtures. Run `npx playwright install chromium` once before testing. It checks migration behavior without real credentials, AI usage, or payment transactions. Google OAuth, live AI responses, PDF processing, and billing still need a configured backend and provider credentials for live verification.
+
+## Structure and behavior
+
+- `src/app`: file-based routes, server metadata, root layout, error and not-found pages.
+- `src/views`: existing interactive page UI. This avoids accidentally registering a second Pages Router.
+- `src/app/providers.tsx`: client session initialization, OAuth token handoff, user loading, toast notifications, and analytics.
+- `src/components/auth/RequireAuth.tsx`: waits for persisted state before redirecting signed-out users. Express continues to enforce API authorization.
+- `src/config.ts`: shared API URL configuration.
+
+Existing paths are preserved: `/`, `/pricing`, `/signin`, `/signup`, `/dashboard`, `/setting`, `/chat`, `/chat/[id]`, `/payment-success`, and `/payment-cancel`. Private pages are marked `noindex`. Landing, pricing, and authentication pages are prerendered with metadata. Saved sessions and theme preferences are restored after hydration.
+
+## Deployment
+
+On Vercel, set the project root to `Frontend`, select Next.js, and use the default build/output settings. Remove any dashboard-level Vite/dist overrides or SPA catch-all rewrites. The repository's old SPA rewrite file has been removed. Configure the public API URL before building and set the Express `FRONTEND_URL` to the deployed frontend origin. Allow that frontend origin in backend CORS if using a custom domain.

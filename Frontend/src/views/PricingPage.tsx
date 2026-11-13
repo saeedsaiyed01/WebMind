@@ -1,8 +1,10 @@
+"use client";
+
+import { BACKEND_URL } from "@/config";
 import { Check, CreditCard, Flame, Globe, MessageSquare, Sparkles } from "lucide-react";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import SEO from "../components/SEO";
 import NewNavbar from "../components/ui/NewNavbar";
 import { PageSection } from "../components/ui/PageSection";
 import { SectionBadge } from "../components/ui/SectionBadge";
@@ -17,9 +19,8 @@ const handlePayment = async (plan: string) => {
       window.location.href = "/signin";
       return;
     }
-    const API_BASE =
-      import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
-    const response = await fetch(`${API_BASE}/api/v1/create-session`, {
+    
+    const response = await fetch(`${BACKEND_URL}/create-session`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ plan: plan.toLowerCase() }),
@@ -63,7 +64,8 @@ type Plan = {
 };
 
 const PricingPage: React.FC = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = router.push;
   const [annual, setAnnual] = useState(false);
 
   const plans: Plan[] = [
@@ -104,11 +106,6 @@ const PricingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background font-sans text-foreground">
-      <SEO
-        title="Pricing — WebMind"
-        description="Simple, transparent pricing for WebMind. Start free and upgrade when you're ready."
-        url="https://webmind.space/pricing"
-      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingJsonLd) }} />
       <NewNavbar variant="landing" />
 

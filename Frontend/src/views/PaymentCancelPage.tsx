@@ -1,9 +1,12 @@
+"use client";
+
 import { GlowOrb, PageTransition } from "@/components/ui/motion";
 import { XCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 export default function PaymentCancelPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = router.push;
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-4">

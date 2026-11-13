@@ -48,11 +48,18 @@ ehthumbs.db
 *.swn
 
 # Locks
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
+# Next.js TypeScript cache
+*.tsbuildinfo
+
+# Committed environment templates
+!**/.env.example
+
 # Test
+playwright-report/
+test-results/
 coverage/
 jest-cache/
 jest-test-results.json

@@ -1,16 +1,19 @@
+"use client";
+
 import { ContentCard } from "@/components/ContentCard";
 import { Button } from "@/components/ui/Button";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
 import { AlertCircle, FileText, LayoutGrid, Link as LinkIcon, Plus, Sparkles, StickyNote, Twitter, Zap } from "lucide-react";
-import { useEffect, useState, type ComponentType } from "react";
+import { useState, type ComponentType } from "react";
 import { toast } from "sonner";
-import SEO from "@/components/SEO";
 import { CreateContentModal } from "../components/ui/CreateContentModal";
 import { DeleteConfirmationModal } from "../components/ui/DeleteConfirmationModal";
 import { motion } from "framer-motion";
 import { useContent } from "../hooks/useContent";
+
+import type { ContentItem } from "@/types/models";
 
 const CardSkeleton = () => (
   <div className="break-inside-avoid mb-6 rounded-2xl border border-border/80 bg-background/50 p-5 space-y-4 animate-pulse">
@@ -40,23 +43,19 @@ export function Dashboard() {
   const { contents, refresh, loading, deleteContent, updateContent } = useContent();
   const { credits } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<ContentItem | null>(null);
   const [filter, setFilter] = useState<"all" | "link" | "tweet" | "note" | "document">("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  const filteredContents = contents.filter((item: any) => {
+  const filteredContents = contents.filter((item: ContentItem) => {
     if (filter === "all") return true;
     if (filter === "link") return item.type === "link" || item.type === "website" || item.type === "video";
     return item.type === filter;
   });
 
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: ContentItem) => {
     setEditingItem(item);
     setIsModalOpen(true);
   };
@@ -65,7 +64,7 @@ export function Dashboard() {
     try {
       await updateContent(id, newTitle);
       toast.success("Title updated.");
-    } catch (e) {
+    } catch {
       toast.error("Failed to update title.");
     }
   };
@@ -127,7 +126,6 @@ export function Dashboard() {
 
   return (
     <DashboardLayout>
-      <SEO title="Dashboard — WebMind" noindex={true} />
       <div className="no-scrollbar h-full w-full min-w-0 overflow-y-auto">
         <div className="mx-auto max-w-[1600px] space-y-8 p-6 pb-20 md:p-10">
           {/* Header */}
@@ -209,7 +207,7 @@ export function Dashboard() {
                   )}
                 </div>
               ) : (
-                filteredContents.map((item: any, idx: number) => (
+                filteredContents.map((item: ContentItem, idx: number) => (
                   <motion.div
                     key={item._id}
                     initial={{ opacity: 0, y: 16 }}

@@ -1,19 +1,13 @@
+"use client";
+
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://web-mind-be.vercel.app/api/v1";
+export { BACKEND_URL } from "@/config";
+import { BACKEND_URL } from "@/config";
 
-type ContentType = "note" | "tweet" | "document" | "website";
-
-export interface ContentItem {
-  _id: string;
-  title: string;
-  link: string;
-  originalLink?: string; 
-  type: ContentType;
-  timestamp?: string;
-  content?: string;
-}
+export type { ContentItem } from "@/types/models";
+import type { ContentItem } from "@/types/models";
 
 export function useContent() {
   const [contents, setContents] = useState<ContentItem[]>([]);
@@ -47,14 +41,15 @@ export function useContent() {
       setContents((prev) => prev.filter((c) => c._id !== id));
     } catch (error) {
       console.error("Failed to delete content:", error);
+      throw error;
     }
   }, []);
 
   const updateContent = useCallback(async (id: string, title: string) => {
       try {
-        await axios.put(`${BACKEND_URL}/${id}`, { 
+        await axios.put(`${BACKEND_URL}/${id}`, {
             contentId: id,
-            newTitle: title 
+            newTitle: title
         }, {
            headers: { Authorization: localStorage.getItem("token") || "" },
         });

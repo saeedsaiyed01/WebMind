@@ -1,7 +1,9 @@
+"use client";
+
+import { useStore } from "@/store/useStore";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import SEO from "../components/SEO";
+import { useRouter } from "next/navigation";
 import { FeatureCard } from "../components/ui/FeatureCard";
 import { LampContainer } from "../components/ui/lamp";
 import NewNavbar from "../components/ui/NewNavbar";
@@ -21,8 +23,9 @@ const webAppJsonLd = {
 };
 
 export default function LandingPage() {
-  const navigate = useNavigate();
-  const isLoggedIn = Boolean(localStorage.getItem("token"));
+  const router = useRouter();
+  const navigate = router.push;
+  const isLoggedIn = Boolean(useStore((state) => state.token));
 
   const goPrimary = () => navigate(isLoggedIn ? "/dashboard" : "/signup");
   const scrollToFeatures = () =>
@@ -30,11 +33,6 @@ export default function LandingPage() {
 
   return (
     <div className="relative w-full overflow-x-hidden bg-black text-white scroll-smooth font-sans">
-      <SEO
-        title="WebMind — All Your Digital Memory Unleashed"
-        description="Store tweets, notes, PDFs, and more into an AI-searchable personal knowledge base. Recall anything instantly with AI."
-        url="https://webmind.space"
-      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppJsonLd) }}
@@ -99,7 +97,6 @@ export default function LandingPage() {
                 alt="WebMind Dashboard Preview"
                 className="w-full h-auto object-cover"
                 loading="eager"
-                // @ts-ignore
                 fetchPriority="high"
               />
             </div>

@@ -14,7 +14,7 @@ WebMind is a powerful AI-driven application designed to facilitate intelligent c
 ## 🛠 Tech Stack
 
 ### Frontend
-*   **Framework**: [React](https://react.dev/) + [Vite](https://vitejs.dev/)
+*   **Framework**: [Next.js](https://nextjs.org/) 16 App Router + [React](https://react.dev/) 19
 *   **Language**: TypeScript
 *   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 *   **Components**: [ShadCN UI](https://ui.shadcn.com/), Radix UI
@@ -39,12 +39,13 @@ WebMind-BE/
 │   ├── routes/         # API endpoints
 │   └── server.js       # Entry point
 │
-├── Frontend/           # React Client Application
+├── Frontend/           # Next.js Client Application
 │   ├── src/
 │   │   ├── components/ # Reusable UI components
-│   │   ├── pages/      # Application views
+│   │   ├── app/        # Next.js routes and layouts
+│   │   ├── views/      # Interactive page components
 │   │   └── store/      # Zustand state stores
-│   └── vite.config.ts
+│   └── next.config.ts
 └── README.md           # Project Documentation
 ```
 
@@ -53,7 +54,7 @@ WebMind-BE/
 Follow these steps to set up the project locally.
 
 ### Prerequisites
-*   Node.js (v18 or higher recommended)
+*   Node.js 20.9+ (Node.js 24 LTS recommended)
 *   MongoDB (Local or Atlas connection)
 *   Git
 
@@ -101,8 +102,10 @@ npm run dev
 ```bash
 cd Frontend
 npm run dev
-# App runs on http://localhost:5173
+# App runs on http://localhost:3000
 ```
+
+See [Frontend/README.md](Frontend/README.md) for Next.js environment variables, deployment settings, and browser tests. Set the backend's `FRONTEND_URL` to `http://localhost:3000` for local Google OAuth and payment returns.
 
 ## 🤝 Contributing
 

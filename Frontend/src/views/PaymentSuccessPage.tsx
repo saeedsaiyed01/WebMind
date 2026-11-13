@@ -1,13 +1,17 @@
+"use client";
+
+import { BACKEND_URL } from "@/config";
 import { useStore } from "@/store/useStore";
 import { GlowOrb, PageTransition } from "@/components/ui/motion";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 
 export default function PaymentSuccessPage() {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const navigate = router.push;
   const { setCredits, setUser } = useStore();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [countdown, setCountdown] = useState(5);
@@ -18,8 +22,8 @@ export default function PaymentSuccessPage() {
     const verifyAndRedirect = async () => {
       try {
         const token = localStorage.getItem("token");
-        const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
-        const res = await axios.get(`${API_BASE}/api/v1/auth/me`, {
+        
+        const res = await axios.get(`${BACKEND_URL}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.data) {

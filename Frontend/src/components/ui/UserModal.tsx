@@ -1,15 +1,15 @@
+"use client";
+
+import { BACKEND_URL } from "@/config";
 import axios from "axios";
 import { useStore } from "@/store/useStore";
 import { Check, CreditCard, LogOut, Sparkles, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { UserDetails } from "../../services/userDetails";
 
-const API_BASE =
-  import.meta.env.VITE_BACKEND_URL ||
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:8000";
+
 
 const FALLBACK_MODELS = [
   { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
@@ -20,7 +20,8 @@ const FALLBACK_MODELS = [
 
 export default function UserModal({ onClose }: { onClose: () => void }) {
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = router.push;
   const { selectedModel, setSelectedModel, models, setModels } = useStore();
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -59,7 +60,7 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
         // Fetch Credits
         const token = localStorage.getItem("token");
         if (token) {
-           const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/api/v1/plan`, {
+           const response = await axios.get(`${BACKEND_URL}/plan`, {
               headers: { Authorization: `Bearer ${token}` }
            });
            setCredits(response.data.credits);
@@ -76,7 +77,7 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const loadModels = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/v1/models`);
+        const res = await fetch(`${BACKEND_URL}/models`);
         const data = await res.json();
         const current = useStore.getState().selectedModel;
         if (data.models?.length) {
@@ -100,7 +101,7 @@ export default function UserModal({ onClose }: { onClose: () => void }) {
   }, [setModels, setSelectedModel]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    useStore.getState().logout();
     navigate("/signin");
   };
   const navigateProfile = () => {

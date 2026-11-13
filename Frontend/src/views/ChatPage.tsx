@@ -1,5 +1,7 @@
+"use client";
+
+import { BACKEND_URL } from "@/config";
 import { Button } from "@/components/ui/Button";
-import SEO from "@/components/SEO";
 import { AttachedDocumentChip, ContentItem, DocumentMentionPopup } from "@/components/ui/DocumentMentionPopup";
 import { ThinkingStatus } from "@/components/ui/ThinkingStatus";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
@@ -10,7 +12,7 @@ import { Bot, Check, ChevronDown, Copy, Mic, Send, Sparkles } from "lucide-react
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
-import { useNavigate, useParams } from "react-router-dom";
+import { useRouter, useParams } from "next/navigation";
 
 interface Message {
   role: "user" | "assistant";
@@ -41,8 +43,8 @@ export function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { id: conversationId } = useParams();
-  const navigate = useNavigate();
+  const { id: conversationId } = useParams<{ id?: string }>();
+  const router = useRouter();
 
   const [attachedDocuments, setAttachedDocuments] = useState<ContentItem[]>([]);
   const [showMentionPopup, setShowMentionPopup] = useState(false);
@@ -69,10 +71,10 @@ export function ChatPage() {
     setDocumentsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      
       const url = query
-        ? `${API_BASE}/api/v1/content/search?q=${encodeURIComponent(query)}`
-        : `${API_BASE}/api/v1/content`;
+        ? `${BACKEND_URL}/content/search?q=${encodeURIComponent(query)}`
+        : `${BACKEND_URL}/content`;
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) {
         const data = await res.json();
@@ -132,16 +134,16 @@ export function ChatPage() {
       if (!conversationId) return;
       try {
         const token = localStorage.getItem("token");
-        const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
-        const res = await fetch(`${API_BASE}/api/v1/conversation/${conversationId}`, {
+        
+        const res = await fetch(`${BACKEND_URL}/conversation/${conversationId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
           const history = await res.json();
           const mapped = history
-            .map((msg: any) => [
-              { role: "user", content: msg.message, timestamp: msg.createdAt },
-              { role: "assistant", content: msg.response, timestamp: msg.createdAt },
+            .map((msg: { message: string; response: string; createdAt: string }) => [
+              { role: "user" as const, content: msg.message, timestamp: msg.createdAt },
+              { role: "assistant" as const, content: msg.response, timestamp: msg.createdAt },
             ])
             .flat();
           setMessages(mapped);
@@ -175,8 +177,8 @@ export function ChatPage() {
     setAgentPhase("working");
     try {
       const token = localStorage.getItem("token");
-      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
-      const res = await fetch(`${API_BASE}/api/v1/chat`, {
+      
+      const res = await fetch(`${BACKEND_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -193,7 +195,7 @@ export function ChatPage() {
           { role: "assistant", content: data.answer, timestamp: Date.now() },
         ]);
         if (data.conversationId && data.conversationId !== conversationId) {
-          navigate(`/chat/${data.conversationId}`, { replace: true });
+          router.replace(`/chat/${data.conversationId}`);
           addConversation({
             _id: data.conversationId,
             title: newMessage.content.substring(0, 20) + "...",
@@ -216,7 +218,6 @@ export function ChatPage() {
 
   return (
     <DashboardLayout>
-      <SEO title="Chat — WebMind" noindex={true} />
       <div
         className="relative flex h-full flex-col"
         onClick={() => {
@@ -466,7 +467,6 @@ function ChatInput(props: {
                       <button
                         key={model.id}
                         onClick={() => {
-                          // @ts-ignore
                           useStore.getState().setSelectedModel(model);
                           props.setShowFooterModels(false);
                         }}

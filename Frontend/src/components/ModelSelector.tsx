@@ -1,3 +1,6 @@
+"use client";
+
+import { BACKEND_URL } from "@/config";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
@@ -15,13 +18,13 @@ export function ModelSelector() {
   useEffect(() => {
     const fetchModels = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/v1/models");
+        const res = await fetch(`${BACKEND_URL}/models`);
         const data = await res.json();
         if (data.models) {
           setModels(data.models);
           // Set default if none selected
           if (!selectedModel && data.models.length > 0) {
-              const defaultModel = data.models.find((m: any) => m.id === "gemini-2.5-flash") || data.models[0];
+              const defaultModel = data.models.find((m: { id: string }) => m.id === "gemini-2.5-flash") || data.models[0];
               setSelectedModel(defaultModel);
           }
         }
@@ -34,8 +37,8 @@ export function ModelSelector() {
 
   return (
     <div className="relative inline-block text-left">
-      <Button 
-        variant="outline" 
+      <Button
+        variant="outline"
         onClick={() => setIsOpen(!isOpen)}
         className="w-[200px] justify-between bg-black text-white border-zinc-800 hover:bg-zinc-900"
       >

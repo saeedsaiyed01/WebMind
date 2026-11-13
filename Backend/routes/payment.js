@@ -62,7 +62,7 @@ router.post("/create-session", userMiddleware, async (req, res) => {
         userId: userId.toString(),
         credits: planInfo.credits.toString()
       },
-      return_url: `${process.env.FRONTEND_URL}/payment-success`
+      return_url: `${process.env.FRONTEND_URL || "http://localhost:3000"}/payment-success`
     });
 
     // Store pending transaction

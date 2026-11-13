@@ -3,7 +3,8 @@
   import { type ChatPhase, readChatStream } from "../lib/chatStream";
 
 
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://web-mind-be.vercel.app/api/v1";
+export { BACKEND_URL } from "@/config";
+import { BACKEND_URL } from "@/config";
 
   export async function onSendMessage(
     message: string,
@@ -34,7 +35,7 @@ export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://web-mind
     contentId: string,
     newTitle: string,
     newContent: string
-  ): Promise<any> {
+  ): Promise<unknown> {
     const token = localStorage.getItem("token") || "";
 
     const response = await axios.put(
@@ -56,7 +57,7 @@ export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://web-mind
   }
 
   //  Delete content
-  export  async function deleteContent(contentId: string): Promise<any> {
+  export  async function deleteContent(contentId: string): Promise<unknown> {
     const token = localStorage.getItem("token") || "";
 
     const response = await axios.delete(`${BACKEND_URL}/content`, {
